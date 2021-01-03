@@ -1,0 +1,15 @@
+#############################
+# oXoo        X        ooXo #
+# oooo  ooo  ooo  ooo  oooo #
+# oooo     ooo ooo     oooo #
+#        XoooooooooX        #
+#      Xooo oXXXo oooX      #
+#  o ooooXooo   oooXoooo o  #
+# oXoo ooXoooooooooXoo ooXo #
+#  o ooooXooo   oooXoooo o  #
+#      Xooo oXXXo oooX      #
+#        XoooooooooX        #
+# oooo     ooo ooo     oooo #
+# oooo  ooo  ooo  ooo  oooo #
+# oXoo        X        ooXo #
+#############################
