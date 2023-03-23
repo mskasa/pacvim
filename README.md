@@ -6,9 +6,9 @@ PacVim is a game that teaches you vim commands.
 ### How to build(Mac OS)
 ```
 # mac
-$ go build main.go
+$ go build -o bin/mac/pacvim ./main.go
 # win
-$ GOOS=windows GOARCH=amd64 go build -o windows-amd64/pacvim.exe ./main.go
+$ GOOS=windows GOARCH=amd64 go build -o bin/win/pacvim.exe ./main.go
 ```
 
 ### How to run
