@@ -15,10 +15,18 @@ var static embed.FS
 var level = flag.Int("level", 1, "e.g. -level 2")
 
 func main() {
-	var err error
-	// termbox初期化
-	initTermbox()
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
+	if err != nil {
+		panic(err)
+	}
+
 	defer termbox.Close()
+
 	// スタート画面表示
 	switchScene("files/scene/start.txt")
 	// コマンドライン引数でレベルを設定
@@ -27,28 +35,23 @@ func main() {
 
 	for {
 		err = stage()
-		if HasStageWon() {
-			// ステージクリア
+		if err != nil {
+			panic(err)
+		}
+		switch GameState {
+		case StageWin:
 			switchScene("files/scene/youwin.txt")
-		} else if HasStageLost() {
-			// ステージ失敗
+		case StageLose:
 			switchScene("files/scene/youlose.txt")
 		}
-		if IsFinished() || err != nil {
-			// 終了判定およびエラー判定
+		if IsFinished() {
 			break
 		}
 	}
-	if err != nil {
-		// エラー発生の場合
-		log.Fatal(err)
-	} else {
-		if HasGameCleared() {
-			// ゲームクリア
-			switchScene("files/scene/congrats.txt")
-		}
-		switchScene("files/scene/goodbye.txt")
+	if GameState == GameClear {
+		switchScene("files/scene/congrats.txt")
 	}
+	switchScene("files/scene/goodbye.txt")
 }
 
 func stage() error {
@@ -127,27 +130,17 @@ func hogenew(fileName string) (*Buffer, *Window) {
 
 	return b, w
 }
-func initTermbox() {
-	err := termbox.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 // 待機状態
 func standBy() {
 	for {
 		ev := termbox.PollEvent()
 		if ev.Key == termbox.KeyEnter {
-			Start()
+			GameState = Continuing
 			break
 		}
 		if ev.Ch == 'q' {
-			Quit()
+			GameState = GameOver
 			break
 		}
 	}

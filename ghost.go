@@ -22,7 +22,7 @@ type Ghost struct {
 func Control(ch chan bool, p *Player, gList []*Ghost) {
 	var wg sync.WaitGroup
 
-	for IsContinuing() {
+	for GameState == Continuing {
 		// ゲームが継続している限り
 		wg.Add(len(gList))
 		// ゴーストを並行に行動させる
@@ -122,7 +122,7 @@ func (g *Ghost) action(wg *sync.WaitGroup, p *Player) {
 
 	if g.hasCaptured(p) {
 		// ゴーストがプレイヤーを捕まえた場合
-		Lose()
+		GameState = StageLose
 	}
 }
 

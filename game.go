@@ -7,19 +7,19 @@ import (
 )
 
 const (
-	gameStatePose int = iota
-	gameStateContinuing
-	gameStateGameClear
-	gameStateGameOver
-	gameStateStageWin
-	gameStateStageLose
+	Pose int = iota
+	Continuing
+	GameClear
+	GameOver
+	StageWin
+	StageLose
 
 	maxLevel      = 10
 	maxNumOfGhost = 4
 )
 
 var (
-	gameState       = 0
+	GameState       = 0
 	targetScore     = 0
 	score           = 0
 	hogeLevel       = 1
@@ -29,63 +29,32 @@ var (
 	gameSpeed       time.Duration
 )
 
-// ゲーム状態の制御
-func Start() {
-	gameState = gameStateContinuing
-}
-func Quit() {
-	gameState = gameStateGameOver
-}
-func win() {
-	gameState = gameStateStageWin
-}
-func Lose() {
-	gameState = gameStateStageLose
-}
-
-// ゲーム状態の判定
-func IsContinuing() bool {
-	return gameState == gameStateContinuing
-}
-func HasStageWon() bool {
-	return gameState == gameStateStageWin
-}
-func HasStageLost() bool {
-	return gameState == gameStateStageLose
-}
-func HasGameCleared() bool {
-	return gameState == gameStateGameClear
-}
-
 // ゲームの終了判定（true:ゲーム終了）
 func IsFinished() bool {
 	// ステージ終了判定
-	if HasStageWon() {
+	switch GameState {
+	case StageWin:
 		// ステージクリアの場合、ゲームレベルを上げる
 		hogeLevel++
 		if hogeLevel == maxLevel {
 			// レベルが最大レベルに達した場合、ゲームクリア
-			gameState = gameStateGameClear
+			GameState = GameClear
 		}
-	} else if HasStageLost() {
+	case StageLose:
 		// ステージ失敗の場合、残機を減らす
 		life--
 		if life < 0 {
-			// 残機が無くなった場合、ゲームオーバー
-			gameState = gameStateGameOver
+			return true
 		}
-	}
-	if gameState == gameStateGameClear || gameState == gameStateGameOver {
-		// ゲームクリア or ゲームオーバーの場合、ゲーム終了
+	case GameClear, GameOver:
 		return true
 	}
-	// ゲーム継続
 	return false
 }
 
 // スコアを初期化する
 func Reset() {
-	gameState = gameStatePose
+	GameState = Pose
 	score = 0
 	targetScore = 0
 }
@@ -109,7 +78,7 @@ func AddScore() {
 	score++
 	if score == targetScore {
 		// 目標スコアに達した場合、ステージクリア
-		win()
+		GameState = StageWin
 	}
 }
 
