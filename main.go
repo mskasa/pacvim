@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"embed"
 	"flag"
 	"log"
 	"time"
@@ -11,12 +13,11 @@ import (
 	"pacvim/player"
 	"pacvim/window"
 
-	_ "pacvim/statik"
-
 	termbox "github.com/nsf/termbox-go"
-	"github.com/rakyll/statik/fs"
 )
 
+//go:embed files
+var static embed.FS
 var level = flag.Int("level", 1, "e.g. -level 2")
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 	initTermbox()
 	defer termbox.Close()
 	// スタート画面表示
-	switchScene("/scene/start.txt")
+	switchScene("files/scene/start.txt")
 	// コマンドライン引数でレベルを設定
 	flag.Parse()
 	game.SetLevel(*level)
@@ -34,10 +35,10 @@ func main() {
 		err = stage()
 		if game.HasStageWon() {
 			// ステージクリア
-			switchScene("/scene/youwin.txt")
+			switchScene("files/scene/youwin.txt")
 		} else if game.HasStageLost() {
 			// ステージ失敗
-			switchScene("/scene/youlose.txt")
+			switchScene("files/scene/youlose.txt")
 		}
 		if game.IsFinished() || err != nil {
 			// 終了判定およびエラー判定
@@ -50,15 +51,15 @@ func main() {
 	} else {
 		if game.HasGameCleared() {
 			// ゲームクリア
-			switchScene("/scene/congrats.txt")
+			switchScene("files/scene/congrats.txt")
 		}
-		switchScene("/scene/goodbye.txt")
+		switchScene("files/scene/goodbye.txt")
 	}
 }
 
 func stage() error {
 	// ステージマップ読み込み
-	fileName := "/stage/map" + game.GetLevel() + ".txt"
+	fileName := "files/stage/map" + game.GetLevel() + ".txt"
 	b, w := new(fileName)
 	err := w.ShowWithLineNum(b)
 	if err != nil {
@@ -118,23 +119,14 @@ func switchScene(fileName string) {
 
 // 前処理
 func new(fileName string) (*buffer.Buffer, *window.Window) {
-	statikFS, err := fs.New()
-	if err != nil {
-		panic(err)
-	}
-
-	file, err := statikFS.Open(fileName)
+	f, err := static.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
 
 	// バッファ初期化
 	b := buffer.New()
-	// file, err := os.Open(fileName)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	b.ReadFileToBuf(file)
+	b.ReadFileToBuf(bytes.NewReader(f))
 
 	// ウィンドウ初期化
 	w := window.New(b)

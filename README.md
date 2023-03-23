@@ -64,11 +64,7 @@ $ go run main.go -level 5
 ![dollar](https://user-images.githubusercontent.com/61332083/103471203-ba531a00-4dc0-11eb-9533-2d6be6e8b962.gif)
 
 ### How to play with your own map
-1. Replace map file (./files/stage/)
-2. Execute 'statik'
-```
-$ statik -src=files
-```
+Replace map file (./files/stage/)
 
 ## License
 MIT
