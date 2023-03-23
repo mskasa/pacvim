@@ -1,10 +1,8 @@
-package buffer
+package main
 
 import (
 	"bufio"
 	"io"
-
-	game "pacvim/game"
 
 	termbox "github.com/nsf/termbox-go"
 )
@@ -32,7 +30,7 @@ var (
 	LastTargetY  int
 )
 
-func New() *Buffer {
+func CreateBuffer() *Buffer {
 	b := new(Buffer)
 	return b
 }
@@ -76,7 +74,7 @@ func (b *Buffer) CheckAllChar() {
 					firstFlg = false
 				}
 				LastTargetY = y
-				game.AddTargetScore()
+				AddTargetScore()
 			}
 			b.convertWallChar(x, y)
 			colorThePoison(x, y)
@@ -111,7 +109,7 @@ func colorThePoison(x, y int) {
 // スコアの表示
 func (b *Buffer) DisplayScore() {
 	textHeight := b.NumOfLines()
-	score := []rune("Score:" + game.GetScore() + "/" + game.GetTargetScore())
+	score := []rune("Score:" + GetScore() + "/" + GetTargetScore())
 	for x, r := range score {
 		termbox.SetCell(x, textHeight, r, termbox.ColorRed, termbox.ColorBlack)
 	}
@@ -120,8 +118,8 @@ func (b *Buffer) DisplayScore() {
 // 補足情報の表示
 func (b *Buffer) DisplayNote() {
 	textMap := map[int]string{
-		0: "Level:" + game.GetLevel(),
-		1: "Life:" + game.GetLife(),
+		0: "Level:" + GetLevel(),
+		1: "Life:" + GetLife(),
 		2: "PRESS ENTER TO PLAY!",
 		3: "q TO EXIT!"}
 	textHeight := b.NumOfLines() + 1

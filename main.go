@@ -7,12 +7,6 @@ import (
 	"log"
 	"time"
 
-	"pacvim/buffer"
-	"pacvim/game"
-	"pacvim/ghost"
-	"pacvim/player"
-	"pacvim/window"
-
 	termbox "github.com/nsf/termbox-go"
 )
 
@@ -29,18 +23,18 @@ func main() {
 	switchScene("files/scene/start.txt")
 	// コマンドライン引数でレベルを設定
 	flag.Parse()
-	game.SetLevel(*level)
+	SetLevel(*level)
 
 	for {
 		err = stage()
-		if game.HasStageWon() {
+		if HasStageWon() {
 			// ステージクリア
 			switchScene("files/scene/youwin.txt")
-		} else if game.HasStageLost() {
+		} else if HasStageLost() {
 			// ステージ失敗
 			switchScene("files/scene/youlose.txt")
 		}
-		if game.IsFinished() || err != nil {
+		if IsFinished() || err != nil {
 			// 終了判定およびエラー判定
 			break
 		}
@@ -49,7 +43,7 @@ func main() {
 		// エラー発生の場合
 		log.Fatal(err)
 	} else {
-		if game.HasGameCleared() {
+		if HasGameCleared() {
 			// ゲームクリア
 			switchScene("files/scene/congrats.txt")
 		}
@@ -59,28 +53,28 @@ func main() {
 
 func stage() error {
 	// ステージマップ読み込み
-	fileName := "files/stage/map" + game.GetLevel() + ".txt"
-	b, w := new(fileName)
+	fileName := "files/stage/map" + GetLevel() + ".txt"
+	b, w := hogenew(fileName)
 	err := w.ShowWithLineNum(b)
 	if err != nil {
 		return err
 	}
 
 	// ゲーム情報の初期化
-	game.Reset()
+	Reset()
 	// マップを整形
 	b.CheckAllChar()
 
 	// プレイヤー初期化
-	p := player.Initialize(b)
+	p := Initialize(b)
 
 	// ゲーム情報の表示
 	b.DisplayScore()
 	b.DisplayNote()
 
 	// ゴーストを作成
-	var gList []*ghost.Ghost
-	gList, err = ghost.Spawn(b)
+	var gList []*Ghost
+	gList, err = Spawn(b)
 	if err != nil {
 		return err
 	}
@@ -96,7 +90,7 @@ func stage() error {
 
 	// ゴーストゴルーチン開始
 	ch2 := make(chan bool)
-	go ghost.Control(ch2, p, gList)
+	go Control(ch2, p, gList)
 
 	// プレイヤーとゴーストの同期を取る
 	<-ch1
@@ -108,7 +102,7 @@ func stage() error {
 // 画面の切り替え
 func switchScene(fileName string) {
 	termbox.HideCursor()
-	b, w := new(fileName)
+	b, w := hogenew(fileName)
 	err := w.Show(b)
 	if err != nil {
 		log.Fatal(err)
@@ -118,18 +112,18 @@ func switchScene(fileName string) {
 }
 
 // 前処理
-func new(fileName string) (*buffer.Buffer, *window.Window) {
+func hogenew(fileName string) (*Buffer, *Window) {
 	f, err := static.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
 
 	// バッファ初期化
-	b := buffer.New()
+	b := CreateBuffer()
 	b.ReadFileToBuf(bytes.NewReader(f))
 
 	// ウィンドウ初期化
-	w := window.New(b)
+	w := CreateWindow(b)
 
 	return b, w
 }
@@ -149,11 +143,11 @@ func standBy() {
 	for {
 		ev := termbox.PollEvent()
 		if ev.Key == termbox.KeyEnter {
-			game.Start()
+			Start()
 			break
 		}
 		if ev.Ch == 'q' {
-			game.Quit()
+			Quit()
 			break
 		}
 	}

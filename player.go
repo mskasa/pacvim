@@ -1,11 +1,6 @@
-package player
+package main
 
 import (
-	"pacvim/buffer"
-	"pacvim/window"
-
-	game "pacvim/game"
-
 	termbox "github.com/nsf/termbox-go"
 )
 
@@ -15,17 +10,17 @@ type Player struct {
 }
 
 // プレイヤー初期化
-func Initialize(b *buffer.Buffer) *Player {
+func Initialize(b *Buffer) *Player {
 	p := new(Player)
 	p.initPosition(b)
 	return p
 }
-func (p *Player) initPosition(b *buffer.Buffer) {
+func (p *Player) initPosition(b *Buffer) {
 	// マップ中央座標をセット
 	p.Y = b.NumOfLines()/2 - 1
 	p.X = len(b.GetTextOnLine(p.Y)) / 2
 	for {
-		if buffer.IsSpace(p.X, p.Y) || buffer.IsTarget(p.X, p.Y) {
+		if IsSpace(p.X, p.Y) || IsTarget(p.X, p.Y) {
 			// スペースかターゲットの場合は確定
 			p.moveOneSquare(0, 0)
 			termbox.SetCursor(p.X, p.Y)
@@ -37,25 +32,25 @@ func (p *Player) initPosition(b *buffer.Buffer) {
 }
 
 // プレイヤーの制御
-func (p *Player) Control(ch chan bool, b *buffer.Buffer, w *window.Window) {
-	for game.IsContinuing() {
+func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
+	for IsContinuing() {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			if game.IsFirstInput_g() {
+			if IsFirstInput_g() {
 				// 「g」が入力済みの場合
 				if ev.Ch == 'g' {
 					// 最初の行の行頭の単語の先頭にワープ
 					p.warpWord(warpBeginningFirstWordFirstLine, b)
 				}
 				// 入力情報の初期化
-				game.InitInputNum()
-				game.InitInput_g()
+				InitInputNum()
+				InitInput_g()
 			} else if ev.Ch == 'g' {
 				// 「g」入力済みに
-				game.FirstInput_g()
-			} else if s, ok := game.IsInputNum(ev.Ch); ok {
+				FirstInput_g()
+			} else if s, ok := IsInputNum(ev.Ch); ok {
 				// 数字が入力された場合
-				game.SetInputNum(s)
+				SetInputNum(s)
 			} else {
 				switch ev.Ch {
 				// 上に移動
@@ -93,10 +88,10 @@ func (p *Player) Control(ch chan bool, b *buffer.Buffer, w *window.Window) {
 					p.warpWord(warpBeginningFirstWordLastLine, b)
 				// ゲームをやめる
 				case 'q':
-					game.Quit()
+					Quit()
 				}
 				// 入力数値の初期化
-				game.InitInputNum()
+				InitInputNum()
 			}
 		}
 		termbox.SetCursor(p.X, p.Y)
@@ -108,8 +103,8 @@ func (p *Player) Control(ch chan bool, b *buffer.Buffer, w *window.Window) {
 
 // 移動（十字）
 func (p *Player) moveCross(xDirection, yDirection int) {
-	if game.GetInputNum() != 0 {
-		for i := 0; i < game.GetInputNum(); i++ {
+	if GetInputNum() != 0 {
+		for i := 0; i < GetInputNum(); i++ {
 			if !p.moveOneSquare(xDirection, yDirection) {
 				break
 			}
@@ -123,7 +118,7 @@ func (p *Player) moveCross(xDirection, yDirection int) {
 func (p *Player) moveOneSquare(xDirection, yDirection int) bool {
 	x := p.X + xDirection
 	y := p.Y + yDirection
-	if !buffer.IsWall(x, y) {
+	if !IsWall(x, y) {
 		p.X = x
 		p.Y = y
 	} else {
@@ -135,8 +130,8 @@ func (p *Player) moveOneSquare(xDirection, yDirection int) bool {
 
 // 移動（単語単位）
 func (p *Player) moveWordByWord(fn func(*Player) bool) {
-	if game.GetInputNum() != 0 {
-		for i := 0; i < game.GetInputNum(); i++ {
+	if GetInputNum() != 0 {
+		for i := 0; i < GetInputNum(); i++ {
 			if !fn(p) {
 				break
 			}
@@ -150,14 +145,14 @@ func (p *Player) moveWordByWord(fn func(*Player) bool) {
 func moveBeginningNextWord(p *Player) bool {
 	spaceFlg := false
 	for {
-		if buffer.IsSpace(p.X, p.Y) {
+		if IsSpace(p.X, p.Y) {
 			spaceFlg = true
 		}
 		if !p.moveOneSquare(1, 0) {
 			return false
 		}
 		if spaceFlg {
-			if buffer.IsTarget(p.X, p.Y) {
+			if IsTarget(p.X, p.Y) {
 				return true
 			}
 		}
@@ -171,15 +166,15 @@ func (p *Player) warpLine(fn func(*Player)) {
 }
 
 // ワープ（単語の先頭）
-func (p *Player) warpWord(fn func(*Player, *buffer.Buffer), b *buffer.Buffer) {
+func (p *Player) warpWord(fn func(*Player, *Buffer), b *Buffer) {
 	fn(p, b)
 	p.checkActionResult()
 }
 
 // 移動結果の判定
 func (p *Player) checkActionResult() {
-	if buffer.IsGhost(p.X, p.Y) || buffer.IsPoison(p.X, p.Y) {
-		game.Lose()
+	if IsGhost(p.X, p.Y) || IsPoison(p.X, p.Y) {
+		Lose()
 	} else {
 		p.turnGreen()
 	}
@@ -187,12 +182,12 @@ func (p *Player) checkActionResult() {
 
 // b:現在の単語もしくは前の単語の先頭に移動
 func moveBeginningPrevWord(p *Player) bool {
-	for buffer.IsSpace(p.X-1, p.Y) {
+	for IsSpace(p.X-1, p.Y) {
 		if !p.moveOneSquare(-1, 0) {
 			break
 		}
 	}
-	for !buffer.IsSpace(p.X-1, p.Y) {
+	for !IsSpace(p.X-1, p.Y) {
 		if !p.moveOneSquare(-1, 0) {
 			return false
 		}
@@ -202,12 +197,12 @@ func moveBeginningPrevWord(p *Player) bool {
 
 // e:単語の最後の文字に移動
 func moveLastWord(p *Player) bool {
-	for buffer.IsSpace(p.X+1, p.Y) {
+	for IsSpace(p.X+1, p.Y) {
 		if !p.moveOneSquare(1, 0) {
 			break
 		}
 	}
-	for !buffer.IsSpace(p.X+1, p.Y) {
+	for !IsSpace(p.X+1, p.Y) {
 		if !p.moveOneSquare(1, 0) {
 			return false
 		}
@@ -219,14 +214,14 @@ func moveLastWord(p *Player) bool {
 func warpBeginningLine(p *Player) {
 	p.X = 0
 	for {
-		if !buffer.IsWall(p.X, p.Y) {
+		if !IsWall(p.X, p.Y) {
 			p.X++
 		} else {
 			break
 		}
 	}
 	for {
-		if buffer.IsWall(p.X, p.Y) {
+		if IsWall(p.X, p.Y) {
 			p.X++
 		} else {
 			break
@@ -238,14 +233,14 @@ func warpBeginningLine(p *Player) {
 func warpEndLine(p *Player) {
 	p.X, _ = termbox.Size()
 	for {
-		if !buffer.IsWall(p.X, p.Y) {
+		if !IsWall(p.X, p.Y) {
 			p.X--
 		} else {
 			break
 		}
 	}
 	for {
-		if buffer.IsWall(p.X, p.Y) {
+		if IsWall(p.X, p.Y) {
 			p.X--
 		} else {
 			break
@@ -254,7 +249,7 @@ func warpEndLine(p *Player) {
 }
 
 // ^:行頭の単語の先頭にワープ
-func warpBeginningWord(p *Player, b *buffer.Buffer) {
+func warpBeginningWord(p *Player, b *Buffer) {
 	warpBeginningLine(p)
 	width := len(b.GetTextOnLine(p.Y)) + b.Offset
 	x := p.X
@@ -262,7 +257,7 @@ func warpBeginningWord(p *Player, b *buffer.Buffer) {
 		if x > width {
 			return
 		}
-		if buffer.IsTarget(x, p.Y) {
+		if IsTarget(x, p.Y) {
 			p.X = x
 			break
 		}
@@ -271,25 +266,25 @@ func warpBeginningWord(p *Player, b *buffer.Buffer) {
 }
 
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func warpBeginningFirstWordFirstLine(p *Player, b *buffer.Buffer) {
-	if game.GetInputNum() == 0 {
-		p.Y = buffer.FirstTargetY
-	} else if game.GetInputNum() > buffer.LastTargetY {
-		p.Y = buffer.LastTargetY
+func warpBeginningFirstWordFirstLine(p *Player, b *Buffer) {
+	if GetInputNum() == 0 {
+		p.Y = FirstTargetY
+	} else if GetInputNum() > LastTargetY {
+		p.Y = LastTargetY
 	} else {
-		p.Y = game.GetInputNum() - 1
+		p.Y = GetInputNum() - 1
 	}
 	warpBeginningWord(p, b)
 }
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func warpBeginningFirstWordLastLine(p *Player, b *buffer.Buffer) {
-	if game.GetInputNum() == 0 || game.GetInputNum() > buffer.LastTargetY {
-		p.Y = buffer.LastTargetY
-	} else if game.GetInputNum() <= buffer.FirstTargetY {
-		p.Y = buffer.FirstTargetY
+func warpBeginningFirstWordLastLine(p *Player, b *Buffer) {
+	if GetInputNum() == 0 || GetInputNum() > LastTargetY {
+		p.Y = LastTargetY
+	} else if GetInputNum() <= FirstTargetY {
+		p.Y = FirstTargetY
 	} else {
-		p.Y = game.GetInputNum() - 1
+		p.Y = GetInputNum() - 1
 	}
 	warpBeginningWord(p, b)
 }
@@ -298,8 +293,8 @@ func warpBeginningFirstWordLastLine(p *Player, b *buffer.Buffer) {
 func (p *Player) turnGreen() {
 	winWidth, _ := termbox.Size()
 	cell := termbox.CellBuffer()[(winWidth*p.Y)+p.X]
-	if rune(cell.Ch) == buffer.ChTarget && cell.Fg == termbox.ColorWhite {
+	if rune(cell.Ch) == ChTarget && cell.Fg == termbox.ColorWhite {
 		termbox.SetCell(p.X, p.Y, rune(cell.Ch), termbox.ColorGreen, termbox.ColorBlack)
-		game.AddScore()
+		AddScore()
 	}
 }

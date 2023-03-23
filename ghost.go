@@ -1,4 +1,4 @@
-package ghost
+package main
 
 import (
 	"errors"
@@ -6,11 +6,6 @@ import (
 	"math/rand"
 	"sync"
 	"time"
-
-	"pacvim/buffer"
-	"pacvim/player"
-
-	game "pacvim/game"
 
 	termbox "github.com/nsf/termbox-go"
 )
@@ -24,10 +19,10 @@ type Ghost struct {
 }
 
 // ゴーストの制御
-func Control(ch chan bool, p *player.Player, gList []*Ghost) {
+func Control(ch chan bool, p *Player, gList []*Ghost) {
 	var wg sync.WaitGroup
 
-	for game.IsContinuing() {
+	for IsContinuing() {
 		// ゲームが継続している限り
 		wg.Add(len(gList))
 		// ゴーストを並行に行動させる
@@ -39,20 +34,20 @@ func Control(ch chan bool, p *player.Player, gList []*Ghost) {
 		// ゴーストを表示
 		termbox.Flush()
 		// ゴーストの行動間隔
-		time.Sleep(game.GetGameSpeed())
+		time.Sleep(GetGameSpeed())
 	}
 	ch <- true
 }
 
 // ゴーストを生み出す
-func Spawn(b *buffer.Buffer) ([]*Ghost, error) {
+func Spawn(b *Buffer) ([]*Ghost, error) {
 	var err error
 	var gList []*Ghost
 	// 一体目：第二象限 二体目：第四象限 三体目：第一象限 四体目：第三象限
 	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
 
 	// ゲームレベルに応じて最大4体のゴーストを生み出す
-	for i := 0; i < game.GetNumOfGhost(); i++ {
+	for i := 0; i < GetNumOfGhost(); i++ {
 		g := new(Ghost)
 		g.tactics = i/2 + 1
 
@@ -67,7 +62,7 @@ func Spawn(b *buffer.Buffer) ([]*Ghost, error) {
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
 			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 			// 仮決定した座標がドットであれば確定
-			if buffer.IsTarget(gX, gY) && g.move(gX, gY) {
+			if IsTarget(gX, gY) && g.move(gX, gY) {
 				gList = append(gList, g)
 				break
 			}
@@ -92,7 +87,7 @@ func random(min, max int) int {
 }
 
 // ゴーストを行動させる
-func (g *Ghost) action(wg *sync.WaitGroup, p *player.Player) {
+func (g *Ghost) action(wg *sync.WaitGroup, p *Player) {
 	defer wg.Done()
 
 	var (
@@ -127,13 +122,13 @@ func (g *Ghost) action(wg *sync.WaitGroup, p *player.Player) {
 
 	if g.hasCaptured(p) {
 		// ゴーストがプレイヤーを捕まえた場合
-		game.Lose()
+		Lose()
 	}
 }
 
 // プレイヤー追跡タイプ
-func eval(p *player.Player, x, y int) float64 {
-	if buffer.IsWall(x, y) || buffer.IsGhost(x, y) {
+func eval(p *Player, x, y int) float64 {
+	if IsWall(x, y) || IsGhost(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
 		return 1000
 	}
@@ -142,8 +137,8 @@ func eval(p *player.Player, x, y int) float64 {
 }
 
 // 待ち伏せ徘徊タイプ
-func eval2(p *player.Player, x, y int) float64 {
-	if buffer.IsWall(x, y) || buffer.IsGhost(x, y) {
+func eval2(p *Player, x, y int) float64 {
+	if IsWall(x, y) || IsGhost(x, y) {
 		return 30
 	}
 	if !isThereTargetsAround(x, y) {
@@ -156,7 +151,7 @@ func isThereTargetsAround(x, y int) bool {
 	l := y + 2
 	for i := lowerLimitZero(x); i <= k; i++ {
 		for j := lowerLimitZero(y); j <= l; j++ {
-			if buffer.IsTarget(i, j) && buffer.IsColorWhite(i, j) {
+			if IsTarget(i, j) && IsColorWhite(i, j) {
 				return true
 			}
 		}
@@ -173,7 +168,7 @@ func lowerLimitZero(i int) int {
 
 // ゴーストを移動させる
 func (g *Ghost) move(x, y int) bool {
-	if !buffer.IsWall(x, y) || !buffer.IsGhost(x, y) {
+	if !IsWall(x, y) || !IsGhost(x, y) {
 		// 移動先が壁もしくはゴーストでなければ
 		winWidth, _ := termbox.Size()
 		// 移動元のセルに元の文字をセット
@@ -185,14 +180,14 @@ func (g *Ghost) move(x, y int) bool {
 		g.underRune = rune(cell.Ch)
 		g.color = cell.Fg
 		// 移動先のセルにゴーストをセット
-		termbox.SetCell(x, y, rune(buffer.ChGhost), termbox.ColorRed, termbox.ColorBlack)
+		termbox.SetCell(x, y, rune(ChGhost), termbox.ColorRed, termbox.ColorBlack)
 		return true
 	}
 	return false
 }
 
-//ゴーストがプレイヤーを捕まえたかどうかの判定
-func (g *Ghost) hasCaptured(p *player.Player) bool {
+// ゴーストがプレイヤーを捕まえたかどうかの判定
+func (g *Ghost) hasCaptured(p *Player) bool {
 	if g.x == (p.X) && g.y == p.Y {
 		// プレイヤーカーソルとゴーストの座標が一致した場合
 		return true

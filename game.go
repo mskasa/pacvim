@@ -1,4 +1,4 @@
-package game
+package main
 
 import (
 	"math"
@@ -22,7 +22,7 @@ var (
 	gameState       = 0
 	targetScore     = 0
 	score           = 0
-	level           = 1
+	hogeLevel       = 1
 	life            = 3
 	inputNum        = 0
 	gHasBeenEntered = false
@@ -62,8 +62,8 @@ func IsFinished() bool {
 	// ステージ終了判定
 	if HasStageWon() {
 		// ステージクリアの場合、ゲームレベルを上げる
-		level++
-		if level == maxLevel {
+		hogeLevel++
+		if hogeLevel == maxLevel {
 			// レベルが最大レベルに達した場合、ゲームクリア
 			gameState = gameStateGameClear
 		}
@@ -92,7 +92,7 @@ func Reset() {
 
 // ゲームレベルから決定したゴーストの数を返却する
 func GetNumOfGhost() int {
-	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
+	numOfGhost := int(math.Ceil(float64(hogeLevel)/3.0)) + 1
 	if numOfGhost > maxNumOfGhost {
 		numOfGhost = maxNumOfGhost
 	}
@@ -125,7 +125,7 @@ func GetTargetScore() string {
 
 // ゲームレベルを取得する
 func GetLevel() string {
-	return strconv.Itoa(level)
+	return strconv.Itoa(hogeLevel)
 }
 
 // 残機を取得する
@@ -140,8 +140,8 @@ func GetGameSpeed() time.Duration {
 
 // ゲームレベルを設定する
 func SetLevel(l int) {
-	level = l
-	gameSpeed = time.Duration(1000-(level-1)*100/2) * time.Millisecond
+	hogeLevel = l
+	gameSpeed = time.Duration(1000-(hogeLevel-1)*100/2) * time.Millisecond
 }
 
 // 入力値が数字かどうか判定する

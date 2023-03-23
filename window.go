@@ -1,31 +1,29 @@
-package window
+package main
 
 import (
 	"strconv"
-
-	"pacvim/buffer"
 
 	termbox "github.com/nsf/termbox-go"
 )
 
 type Window struct {
-	lines []*buffer.Line
+	lines []*Line
 }
 
-func New(b *buffer.Buffer) *Window {
+func CreateWindow(b *Buffer) *Window {
 	w := new(Window)
 	w.copyBufToWindow(b)
 	return w
 }
 
-func (w *Window) copyBufToWindow(b *buffer.Buffer) {
-	w.lines = []*buffer.Line{}
+func (w *Window) copyBufToWindow(b *Buffer) {
+	w.lines = []*Line{}
 	winWidth, winHeight := termbox.Size()
 	for i := 0; i < len(b.Lines); i++ {
 		if i > winHeight-1 {
 			break
 		}
-		w.lines = append(w.lines, &buffer.Line{})
+		w.lines = append(w.lines, &Line{})
 		for j := 0; j < len(b.Lines[i].Text); j++ {
 			if j+getDigit(b.NumOfLines())+1 > winWidth-1 {
 				break
@@ -36,7 +34,7 @@ func (w *Window) copyBufToWindow(b *buffer.Buffer) {
 }
 
 // 行番号なしで表示
-func (w *Window) Show(b *buffer.Buffer) error {
+func (w *Window) Show(b *Buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	for y, l := range w.lines {
 		for x, r := range l.Text {
@@ -47,7 +45,7 @@ func (w *Window) Show(b *buffer.Buffer) error {
 }
 
 // 行番号ありで表示
-func (w *Window) ShowWithLineNum(b *buffer.Buffer) error {
+func (w *Window) ShowWithLineNum(b *Buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	offset := getDigit(b.NumOfLines())
 	b.Offset = offset + 1
