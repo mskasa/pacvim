@@ -82,7 +82,7 @@ func decidePlotPosition(min, max int) int {
 	return random(min, max)
 }
 func random(min, max int) int {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	return rand.Intn(max-min+1) + min
 }
 
