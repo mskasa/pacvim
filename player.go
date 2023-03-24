@@ -48,7 +48,7 @@ func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
 				isLowercaseGEntered = false
 			} else if ev.Ch == 'g' {
 				isLowercaseGEntered = true
-			} else if s, ok := IsInputNum(ev.Ch); ok {
+			} else if s, ok := isInputNum(ev.Ch); ok {
 				if inputNum != 0 {
 					// 既に入力数値がある場合は文字列として数値を足算する（例：1+2=12）
 					s = strconv.Itoa(inputNum) + s
@@ -102,6 +102,15 @@ func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
 		termbox.Flush()
 	}
 	ch <- true
+}
+func isInputNum(r rune) (string, bool) {
+	s := string(r)
+	i, err := strconv.Atoi(s)
+	if err == nil && (i != 0 || (i == 0 && inputNum != 0)) {
+		// 数値変換成功かつ入力数値が「0」でない場合
+		return s, true
+	}
+	return s, false
 }
 
 // 移動（十字）

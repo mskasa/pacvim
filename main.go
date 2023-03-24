@@ -76,7 +76,9 @@ func stage() error {
 	}
 
 	// ゲーム情報の初期化
-	Reset()
+	gameState = pose
+	score = 0
+	targetScore = 0
 	// マップを整形
 	b.CheckAllChar()
 
