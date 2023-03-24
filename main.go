@@ -12,7 +12,7 @@ import (
 
 //go:embed files
 var static embed.FS
-var level = flag.Int("level", 1, "e.g. -level 2")
+var initiaLevel = flag.Int("initiaLevel", 1, "e.g. -initiaLevel 2")
 
 func main() {
 	err := termbox.Init()
@@ -31,25 +31,31 @@ func main() {
 	switchScene("files/scene/start.txt")
 	// コマンドライン引数でレベルを設定
 	flag.Parse()
-	SetLevel(*level)
+	SetLevel(*initiaLevel)
 
+game:
 	for {
 		err = stage()
 		if err != nil {
 			panic(err)
 		}
-		switch GameState {
+		switch gameState {
 		case StageWin:
 			switchScene("files/scene/youwin.txt")
+			hogeLevel++
+			if hogeLevel == maxLevel {
+				switchScene("files/scene/congrats.txt")
+				break game
+			}
 		case StageLose:
 			switchScene("files/scene/youlose.txt")
+			life--
+			if life < 0 {
+				break game
+			}
+		case Quit:
+			break game
 		}
-		if IsFinished() {
-			break
-		}
-	}
-	if GameState == GameClear {
-		switchScene("files/scene/congrats.txt")
 	}
 	switchScene("files/scene/goodbye.txt")
 }
@@ -72,7 +78,7 @@ func stage() error {
 	p := Initialize(b)
 
 	// ゲーム情報の表示
-	b.DisplayScore()
+	b.Displayscore()
 	b.DisplayNote()
 
 	// ゴーストを作成
@@ -136,11 +142,11 @@ func standBy() {
 	for {
 		ev := termbox.PollEvent()
 		if ev.Key == termbox.KeyEnter {
-			GameState = Continuing
+			gameState = Continuing
 			break
 		}
 		if ev.Ch == 'q' {
-			GameState = GameOver
+			gameState = Quit
 			break
 		}
 	}

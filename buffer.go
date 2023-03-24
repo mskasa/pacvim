@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"io"
+	"strconv"
 
 	termbox "github.com/nsf/termbox-go"
 )
@@ -58,7 +59,7 @@ func (b *Buffer) ReadFileToBuf(reader io.Reader) {
 /*
  * マップ読み込み時の処理
  * 1. viコマンド処理に必要な値を保持（FirstTargetY、LastTargetY）
- * 2. 目標スコアの設定：game.AddTargetScore()
+ * 2. 目標スコアの設定：game.AddtargetScore()
  * 3. 壁の文字変換：convertWallChar
  * 4. 毒に色を付与：colorThePoison
  */
@@ -74,7 +75,7 @@ func (b *Buffer) CheckAllChar() {
 					firstFlg = false
 				}
 				LastTargetY = y
-				AddTargetScore()
+				targetScore++
 			}
 			b.convertWallChar(x, y)
 			colorThePoison(x, y)
@@ -107,9 +108,9 @@ func colorThePoison(x, y int) {
 }
 
 // スコアの表示
-func (b *Buffer) DisplayScore() {
+func (b *Buffer) Displayscore() {
 	textHeight := b.NumOfLines()
-	score := []rune("Score:" + GetScore() + "/" + GetTargetScore())
+	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range score {
 		termbox.SetCell(x, textHeight, r, termbox.ColorRed, termbox.ColorBlack)
 	}
@@ -119,7 +120,7 @@ func (b *Buffer) DisplayScore() {
 func (b *Buffer) DisplayNote() {
 	textMap := map[int]string{
 		0: "Level:" + GetLevel(),
-		1: "Life:" + GetLife(),
+		1: "Life:" + strconv.Itoa(life),
 		2: "PRESS ENTER TO PLAY!",
 		3: "q TO EXIT!"}
 	textHeight := b.NumOfLines() + 1

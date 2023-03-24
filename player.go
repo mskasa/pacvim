@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	termbox "github.com/nsf/termbox-go"
 )
 
@@ -33,24 +35,25 @@ func (p *Player) initPosition(b *Buffer) {
 
 // プレイヤーの制御
 func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
-	for GameState == Continuing {
+	for gameState == Continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			if IsFirstInput_g() {
-				// 「g」が入力済みの場合
+			if isLowercaseGEntered {
 				if ev.Ch == 'g' {
 					// 最初の行の行頭の単語の先頭にワープ
 					p.warpWord(warpBeginningFirstWordFirstLine, b)
 				}
 				// 入力情報の初期化
-				InitInputNum()
-				InitInput_g()
+				inputNum = 0
+				isLowercaseGEntered = false
 			} else if ev.Ch == 'g' {
-				// 「g」入力済みに
-				FirstInput_g()
+				isLowercaseGEntered = true
 			} else if s, ok := IsInputNum(ev.Ch); ok {
-				// 数字が入力された場合
-				SetInputNum(s)
+				if inputNum != 0 {
+					// 既に入力数値がある場合は文字列として数値を足算する（例：1+2=12）
+					s = strconv.Itoa(inputNum) + s
+				}
+				inputNum, _ = strconv.Atoi(s)
 			} else {
 				switch ev.Ch {
 				// 上に移動
@@ -88,14 +91,14 @@ func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
 					p.warpWord(warpBeginningFirstWordLastLine, b)
 				// ゲームをやめる
 				case 'q':
-					GameState = GameOver
+					gameState = Quit
 				}
 				// 入力数値の初期化
-				InitInputNum()
+				inputNum = 0
 			}
 		}
 		termbox.SetCursor(p.X, p.Y)
-		b.DisplayScore()
+		b.Displayscore()
 		termbox.Flush()
 	}
 	ch <- true
@@ -103,8 +106,8 @@ func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
 
 // 移動（十字）
 func (p *Player) moveCross(xDirection, yDirection int) {
-	if GetInputNum() != 0 {
-		for i := 0; i < GetInputNum(); i++ {
+	if inputNum != 0 {
+		for i := 0; i < inputNum; i++ {
 			if !p.moveOneSquare(xDirection, yDirection) {
 				break
 			}
@@ -130,8 +133,8 @@ func (p *Player) moveOneSquare(xDirection, yDirection int) bool {
 
 // 移動（単語単位）
 func (p *Player) moveWordByWord(fn func(*Player) bool) {
-	if GetInputNum() != 0 {
-		for i := 0; i < GetInputNum(); i++ {
+	if inputNum != 0 {
+		for i := 0; i < inputNum; i++ {
 			if !fn(p) {
 				break
 			}
@@ -174,7 +177,7 @@ func (p *Player) warpWord(fn func(*Player, *Buffer), b *Buffer) {
 // 移動結果の判定
 func (p *Player) checkActionResult() {
 	if IsGhost(p.X, p.Y) || IsPoison(p.X, p.Y) {
-		GameState = StageLose
+		gameState = StageLose
 	} else {
 		p.turnGreen()
 	}
@@ -267,24 +270,24 @@ func warpBeginningWord(p *Player, b *Buffer) {
 
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func warpBeginningFirstWordFirstLine(p *Player, b *Buffer) {
-	if GetInputNum() == 0 {
+	if inputNum == 0 {
 		p.Y = FirstTargetY
-	} else if GetInputNum() > LastTargetY {
+	} else if inputNum > LastTargetY {
 		p.Y = LastTargetY
 	} else {
-		p.Y = GetInputNum() - 1
+		p.Y = inputNum - 1
 	}
 	warpBeginningWord(p, b)
 }
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func warpBeginningFirstWordLastLine(p *Player, b *Buffer) {
-	if GetInputNum() == 0 || GetInputNum() > LastTargetY {
+	if inputNum == 0 || inputNum > LastTargetY {
 		p.Y = LastTargetY
-	} else if GetInputNum() <= FirstTargetY {
+	} else if inputNum <= FirstTargetY {
 		p.Y = FirstTargetY
 	} else {
-		p.Y = GetInputNum() - 1
+		p.Y = inputNum - 1
 	}
 	warpBeginningWord(p, b)
 }
@@ -295,6 +298,10 @@ func (p *Player) turnGreen() {
 	cell := termbox.CellBuffer()[(winWidth*p.Y)+p.X]
 	if rune(cell.Ch) == ChTarget && cell.Fg == termbox.ColorWhite {
 		termbox.SetCell(p.X, p.Y, rune(cell.Ch), termbox.ColorGreen, termbox.ColorBlack)
-		AddScore()
+		score++
+		if score == targetScore {
+			// 目標スコアに達した場合、ステージクリア
+			gameState = StageWin
+		}
 	}
 }

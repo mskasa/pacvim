@@ -19,7 +19,7 @@ Double click to run binary
 or execute 'go run'
 ```
 $ go run main.go
-$ go run main.go -level 5
+$ go run main.go -initiaLevel 5
 ```
 
 ## How to play
