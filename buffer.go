@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"io"
+	"math"
 	"strconv"
 
 	termbox "github.com/nsf/termbox-go"
@@ -120,7 +121,7 @@ func (b *Buffer) Displayscore() {
 // 補足情報の表示
 func (b *Buffer) DisplayNote() {
 	textMap := map[int]string{
-		0: "Level:" + GetLevel(),
+		0: "Level:" + strconv.Itoa(level),
 		1: "Life:" + strconv.Itoa(life),
 		2: "PRESS ENTER TO PLAY!",
 		3: "q TO EXIT!"}
@@ -168,7 +169,7 @@ func (b *Buffer) protGhost() ([]*Ghost, error) {
 	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
 
 	// ゲームレベルに応じて最大4体のゴーストを生み出す
-	for i := 0; i < GetNumOfGhost(); i++ {
+	for i := 0; i < getNumOfGhost(); i++ {
 		g := new(Ghost)
 		g.tactics = i/2 + 1
 
@@ -201,4 +202,11 @@ func decidePlotPosition(min, max int) int {
 		return random(0, min)
 	}
 	return random(min, max)
+}
+func getNumOfGhost() int {
+	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
+	if numOfGhost > maxNumOfGhost {
+		numOfGhost = maxNumOfGhost
+	}
+	return numOfGhost
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"strconv"
 	"time"
 )
@@ -21,11 +20,11 @@ var (
 	gameState           = 0
 	targetScore         = 0
 	score               = 0
-	hogeLevel           = 1
+	level               = 1
 	life                = 3
 	inputNum            = 0
 	isLowercaseGEntered = false
-	gameSpeed           time.Duration
+	gameSpeed           = time.Second
 )
 
 // スコアを初期化する
@@ -33,26 +32,6 @@ func Reset() {
 	gameState = pose
 	score = 0
 	targetScore = 0
-}
-
-// ゲームレベルから決定したゴーストの数を返却する
-func GetNumOfGhost() int {
-	numOfGhost := int(math.Ceil(float64(hogeLevel)/3.0)) + 1
-	if numOfGhost > maxNumOfGhost {
-		numOfGhost = maxNumOfGhost
-	}
-	return numOfGhost
-}
-
-// ゲームレベルを取得する
-func GetLevel() string {
-	return strconv.Itoa(hogeLevel)
-}
-
-// ゲームレベルを設定する
-func SetLevel(l int) {
-	hogeLevel = l
-	gameSpeed = time.Duration(1000-(hogeLevel-1)*100/2) * time.Millisecond
 }
 
 // 入力値が数字かどうか判定する

@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"embed"
-	"flag"
+	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
@@ -12,9 +14,12 @@ import (
 
 //go:embed files
 var static embed.FS
-var initiaLevel = flag.Int("initiaLevel", 1, "e.g. -initiaLevel 2")
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	err := termbox.Init()
 	if err != nil {
 		panic(err)
@@ -29,21 +34,20 @@ func main() {
 
 	// スタート画面表示
 	switchScene("files/scene/start.txt")
-	// コマンドライン引数でレベルを設定
-	flag.Parse()
-	SetLevel(*initiaLevel)
 
 game:
 	for {
 		err = stage()
 		if err != nil {
-			panic(err)
+			fmt.Fprintf(os.Stderr, "%s: %v\n", os.Args[0], err)
+			return 1
 		}
 		switch gameState {
 		case win:
 			switchScene("files/scene/youwin.txt")
-			hogeLevel++
-			if hogeLevel == maxLevel {
+			level++
+			gameSpeed = time.Duration(1000-(level-1)*50) * time.Millisecond
+			if level == maxLevel {
 				switchScene("files/scene/congrats.txt")
 				break game
 			}
@@ -58,11 +62,13 @@ game:
 		}
 	}
 	switchScene("files/scene/goodbye.txt")
+
+	return 0
 }
 
 func stage() error {
 	// ステージマップ読み込み
-	fileName := "files/stage/map" + GetLevel() + ".txt"
+	fileName := "files/stage/map" + strconv.Itoa(level) + ".txt"
 	b, w := hogenew(fileName)
 	err := w.ShowWithLineNum(b)
 	if err != nil {
