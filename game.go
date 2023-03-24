@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	Pose int = iota
-	Continuing
-	Quit
-	StageWin
-	StageLose
+	pose int = iota
+	continuing
+	quit
+	win
+	lose
 
 	maxLevel      = 10
 	maxNumOfGhost = 4
@@ -30,7 +30,7 @@ var (
 
 // スコアを初期化する
 func Reset() {
-	gameState = Pose
+	gameState = pose
 	score = 0
 	targetScore = 0
 }

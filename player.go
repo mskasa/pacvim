@@ -35,7 +35,7 @@ func (p *Player) initPosition(b *Buffer) {
 
 // プレイヤーの制御
 func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
-	for gameState == Continuing {
+	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
 			if isLowercaseGEntered {
@@ -91,7 +91,7 @@ func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
 					p.warpWord(warpBeginningFirstWordLastLine, b)
 				// ゲームをやめる
 				case 'q':
-					gameState = Quit
+					gameState = quit
 				}
 				// 入力数値の初期化
 				inputNum = 0
@@ -177,7 +177,7 @@ func (p *Player) warpWord(fn func(*Player, *Buffer), b *Buffer) {
 // 移動結果の判定
 func (p *Player) checkActionResult() {
 	if IsGhost(p.X, p.Y) || IsPoison(p.X, p.Y) {
-		gameState = StageLose
+		gameState = lose
 	} else {
 		p.turnGreen()
 	}
@@ -301,7 +301,7 @@ func (p *Player) turnGreen() {
 		score++
 		if score == targetScore {
 			// 目標スコアに達した場合、ステージクリア
-			gameState = StageWin
+			gameState = win
 		}
 	}
 }

@@ -40,20 +40,20 @@ game:
 			panic(err)
 		}
 		switch gameState {
-		case StageWin:
+		case win:
 			switchScene("files/scene/youwin.txt")
 			hogeLevel++
 			if hogeLevel == maxLevel {
 				switchScene("files/scene/congrats.txt")
 				break game
 			}
-		case StageLose:
+		case lose:
 			switchScene("files/scene/youlose.txt")
 			life--
 			if life < 0 {
 				break game
 			}
-		case Quit:
+		case quit:
 			break game
 		}
 	}
@@ -142,11 +142,11 @@ func standBy() {
 	for {
 		ev := termbox.PollEvent()
 		if ev.Key == termbox.KeyEnter {
-			gameState = Continuing
+			gameState = continuing
 			break
 		}
 		if ev.Ch == 'q' {
-			gameState = Quit
+			gameState = quit
 			break
 		}
 	}
