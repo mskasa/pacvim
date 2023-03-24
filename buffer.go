@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"strconv"
 
@@ -157,4 +158,47 @@ func IsColorWhite(x, y int) bool {
 	winWidth, _ := termbox.Size()
 	cell := termbox.CellBuffer()[(winWidth*y)+x]
 	return cell.Fg == termbox.ColorWhite
+}
+
+// ゴーストを生み出す
+func (b *Buffer) protGhost() ([]*Ghost, error) {
+	var err error
+	var gList []*Ghost
+	// 一体目：第二象限 二体目：第四象限 三体目：第一象限 四体目：第三象限
+	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
+
+	// ゲームレベルに応じて最大4体のゴーストを生み出す
+	for i := 0; i < GetNumOfGhost(); i++ {
+		g := new(Ghost)
+		g.tactics = i/2 + 1
+
+		j := 0
+		for {
+			// y座標の仮決定（可読性のため敢えて本ブロック内に一連の処理をまとめて記述）
+			yPlotRangeUpperLimit := b.NumOfLines() - 1
+			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
+			gY := decidePlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
+			// x座標の仮決定
+			xPlotRangeUpperLimit := len(b.GetTextOnLine(gY)) + b.Offset
+			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
+			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
+			// 仮決定した座標がドットであれば確定
+			if IsTarget(gX, gY) && g.move(gX, gY) {
+				gList = append(gList, g)
+				break
+			}
+			// 10000回回してプロット位置が決まらなかった場合
+			j++
+			if j == 10000 {
+				return nil, errors.New("ゴーストプロット範囲にターゲットが十分あるマップで遊んでください")
+			}
+		}
+	}
+	return gList, err
+}
+func decidePlotPosition(min, max int) int {
+	if max-min > min {
+		return random(0, min)
+	}
+	return random(min, max)
 }

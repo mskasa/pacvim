@@ -83,7 +83,7 @@ func stage() error {
 
 	// ゴーストを作成
 	var gList []*Ghost
-	gList, err = Spawn(b)
+	gList, err = b.protGhost()
 	if err != nil {
 		return err
 	}
