@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -230,4 +231,9 @@ func dirwalk(dir string) ([]string, error) {
 	}
 
 	return paths, err
+}
+
+func random(min, max int) int {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	return rand.Intn(max-min+1) + min
 }

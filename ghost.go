@@ -2,7 +2,6 @@ package main
 
 import (
 	"math"
-	"math/rand"
 	"sync"
 	"time"
 
@@ -36,12 +35,6 @@ func Control(ch chan bool, p *player, gList []*Ghost) {
 		time.Sleep(gameSpeed)
 	}
 	ch <- true
-}
-
-// TODO
-func random(min, max int) int {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-	return rand.Intn(max-min+1) + min
 }
 
 // ゴーストを行動させる
