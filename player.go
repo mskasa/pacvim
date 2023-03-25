@@ -305,7 +305,7 @@ func warpBeginningFirstWordLastLine(p *Player, b *Buffer) {
 func (p *Player) turnGreen() {
 	winWidth, _ := termbox.Size()
 	cell := termbox.CellBuffer()[(winWidth*p.Y)+p.X]
-	if rune(cell.Ch) == ChTarget && cell.Fg == termbox.ColorWhite {
+	if rune(cell.Ch) == chTarget && cell.Fg == termbox.ColorWhite {
 		termbox.SetCell(p.X, p.Y, rune(cell.Ch), termbox.ColorGreen, termbox.ColorBlack)
 		score++
 		if score == targetScore {

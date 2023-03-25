@@ -20,6 +20,13 @@ const (
 
 	maxNumOfGhost = 4
 
+	chGhost  = 'G'
+	chTarget = 'o'
+	chPoison = 'X'
+	chWall1  = '#'
+	chWall2  = '|'
+	chWall3  = '-'
+
 	sceneDir = "files/scene/"
 )
 

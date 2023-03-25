@@ -19,15 +19,6 @@ type Line struct {
 	Text []rune
 }
 
-const (
-	ChGhost  = 'G'
-	ChTarget = 'o'
-	ChPoison = 'X'
-	ChWall1  = '#'
-	ChWall2  = '|'
-	ChWall3  = '-'
-)
-
 var (
 	FirstTargetY int
 	LastTargetY  int
@@ -105,7 +96,7 @@ func (b *Buffer) convertWallChar(x, y int) {
 // 毒に色を付与
 func colorThePoison(x, y int) {
 	if IsPoison(x, y) {
-		termbox.SetCell(x, y, ChPoison, termbox.ColorMagenta, termbox.ColorBlack)
+		termbox.SetCell(x, y, chPoison, termbox.ColorMagenta, termbox.ColorBlack)
 	}
 }
 
@@ -136,19 +127,19 @@ func (b *Buffer) DisplayNote() {
 
 // 文字判定
 func IsWall(x, y int) bool {
-	return IsChar(x, y, ChWall1) || IsChar(x, y, ChWall2) || IsChar(x, y, ChWall3)
+	return IsChar(x, y, chWall1) || IsChar(x, y, chWall2) || IsChar(x, y, chWall3)
 }
 func IsGhost(x, y int) bool {
-	return IsChar(x, y, ChGhost)
+	return IsChar(x, y, chGhost)
 }
 func IsSpace(x, y int) bool {
 	return IsChar(x, y, ' ')
 }
 func IsTarget(x, y int) bool {
-	return IsChar(x, y, ChTarget)
+	return IsChar(x, y, chTarget)
 }
 func IsPoison(x, y int) bool {
-	return IsChar(x, y, ChPoison)
+	return IsChar(x, y, chPoison)
 }
 func IsChar(x, y int, r rune) bool {
 	winWidth, _ := termbox.Size()

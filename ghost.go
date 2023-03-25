@@ -138,7 +138,7 @@ func (g *Ghost) move(x, y int) bool {
 		g.underRune = rune(cell.Ch)
 		g.color = cell.Fg
 		// 移動先のセルにゴーストをセット
-		termbox.SetCell(x, y, rune(ChGhost), termbox.ColorRed, termbox.ColorBlack)
+		termbox.SetCell(x, y, rune(chGhost), termbox.ColorRed, termbox.ColorBlack)
 		return true
 	}
 	return false
