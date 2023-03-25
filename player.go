@@ -11,12 +11,6 @@ type Player struct {
 	Y int
 }
 
-// プレイヤー初期化
-func Initialize(b *buffer) *Player {
-	p := new(Player)
-	p.initPosition(b)
-	return p
-}
 func (p *Player) initPosition(b *buffer) {
 	// マップ中央座標をセット
 	p.Y = b.getTotalNumOfLines()/2 - 1
