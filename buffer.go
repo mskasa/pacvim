@@ -19,7 +19,7 @@ type line struct {
 	text []rune
 }
 
-func (b *buffer) readFile(reader io.Reader) {
+func (b *buffer) save(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		l := new(line)
@@ -60,7 +60,7 @@ func (b *buffer) displayStageMap() {
 	}
 }
 
-func (b *buffer) displayscore() {
+func (b *buffer) displayScore() {
 	textHeight := len(b.lines)
 	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range score {

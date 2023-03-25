@@ -136,7 +136,7 @@ func stage(stageMap string) error {
 	p.initPosition(b)
 
 	// ゲーム情報の表示
-	b.displayscore()
+	b.displayScore()
 	b.displayNote()
 
 	// ゴーストを作成
@@ -199,7 +199,7 @@ func initScene(fileName string) (*buffer, *window, error) {
 
 	// バッファ初期化
 	b := new(buffer)
-	b.readFile(bytes.NewReader(f))
+	b.save(bytes.NewReader(f))
 
 	// ウィンドウ初期化
 	w := new(window)
