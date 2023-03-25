@@ -27,20 +27,6 @@ func (w *window) copyBufToWindow(b *buffer) {
 	}
 }
 
-// 行番号なしで表示
-func (w *window) Show(b *buffer) error {
-	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
-	if err != nil {
-		return err
-	}
-	for y, l := range w.lines {
-		for x, r := range l.text {
-			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
-		}
-	}
-	return err
-}
-
 // 行番号ありで表示
 func (w *window) ShowWithLineNum(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
