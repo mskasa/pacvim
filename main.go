@@ -121,7 +121,7 @@ func stage(stageMap string) error {
 	if err != nil {
 		return err
 	}
-	if err = w.ShowWithLineNum(b); err != nil {
+	if err = w.show(b); err != nil {
 		return err
 	}
 
@@ -168,7 +168,6 @@ func stage(stageMap string) error {
 	return err
 }
 
-// 画面の切り替え
 func switchScene(fileName string) error {
 	termbox.HideCursor()
 	_, w, err := initScene(fileName)
@@ -190,25 +189,21 @@ func switchScene(fileName string) error {
 	return err
 }
 
-// 前処理
 func initScene(fileName string) (*buffer, *window, error) {
 	f, err := static.ReadFile(fileName)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// バッファ初期化
 	b := new(buffer)
 	b.save(bytes.NewReader(f))
 
-	// ウィンドウ初期化
 	w := new(window)
-	w.copyBufToWindow(b)
+	w.copy(b)
 
 	return b, w, err
 }
 
-// 待機状態
 func standBy() {
 	for {
 		ev := termbox.PollEvent()
