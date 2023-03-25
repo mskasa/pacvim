@@ -22,7 +22,7 @@ func (p *Player) initPosition(b *Buffer) {
 	p.Y = b.NumOfLines()/2 - 1
 	p.X = len(b.GetTextOnLine(p.Y)) / 2
 	for {
-		if IsSpace(p.X, p.Y) || IsTarget(p.X, p.Y) {
+		if isCharSpace(p.X, p.Y) || isCharTarget(p.X, p.Y) {
 			// スペースかターゲットの場合は確定
 			p.moveOneSquare(0, 0)
 			termbox.SetCursor(p.X, p.Y)
@@ -130,7 +130,7 @@ func (p *Player) moveCross(xDirection, yDirection int) {
 func (p *Player) moveOneSquare(xDirection, yDirection int) bool {
 	x := p.X + xDirection
 	y := p.Y + yDirection
-	if !IsWall(x, y) {
+	if !isCharWall(x, y) {
 		p.X = x
 		p.Y = y
 	} else {
@@ -157,14 +157,14 @@ func (p *Player) moveWordByWord(fn func(*Player) bool) {
 func moveBeginningNextWord(p *Player) bool {
 	spaceFlg := false
 	for {
-		if IsSpace(p.X, p.Y) {
+		if isCharSpace(p.X, p.Y) {
 			spaceFlg = true
 		}
 		if !p.moveOneSquare(1, 0) {
 			return false
 		}
 		if spaceFlg {
-			if IsTarget(p.X, p.Y) {
+			if isCharTarget(p.X, p.Y) {
 				return true
 			}
 		}
@@ -185,7 +185,7 @@ func (p *Player) warpWord(fn func(*Player, *Buffer), b *Buffer) {
 
 // 移動結果の判定
 func (p *Player) checkActionResult() {
-	if IsGhost(p.X, p.Y) || IsPoison(p.X, p.Y) {
+	if isCharGhost(p.X, p.Y) || isCharPoison(p.X, p.Y) {
 		gameState = lose
 	} else {
 		p.turnGreen()
@@ -194,12 +194,12 @@ func (p *Player) checkActionResult() {
 
 // b:現在の単語もしくは前の単語の先頭に移動
 func moveBeginningPrevWord(p *Player) bool {
-	for IsSpace(p.X-1, p.Y) {
+	for isCharSpace(p.X-1, p.Y) {
 		if !p.moveOneSquare(-1, 0) {
 			break
 		}
 	}
-	for !IsSpace(p.X-1, p.Y) {
+	for !isCharSpace(p.X-1, p.Y) {
 		if !p.moveOneSquare(-1, 0) {
 			return false
 		}
@@ -209,12 +209,12 @@ func moveBeginningPrevWord(p *Player) bool {
 
 // e:単語の最後の文字に移動
 func moveLastWord(p *Player) bool {
-	for IsSpace(p.X+1, p.Y) {
+	for isCharSpace(p.X+1, p.Y) {
 		if !p.moveOneSquare(1, 0) {
 			break
 		}
 	}
-	for !IsSpace(p.X+1, p.Y) {
+	for !isCharSpace(p.X+1, p.Y) {
 		if !p.moveOneSquare(1, 0) {
 			return false
 		}
@@ -226,14 +226,14 @@ func moveLastWord(p *Player) bool {
 func warpBeginningLine(p *Player) {
 	p.X = 0
 	for {
-		if !IsWall(p.X, p.Y) {
+		if !isCharWall(p.X, p.Y) {
 			p.X++
 		} else {
 			break
 		}
 	}
 	for {
-		if IsWall(p.X, p.Y) {
+		if isCharWall(p.X, p.Y) {
 			p.X++
 		} else {
 			break
@@ -245,14 +245,14 @@ func warpBeginningLine(p *Player) {
 func warpEndLine(p *Player) {
 	p.X, _ = termbox.Size()
 	for {
-		if !IsWall(p.X, p.Y) {
+		if !isCharWall(p.X, p.Y) {
 			p.X--
 		} else {
 			break
 		}
 	}
 	for {
-		if IsWall(p.X, p.Y) {
+		if isCharWall(p.X, p.Y) {
 			p.X--
 		} else {
 			break
@@ -269,7 +269,7 @@ func warpBeginningWord(p *Player, b *Buffer) {
 		if x > width {
 			return
 		}
-		if IsTarget(x, p.Y) {
+		if isCharTarget(x, p.Y) {
 			p.X = x
 			break
 		}

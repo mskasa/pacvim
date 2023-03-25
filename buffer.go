@@ -57,7 +57,7 @@ func (b *Buffer) CheckAllChar() {
 	textHeight := b.NumOfLines()
 	for y := 0; y < textHeight; y++ {
 		for x := b.Offset; x < winWidth; x++ {
-			if IsTarget(x, y) {
+			if isCharTarget(x, y) {
 				if firstFlg {
 					firstTargetY = y
 					firstFlg = false
@@ -73,15 +73,15 @@ func (b *Buffer) CheckAllChar() {
 
 // 壁を変換（# → | or -）
 func (b *Buffer) convertWallChar(x, y int) {
-	if IsWall(x, y) {
+	if isCharWall(x, y) {
 		r := '-'
 		if y == 0 || y == b.NumOfLines() {
 			r = '-'
-		} else if IsWall(x, y-1) && IsWall(x, y+1) {
+		} else if isCharWall(x, y-1) && isCharWall(x, y+1) {
 			r = '|'
-		} else if IsWall(x-1, y) || IsWall(x+1, y) {
+		} else if isCharWall(x-1, y) || isCharWall(x+1, y) {
 			r = '-'
-		} else if IsWall(x, y-1) || IsWall(x, y+1) {
+		} else if isCharWall(x, y-1) || isCharWall(x, y+1) {
 			r = '|'
 		}
 		termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
@@ -90,7 +90,7 @@ func (b *Buffer) convertWallChar(x, y int) {
 
 // 毒に色を付与
 func colorThePoison(x, y int) {
-	if IsPoison(x, y) {
+	if isCharPoison(x, y) {
 		termbox.SetCell(x, y, chPoison, termbox.ColorMagenta, termbox.ColorBlack)
 	}
 }
@@ -121,27 +121,27 @@ func (b *Buffer) DisplayNote() {
 }
 
 // 文字判定
-func IsWall(x, y int) bool {
-	return IsChar(x, y, chWall1) || IsChar(x, y, chWall2) || IsChar(x, y, chWall3)
+func isCharWall(x, y int) bool {
+	return isChar(x, y, chWall1) || isChar(x, y, chWall2) || isChar(x, y, chWall3)
 }
-func IsGhost(x, y int) bool {
-	return IsChar(x, y, chGhost)
+func isCharGhost(x, y int) bool {
+	return isChar(x, y, chGhost)
 }
-func IsSpace(x, y int) bool {
-	return IsChar(x, y, ' ')
+func isCharSpace(x, y int) bool {
+	return isChar(x, y, ' ')
 }
-func IsTarget(x, y int) bool {
-	return IsChar(x, y, chTarget)
+func isCharTarget(x, y int) bool {
+	return isChar(x, y, chTarget)
 }
-func IsPoison(x, y int) bool {
-	return IsChar(x, y, chPoison)
+func isCharPoison(x, y int) bool {
+	return isChar(x, y, chPoison)
 }
-func IsChar(x, y int, r rune) bool {
+func isChar(x, y int, r rune) bool {
 	winWidth, _ := termbox.Size()
 	cell := termbox.CellBuffer()[(winWidth*y)+x]
 	return r == cell.Ch
 }
-func IsColorWhite(x, y int) bool {
+func isColorWhite(x, y int) bool {
 	winWidth, _ := termbox.Size()
 	cell := termbox.CellBuffer()[(winWidth*y)+x]
 	return cell.Fg == termbox.ColorWhite
@@ -170,7 +170,7 @@ func (b *Buffer) protGhost() ([]*Ghost, error) {
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
 			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 			// 仮決定した座標がドットであれば確定
-			if IsTarget(gX, gY) && g.move(gX, gY) {
+			if isCharTarget(gX, gY) && g.move(gX, gY) {
 				gList = append(gList, g)
 				break
 			}

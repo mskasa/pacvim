@@ -86,7 +86,7 @@ func (g *Ghost) action(wg *sync.WaitGroup, p *Player) {
 
 // プレイヤー追跡タイプ
 func eval(p *Player, x, y int) float64 {
-	if IsWall(x, y) || IsGhost(x, y) {
+	if isCharWall(x, y) || isCharGhost(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
 		return 1000
 	}
@@ -96,7 +96,7 @@ func eval(p *Player, x, y int) float64 {
 
 // 待ち伏せ徘徊タイプ
 func eval2(p *Player, x, y int) float64 {
-	if IsWall(x, y) || IsGhost(x, y) {
+	if isCharWall(x, y) || isCharGhost(x, y) {
 		return 30
 	}
 	if !isThereTargetsAround(x, y) {
@@ -109,7 +109,7 @@ func isThereTargetsAround(x, y int) bool {
 	l := y + 2
 	for i := lowerLimitZero(x); i <= k; i++ {
 		for j := lowerLimitZero(y); j <= l; j++ {
-			if IsTarget(i, j) && IsColorWhite(i, j) {
+			if isCharTarget(i, j) && isColorWhite(i, j) {
 				return true
 			}
 		}
@@ -126,7 +126,7 @@ func lowerLimitZero(i int) int {
 
 // ゴーストを移動させる
 func (g *Ghost) move(x, y int) bool {
-	if !IsWall(x, y) || !IsGhost(x, y) {
+	if !isCharWall(x, y) || !isCharGhost(x, y) {
 		// 移動先が壁もしくはゴーストでなければ
 		winWidth, _ := termbox.Size()
 		// 移動元のセルに元の文字をセット
