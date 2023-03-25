@@ -50,8 +50,7 @@ func run() error {
 		return err
 	}
 
-	err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
-	if err != nil {
+	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
 		return err
 	}
 
