@@ -19,8 +19,8 @@ func Initialize(b *Buffer) *Player {
 }
 func (p *Player) initPosition(b *Buffer) {
 	// マップ中央座標をセット
-	p.Y = b.NumOfLines()/2 - 1
-	p.X = len(b.GetTextOnLine(p.Y)) / 2
+	p.Y = b.getTotalNumOfLines()/2 - 1
+	p.X = len(b.getTextOnLine(p.Y)) / 2
 	for {
 		if isCharSpace(p.X, p.Y) || isCharTarget(p.X, p.Y) {
 			// スペースかターゲットの場合は確定
@@ -263,7 +263,7 @@ func warpEndLine(p *Player) {
 // ^:行頭の単語の先頭にワープ
 func warpBeginningWord(p *Player, b *Buffer) {
 	warpBeginningLine(p)
-	width := len(b.GetTextOnLine(p.Y)) + b.Offset
+	width := len(b.getTextOnLine(p.Y)) + b.Offset
 	x := p.X
 	for {
 		if x > width {

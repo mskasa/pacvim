@@ -25,17 +25,17 @@ func CreateBuffer() *Buffer {
 }
 
 // 対象の行の文字列を取得
-func (b *Buffer) GetTextOnLine(y int) []rune {
+func (b *Buffer) getTextOnLine(y int) []rune {
 	return b.Lines[y].Text
 }
 
 // 行数の取得
-func (b *Buffer) NumOfLines() int {
+func (b *Buffer) getTotalNumOfLines() int {
 	return len(b.Lines)
 }
 
 // ファイルをバッファに読み込む
-func (b *Buffer) ReadFileToBuf(reader io.Reader) {
+func (b *Buffer) readFileToBuf(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		l := new(Line)
@@ -51,10 +51,10 @@ func (b *Buffer) ReadFileToBuf(reader io.Reader) {
  * 3. 壁の文字変換：convertWallChar
  * 4. 毒に色を付与：colorThePoison
  */
-func (b *Buffer) CheckAllChar() {
+func (b *Buffer) checkAllChar() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
-	textHeight := b.NumOfLines()
+	textHeight := b.getTotalNumOfLines()
 	for y := 0; y < textHeight; y++ {
 		for x := b.Offset; x < winWidth; x++ {
 			if isCharTarget(x, y) {
@@ -75,7 +75,7 @@ func (b *Buffer) CheckAllChar() {
 func (b *Buffer) convertWallChar(x, y int) {
 	if isCharWall(x, y) {
 		r := '-'
-		if y == 0 || y == b.NumOfLines() {
+		if y == 0 || y == b.getTotalNumOfLines() {
 			r = '-'
 		} else if isCharWall(x, y-1) && isCharWall(x, y+1) {
 			r = '|'
@@ -97,7 +97,7 @@ func colorThePoison(x, y int) {
 
 // スコアの表示
 func (b *Buffer) Displayscore() {
-	textHeight := b.NumOfLines()
+	textHeight := b.getTotalNumOfLines()
 	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range score {
 		termbox.SetCell(x, textHeight, r, termbox.ColorRed, termbox.ColorBlack)
@@ -111,7 +111,7 @@ func (b *Buffer) DisplayNote() {
 		1: "Life:" + strconv.Itoa(life),
 		2: "PRESS ENTER TO PLAY!",
 		3: "q TO EXIT!"}
-	textHeight := b.NumOfLines() + 1
+	textHeight := b.getTotalNumOfLines() + 1
 	for i := 0; i < len(textMap); i++ {
 		for x, r := range []rune(textMap[i]) {
 			termbox.SetCell(x, textHeight, r, termbox.ColorWhite, termbox.ColorBlack)
@@ -162,11 +162,11 @@ func (b *Buffer) protGhost() ([]*Ghost, error) {
 		j := 0
 		for {
 			// y座標の仮決定（可読性のため敢えて本ブロック内に一連の処理をまとめて記述）
-			yPlotRangeUpperLimit := b.NumOfLines() - 1
+			yPlotRangeUpperLimit := b.getTotalNumOfLines() - 1
 			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
 			gY := decidePlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
 			// x座標の仮決定
-			xPlotRangeUpperLimit := len(b.GetTextOnLine(gY)) + b.Offset
+			xPlotRangeUpperLimit := len(b.getTextOnLine(gY)) + b.Offset
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
 			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 			// 仮決定した座標がドットであれば確定

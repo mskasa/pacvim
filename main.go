@@ -130,7 +130,7 @@ func stage(stageMap string) error {
 	score = 0
 	targetScore = 0
 	// マップを整形
-	b.CheckAllChar()
+	b.checkAllChar()
 
 	// プレイヤー初期化
 	p := Initialize(b)
@@ -199,7 +199,7 @@ func initScene(fileName string) (*Buffer, *Window, error) {
 
 	// バッファ初期化
 	b := CreateBuffer()
-	b.ReadFileToBuf(bytes.NewReader(f))
+	b.readFileToBuf(bytes.NewReader(f))
 
 	// ウィンドウ初期化
 	w := CreateWindow(b)
