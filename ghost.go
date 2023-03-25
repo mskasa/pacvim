@@ -18,7 +18,7 @@ type Ghost struct {
 }
 
 // ゴーストの制御
-func Control(ch chan bool, p *Player, gList []*Ghost) {
+func Control(ch chan bool, p *player, gList []*Ghost) {
 	var wg sync.WaitGroup
 
 	for gameState == continuing {
@@ -45,7 +45,7 @@ func random(min, max int) int {
 }
 
 // ゴーストを行動させる
-func (g *Ghost) action(wg *sync.WaitGroup, p *Player) {
+func (g *Ghost) action(wg *sync.WaitGroup, p *player) {
 	defer wg.Done()
 
 	var (
@@ -85,17 +85,17 @@ func (g *Ghost) action(wg *sync.WaitGroup, p *Player) {
 }
 
 // プレイヤー追跡タイプ
-func eval(p *Player, x, y int) float64 {
+func eval(p *player, x, y int) float64 {
 	if isCharWall(x, y) || isCharGhost(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
 		return 1000
 	}
 	// X軸の距離とY軸の距離それぞれの二乗の和の平方根
-	return math.Sqrt(math.Pow(float64(p.Y-y), 2) + math.Pow(float64(p.X-x), 2))
+	return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 }
 
 // 待ち伏せ徘徊タイプ
-func eval2(p *Player, x, y int) float64 {
+func eval2(p *player, x, y int) float64 {
 	if isCharWall(x, y) || isCharGhost(x, y) {
 		return 30
 	}
@@ -145,8 +145,8 @@ func (g *Ghost) move(x, y int) bool {
 }
 
 // ゴーストがプレイヤーを捕まえたかどうかの判定
-func (g *Ghost) hasCaptured(p *Player) bool {
-	if g.x == (p.X) && g.y == p.Y {
+func (g *Ghost) hasCaptured(p *player) bool {
+	if g.x == (p.x) && g.y == p.y {
 		// プレイヤーカーソルとゴーストの座標が一致した場合
 		return true
 	}

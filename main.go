@@ -133,7 +133,7 @@ func stage(stageMap string) error {
 	b.checkAllChar()
 
 	// プレイヤー初期化
-	p := new(Player)
+	p := new(player)
 	p.initPosition(b)
 
 	// ゲーム情報の表示
