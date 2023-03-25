@@ -20,6 +20,8 @@ const (
 
 	maxLevel      = 10
 	maxNumOfGhost = 4
+
+	sceneDir = "files/scene/"
 )
 
 var (
@@ -56,7 +58,7 @@ func run() error {
 	defer termbox.Close()
 
 	// スタート画面表示
-	if err := switchScene("files/scene/start.txt"); err != nil {
+	if err := switchScene(sceneDir + "start.txt"); err != nil {
 		return err
 	}
 
@@ -67,20 +69,20 @@ game:
 		}
 		switch gameState {
 		case win:
-			if err := switchScene("files/scene/youwin.txt"); err != nil {
+			if err := switchScene(sceneDir + "youwin.txt"); err != nil {
 				return err
 			}
 			level++
 			gameSpeed = time.Duration(1000-(level-1)*50) * time.Millisecond
 			if level == maxLevel {
-				err = switchScene("files/scene/congrats.txt")
+				err = switchScene(sceneDir + "congrats.txt")
 				if err != nil {
 					return err
 				}
 				break game
 			}
 		case lose:
-			err = switchScene("files/scene/youlose.txt")
+			err = switchScene(sceneDir + "youlose.txt")
 			if err != nil {
 				return err
 			}
@@ -92,7 +94,7 @@ game:
 			break game
 		}
 	}
-	err = switchScene("files/scene/goodbye.txt")
+	err = switchScene(sceneDir + "goodbye.txt")
 	if err != nil {
 		return err
 	}
