@@ -19,11 +19,6 @@ type Line struct {
 	Text []rune
 }
 
-func createBuffer() *buffer {
-	b := new(buffer)
-	return b
-}
-
 // 対象の行の文字列を取得
 func (b *buffer) getNumOfCharsInTheLine(y int) int {
 	return len(b.Lines[y].Text)

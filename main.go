@@ -198,7 +198,7 @@ func initScene(fileName string) (*buffer, *Window, error) {
 	}
 
 	// バッファ初期化
-	b := createBuffer()
+	b := new(buffer)
 	b.readFileToBuf(bytes.NewReader(f))
 
 	// ウィンドウ初期化
