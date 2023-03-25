@@ -13,8 +13,8 @@ type player struct {
 
 func (p *player) initPosition(b *buffer) {
 	// マップ中央座標をセット
-	p.y = b.getTotalNumOfLines()/2 - 1
-	p.x = b.getNumOfCharsInTheLine(p.y) / 2
+	p.y = len(b.lines)/2 - 1
+	p.x = len(b.lines[p.y].text) / 2
 	for {
 		if isCharSpace(p.x, p.y) || isCharTarget(p.x, p.y) {
 			// スペースかターゲットの場合は確定
@@ -257,7 +257,7 @@ func warpEndLine(p *player) {
 // ^:行頭の単語の先頭にワープ
 func warpBeginningWord(p *player, b *buffer) {
 	warpBeginningLine(p)
-	width := b.getNumOfCharsInTheLine(p.y) + b.offset
+	width := len(b.lines[p.y].text) + b.offset
 	x := p.x
 	for {
 		if x > width {

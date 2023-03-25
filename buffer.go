@@ -19,16 +19,6 @@ type line struct {
 	text []rune
 }
 
-// 対象の行の文字列を取得
-func (b *buffer) getNumOfCharsInTheLine(y int) int {
-	return len(b.lines[y].text)
-}
-
-// 行数の取得
-func (b *buffer) getTotalNumOfLines() int {
-	return len(b.lines)
-}
-
 // ファイルを読み込む
 func (b *buffer) readFile(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
@@ -49,7 +39,7 @@ func (b *buffer) readFile(reader io.Reader) {
 func (b *buffer) checkAllChar() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
-	textHeight := b.getTotalNumOfLines()
+	textHeight := len(b.lines)
 	for y := 0; y < textHeight; y++ {
 		for x := b.offset; x < winWidth; x++ {
 			if isCharTarget(x, y) {
@@ -70,7 +60,7 @@ func (b *buffer) checkAllChar() {
 func (b *buffer) convertWallChar(x, y int) {
 	if isCharWall(x, y) {
 		r := '-'
-		if y == 0 || y == b.getTotalNumOfLines() {
+		if y == 0 || y == len(b.lines) {
 			r = '-'
 		} else if isCharWall(x, y-1) && isCharWall(x, y+1) {
 			r = '|'
@@ -92,7 +82,7 @@ func colorThePoison(x, y int) {
 
 // スコアの表示
 func (b *buffer) displayscore() {
-	textHeight := b.getTotalNumOfLines()
+	textHeight := len(b.lines)
 	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range score {
 		termbox.SetCell(x, textHeight, r, termbox.ColorRed, termbox.ColorBlack)
@@ -106,7 +96,7 @@ func (b *buffer) displayNote() {
 		1: "Life:" + strconv.Itoa(life),
 		2: "PRESS ENTER TO PLAY!",
 		3: "q TO EXIT!"}
-	textHeight := b.getTotalNumOfLines() + 1
+	textHeight := len(b.lines) + 1
 	for i := 0; i < len(textMap); i++ {
 		for x, r := range []rune(textMap[i]) {
 			termbox.SetCell(x, textHeight, r, termbox.ColorWhite, termbox.ColorBlack)
@@ -157,11 +147,11 @@ func (b *buffer) protGhost() ([]*Ghost, error) {
 		j := 0
 		for {
 			// y座標の仮決定（可読性のため敢えて本ブロック内に一連の処理をまとめて記述）
-			yPlotRangeUpperLimit := b.getTotalNumOfLines() - 1
+			yPlotRangeUpperLimit := len(b.lines) - 1
 			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
 			gY := decidePlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
 			// x座標の仮決定
-			xPlotRangeUpperLimit := b.getNumOfCharsInTheLine(gY) + b.offset
+			xPlotRangeUpperLimit := len(b.lines[gY].text) + b.offset
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
 			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 			// 仮決定した座標がドットであれば確定

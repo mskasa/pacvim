@@ -19,7 +19,7 @@ func (w *window) copyBufToWindow(b *buffer) {
 		}
 		w.lines = append(w.lines, &line{})
 		for j := 0; j < len(b.lines[i].text); j++ {
-			if j+getDigit(b.getTotalNumOfLines())+1 > winWidth-1 {
+			if j+getDigit(len(b.lines))+1 > winWidth-1 {
 				break
 			}
 			w.lines[i].text = append(w.lines[i].text, b.lines[i].text[j])
@@ -30,7 +30,7 @@ func (w *window) copyBufToWindow(b *buffer) {
 // 行番号ありで表示
 func (w *window) ShowWithLineNum(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
-	offset := getDigit(b.getTotalNumOfLines())
+	offset := getDigit(len(b.lines))
 	b.offset = offset + 1
 	for y, l := range w.lines {
 		linenums := makeLineNum(y+1, offset)
