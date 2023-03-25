@@ -141,7 +141,7 @@ func stage(stageMap string) error {
 
 	// ゴーストを作成
 	var gList []*Ghost
-	gList, err = b.protGhost()
+	gList, err = b.displayGhost()
 	if err != nil {
 		return err
 	}

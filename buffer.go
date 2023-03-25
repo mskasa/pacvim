@@ -83,35 +83,7 @@ func (b *buffer) displayNote() {
 	}
 }
 
-// 文字判定
-func isCharWall(x, y int) bool {
-	return isChar(x, y, chWall1) || isChar(x, y, chWall2) || isChar(x, y, chWall3)
-}
-func isCharGhost(x, y int) bool {
-	return isChar(x, y, chGhost)
-}
-func isCharSpace(x, y int) bool {
-	return isChar(x, y, ' ')
-}
-func isCharTarget(x, y int) bool {
-	return isChar(x, y, chTarget)
-}
-func isCharPoison(x, y int) bool {
-	return isChar(x, y, chPoison)
-}
-func isChar(x, y int, r rune) bool {
-	winWidth, _ := termbox.Size()
-	cell := termbox.CellBuffer()[(winWidth*y)+x]
-	return r == cell.Ch
-}
-func isColorWhite(x, y int) bool {
-	winWidth, _ := termbox.Size()
-	cell := termbox.CellBuffer()[(winWidth*y)+x]
-	return cell.Fg == termbox.ColorWhite
-}
-
-// ゴーストを生み出す
-func (b *buffer) protGhost() ([]*Ghost, error) {
+func (b *buffer) displayGhost() ([]*Ghost, error) {
 	var err error
 	var gList []*Ghost
 	// 一体目：第二象限 二体目：第四象限 三体目：第一象限 四体目：第三象限
@@ -158,4 +130,30 @@ func getNumOfGhost() int {
 		numOfGhost = maxNumOfGhost
 	}
 	return numOfGhost
+}
+
+func isCharWall(x, y int) bool {
+	return isChar(x, y, chWall1) || isChar(x, y, chWall2) || isChar(x, y, chWall3)
+}
+func isCharGhost(x, y int) bool {
+	return isChar(x, y, chGhost)
+}
+func isCharSpace(x, y int) bool {
+	return isChar(x, y, ' ')
+}
+func isCharTarget(x, y int) bool {
+	return isChar(x, y, chTarget)
+}
+func isCharPoison(x, y int) bool {
+	return isChar(x, y, chPoison)
+}
+func isChar(x, y int, r rune) bool {
+	winWidth, _ := termbox.Size()
+	cell := termbox.CellBuffer()[(winWidth*y)+x]
+	return r == cell.Ch
+}
+func isColorWhite(x, y int) bool {
+	winWidth, _ := termbox.Size()
+	cell := termbox.CellBuffer()[(winWidth*y)+x]
+	return cell.Fg == termbox.ColorWhite
 }
