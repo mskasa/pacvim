@@ -136,8 +136,8 @@ func stage(stageMap string) error {
 	p := Initialize(b)
 
 	// ゲーム情報の表示
-	b.Displayscore()
-	b.DisplayNote()
+	b.displayscore()
+	b.displayNote()
 
 	// ゴーストを作成
 	var gList []*Ghost
@@ -198,7 +198,7 @@ func initScene(fileName string) (*Buffer, *Window, error) {
 	}
 
 	// バッファ初期化
-	b := CreateBuffer()
+	b := createBuffer()
 	b.readFileToBuf(bytes.NewReader(f))
 
 	// ウィンドウ初期化

@@ -19,7 +19,7 @@ type Line struct {
 	Text []rune
 }
 
-func CreateBuffer() *Buffer {
+func createBuffer() *Buffer {
 	b := new(Buffer)
 	return b
 }
@@ -96,7 +96,7 @@ func colorThePoison(x, y int) {
 }
 
 // スコアの表示
-func (b *Buffer) Displayscore() {
+func (b *Buffer) displayscore() {
 	textHeight := b.getTotalNumOfLines()
 	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range score {
@@ -105,7 +105,7 @@ func (b *Buffer) Displayscore() {
 }
 
 // 補足情報の表示
-func (b *Buffer) DisplayNote() {
+func (b *Buffer) displayNote() {
 	textMap := map[int]string{
 		0: "Level:" + strconv.Itoa(level),
 		1: "Life:" + strconv.Itoa(life),
