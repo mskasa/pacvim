@@ -29,8 +29,8 @@ func (b *buffer) getTotalNumOfLines() int {
 	return len(b.lines)
 }
 
-// ファイルをバッファに読み込む
-func (b *buffer) readFileToBuf(reader io.Reader) {
+// ファイルを読み込む
+func (b *buffer) readFile(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		l := new(line)
