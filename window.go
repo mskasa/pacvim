@@ -10,13 +10,13 @@ type Window struct {
 	lines []*Line
 }
 
-func CreateWindow(b *Buffer) *Window {
+func CreateWindow(b *buffer) *Window {
 	w := new(Window)
 	w.copyBufToWindow(b)
 	return w
 }
 
-func (w *Window) copyBufToWindow(b *Buffer) {
+func (w *Window) copyBufToWindow(b *buffer) {
 	w.lines = []*Line{}
 	winWidth, winHeight := termbox.Size()
 	for i := 0; i < len(b.Lines); i++ {
@@ -34,7 +34,7 @@ func (w *Window) copyBufToWindow(b *Buffer) {
 }
 
 // 行番号なしで表示
-func (w *Window) Show(b *Buffer) error {
+func (w *Window) Show(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func (w *Window) Show(b *Buffer) error {
 }
 
 // 行番号ありで表示
-func (w *Window) ShowWithLineNum(b *Buffer) error {
+func (w *Window) ShowWithLineNum(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	offset := getDigit(b.getTotalNumOfLines())
 	b.Offset = offset + 1

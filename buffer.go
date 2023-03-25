@@ -10,7 +10,7 @@ import (
 	termbox "github.com/nsf/termbox-go"
 )
 
-type Buffer struct {
+type buffer struct {
 	Lines  []*Line
 	Offset int
 }
@@ -19,23 +19,23 @@ type Line struct {
 	Text []rune
 }
 
-func createBuffer() *Buffer {
-	b := new(Buffer)
+func createBuffer() *buffer {
+	b := new(buffer)
 	return b
 }
 
 // 対象の行の文字列を取得
-func (b *Buffer) getNumOfCharsInTheLine(y int) int {
+func (b *buffer) getNumOfCharsInTheLine(y int) int {
 	return len(b.Lines[y].Text)
 }
 
 // 行数の取得
-func (b *Buffer) getTotalNumOfLines() int {
+func (b *buffer) getTotalNumOfLines() int {
 	return len(b.Lines)
 }
 
 // ファイルをバッファに読み込む
-func (b *Buffer) readFileToBuf(reader io.Reader) {
+func (b *buffer) readFileToBuf(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		l := new(Line)
@@ -51,7 +51,7 @@ func (b *Buffer) readFileToBuf(reader io.Reader) {
  * 3. 壁の文字変換：convertWallChar
  * 4. 毒に色を付与：colorThePoison
  */
-func (b *Buffer) checkAllChar() {
+func (b *buffer) checkAllChar() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
 	textHeight := b.getTotalNumOfLines()
@@ -72,7 +72,7 @@ func (b *Buffer) checkAllChar() {
 }
 
 // 壁を変換（# → | or -）
-func (b *Buffer) convertWallChar(x, y int) {
+func (b *buffer) convertWallChar(x, y int) {
 	if isCharWall(x, y) {
 		r := '-'
 		if y == 0 || y == b.getTotalNumOfLines() {
@@ -96,7 +96,7 @@ func colorThePoison(x, y int) {
 }
 
 // スコアの表示
-func (b *Buffer) displayscore() {
+func (b *buffer) displayscore() {
 	textHeight := b.getTotalNumOfLines()
 	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range score {
@@ -105,7 +105,7 @@ func (b *Buffer) displayscore() {
 }
 
 // 補足情報の表示
-func (b *Buffer) displayNote() {
+func (b *buffer) displayNote() {
 	textMap := map[int]string{
 		0: "Level:" + strconv.Itoa(level),
 		1: "Life:" + strconv.Itoa(life),
@@ -148,7 +148,7 @@ func isColorWhite(x, y int) bool {
 }
 
 // ゴーストを生み出す
-func (b *Buffer) protGhost() ([]*Ghost, error) {
+func (b *buffer) protGhost() ([]*Ghost, error) {
 	var err error
 	var gList []*Ghost
 	// 一体目：第二象限 二体目：第四象限 三体目：第一象限 四体目：第三象限

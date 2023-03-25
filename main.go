@@ -191,7 +191,7 @@ func switchScene(fileName string) error {
 }
 
 // 前処理
-func initScene(fileName string) (*Buffer, *Window, error) {
+func initScene(fileName string) (*buffer, *Window, error) {
 	f, err := static.ReadFile(fileName)
 	if err != nil {
 		return nil, nil, err

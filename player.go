@@ -12,12 +12,12 @@ type Player struct {
 }
 
 // プレイヤー初期化
-func Initialize(b *Buffer) *Player {
+func Initialize(b *buffer) *Player {
 	p := new(Player)
 	p.initPosition(b)
 	return p
 }
-func (p *Player) initPosition(b *Buffer) {
+func (p *Player) initPosition(b *buffer) {
 	// マップ中央座標をセット
 	p.Y = b.getTotalNumOfLines()/2 - 1
 	p.X = b.getNumOfCharsInTheLine(p.Y) / 2
@@ -34,7 +34,7 @@ func (p *Player) initPosition(b *Buffer) {
 }
 
 // プレイヤーの制御
-func (p *Player) Control(ch chan bool, b *Buffer, w *Window) {
+func (p *Player) Control(ch chan bool, b *buffer, w *Window) {
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
@@ -178,7 +178,7 @@ func (p *Player) warpLine(fn func(*Player)) {
 }
 
 // ワープ（単語の先頭）
-func (p *Player) warpWord(fn func(*Player, *Buffer), b *Buffer) {
+func (p *Player) warpWord(fn func(*Player, *buffer), b *buffer) {
 	fn(p, b)
 	p.checkActionResult()
 }
@@ -261,7 +261,7 @@ func warpEndLine(p *Player) {
 }
 
 // ^:行頭の単語の先頭にワープ
-func warpBeginningWord(p *Player, b *Buffer) {
+func warpBeginningWord(p *Player, b *buffer) {
 	warpBeginningLine(p)
 	width := b.getNumOfCharsInTheLine(p.Y) + b.Offset
 	x := p.X
@@ -278,7 +278,7 @@ func warpBeginningWord(p *Player, b *Buffer) {
 }
 
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func warpBeginningFirstWordFirstLine(p *Player, b *Buffer) {
+func warpBeginningFirstWordFirstLine(p *Player, b *buffer) {
 	if inputNum == 0 {
 		p.Y = firstTargetY
 	} else if inputNum > lastTargetY {
@@ -290,7 +290,7 @@ func warpBeginningFirstWordFirstLine(p *Player, b *Buffer) {
 }
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func warpBeginningFirstWordLastLine(p *Player, b *Buffer) {
+func warpBeginningFirstWordLastLine(p *Player, b *buffer) {
 	if inputNum == 0 || inputNum > lastTargetY {
 		p.Y = lastTargetY
 	} else if inputNum <= firstTargetY {
