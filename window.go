@@ -10,12 +10,6 @@ type Window struct {
 	lines []*line
 }
 
-func CreateWindow(b *buffer) *Window {
-	w := new(Window)
-	w.copyBufToWindow(b)
-	return w
-}
-
 func (w *Window) copyBufToWindow(b *buffer) {
 	w.lines = []*line{}
 	winWidth, winHeight := termbox.Size()

@@ -203,7 +203,8 @@ func initScene(fileName string) (*buffer, *Window, error) {
 	b.readFileToBuf(bytes.NewReader(f))
 
 	// ウィンドウ初期化
-	w := CreateWindow(b)
+	w := new(Window)
+	w.copyBufToWindow(b)
 
 	return b, w, err
 }
