@@ -179,7 +179,7 @@ func switchScene(fileName string) error {
 		return err
 	}
 	for y, l := range w.lines {
-		for x, r := range l.Text {
+		for x, r := range l.text {
 			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
 		}
 	}

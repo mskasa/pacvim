@@ -11,31 +11,31 @@ import (
 )
 
 type buffer struct {
-	Lines  []*Line
-	Offset int
+	lines  []*line
+	offset int
 }
 
-type Line struct {
-	Text []rune
+type line struct {
+	text []rune
 }
 
 // 対象の行の文字列を取得
 func (b *buffer) getNumOfCharsInTheLine(y int) int {
-	return len(b.Lines[y].Text)
+	return len(b.lines[y].text)
 }
 
 // 行数の取得
 func (b *buffer) getTotalNumOfLines() int {
-	return len(b.Lines)
+	return len(b.lines)
 }
 
 // ファイルをバッファに読み込む
 func (b *buffer) readFileToBuf(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
-		l := new(Line)
-		l.Text = []rune(scanner.Text())
-		b.Lines = append(b.Lines, l)
+		l := new(line)
+		l.text = []rune(scanner.Text())
+		b.lines = append(b.lines, l)
 	}
 }
 
@@ -51,7 +51,7 @@ func (b *buffer) checkAllChar() {
 	winWidth, _ := termbox.Size()
 	textHeight := b.getTotalNumOfLines()
 	for y := 0; y < textHeight; y++ {
-		for x := b.Offset; x < winWidth; x++ {
+		for x := b.offset; x < winWidth; x++ {
 			if isCharTarget(x, y) {
 				if firstFlg {
 					firstTargetY = y
@@ -161,7 +161,7 @@ func (b *buffer) protGhost() ([]*Ghost, error) {
 			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
 			gY := decidePlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
 			// x座標の仮決定
-			xPlotRangeUpperLimit := b.getNumOfCharsInTheLine(gY) + b.Offset
+			xPlotRangeUpperLimit := b.getNumOfCharsInTheLine(gY) + b.offset
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
 			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 			// 仮決定した座標がドットであれば確定

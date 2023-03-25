@@ -263,7 +263,7 @@ func warpEndLine(p *Player) {
 // ^:行頭の単語の先頭にワープ
 func warpBeginningWord(p *Player, b *buffer) {
 	warpBeginningLine(p)
-	width := b.getNumOfCharsInTheLine(p.Y) + b.Offset
+	width := b.getNumOfCharsInTheLine(p.Y) + b.offset
 	x := p.X
 	for {
 		if x > width {

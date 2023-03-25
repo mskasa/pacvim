@@ -7,7 +7,7 @@ import (
 )
 
 type Window struct {
-	lines []*Line
+	lines []*line
 }
 
 func CreateWindow(b *buffer) *Window {
@@ -17,18 +17,18 @@ func CreateWindow(b *buffer) *Window {
 }
 
 func (w *Window) copyBufToWindow(b *buffer) {
-	w.lines = []*Line{}
+	w.lines = []*line{}
 	winWidth, winHeight := termbox.Size()
-	for i := 0; i < len(b.Lines); i++ {
+	for i := 0; i < len(b.lines); i++ {
 		if i > winHeight-1 {
 			break
 		}
-		w.lines = append(w.lines, &Line{})
-		for j := 0; j < len(b.Lines[i].Text); j++ {
+		w.lines = append(w.lines, &line{})
+		for j := 0; j < len(b.lines[i].text); j++ {
 			if j+getDigit(b.getTotalNumOfLines())+1 > winWidth-1 {
 				break
 			}
-			w.lines[i].Text = append(w.lines[i].Text, b.Lines[i].Text[j])
+			w.lines[i].text = append(w.lines[i].text, b.lines[i].text[j])
 		}
 	}
 }
@@ -40,7 +40,7 @@ func (w *Window) Show(b *buffer) error {
 		return err
 	}
 	for y, l := range w.lines {
-		for x, r := range l.Text {
+		for x, r := range l.text {
 			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
 		}
 	}
@@ -51,10 +51,10 @@ func (w *Window) Show(b *buffer) error {
 func (w *Window) ShowWithLineNum(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	offset := getDigit(b.getTotalNumOfLines())
-	b.Offset = offset + 1
+	b.offset = offset + 1
 	for y, l := range w.lines {
 		linenums := makeLineNum(y+1, offset)
-		t := append(linenums, l.Text...)
+		t := append(linenums, l.text...)
 		for x, r := range t {
 			termbox.SetCell(x, y, r, termbox.ColorWhite, termbox.ColorBlack)
 		}
