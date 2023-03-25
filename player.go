@@ -280,9 +280,9 @@ func warpBeginningWord(p *Player, b *Buffer) {
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func warpBeginningFirstWordFirstLine(p *Player, b *Buffer) {
 	if inputNum == 0 {
-		p.Y = FirstTargetY
-	} else if inputNum > LastTargetY {
-		p.Y = LastTargetY
+		p.Y = firstTargetY
+	} else if inputNum > lastTargetY {
+		p.Y = lastTargetY
 	} else {
 		p.Y = inputNum - 1
 	}
@@ -291,10 +291,10 @@ func warpBeginningFirstWordFirstLine(p *Player, b *Buffer) {
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func warpBeginningFirstWordLastLine(p *Player, b *Buffer) {
-	if inputNum == 0 || inputNum > LastTargetY {
-		p.Y = LastTargetY
-	} else if inputNum <= FirstTargetY {
-		p.Y = FirstTargetY
+	if inputNum == 0 || inputNum > lastTargetY {
+		p.Y = lastTargetY
+	} else if inputNum <= firstTargetY {
+		p.Y = firstTargetY
 	} else {
 		p.Y = inputNum - 1
 	}

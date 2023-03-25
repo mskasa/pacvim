@@ -39,6 +39,9 @@ var (
 	inputNum            = 0
 	isLowercaseGEntered = false
 	gameSpeed           = time.Second
+
+	firstTargetY int
+	lastTargetY  int
 )
 
 //go:embed files

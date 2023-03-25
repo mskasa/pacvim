@@ -19,11 +19,6 @@ type Line struct {
 	Text []rune
 }
 
-var (
-	FirstTargetY int
-	LastTargetY  int
-)
-
 func CreateBuffer() *Buffer {
 	b := new(Buffer)
 	return b
@@ -51,7 +46,7 @@ func (b *Buffer) ReadFileToBuf(reader io.Reader) {
 
 /*
  * マップ読み込み時の処理
- * 1. viコマンド処理に必要な値を保持（FirstTargetY、LastTargetY）
+ * 1. viコマンド処理に必要な値を保持（firstTargetY、lastTargetY）
  * 2. 目標スコアの設定：game.AddtargetScore()
  * 3. 壁の文字変換：convertWallChar
  * 4. 毒に色を付与：colorThePoison
@@ -64,10 +59,10 @@ func (b *Buffer) CheckAllChar() {
 		for x := b.Offset; x < winWidth; x++ {
 			if IsTarget(x, y) {
 				if firstFlg {
-					FirstTargetY = y
+					firstTargetY = y
 					firstFlg = false
 				}
-				LastTargetY = y
+				lastTargetY = y
 				targetScore++
 			}
 			b.convertWallChar(x, y)
