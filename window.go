@@ -36,6 +36,9 @@ func (w *Window) copyBufToWindow(b *Buffer) {
 // 行番号なしで表示
 func (w *Window) Show(b *Buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
+	if err != nil {
+		return err
+	}
 	for y, l := range w.lines {
 		for x, r := range l.Text {
 			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)

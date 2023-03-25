@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
@@ -38,43 +37,53 @@ var (
 var static embed.FS
 
 func main() {
-	os.Exit(run())
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
 
-func run() int {
+func run() error {
 	err := termbox.Init()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer termbox.Close()
 
 	// スタート画面表示
-	switchScene("files/scene/start.txt")
+	if err := switchScene("files/scene/start.txt"); err != nil {
+		return err
+	}
 
 game:
 	for {
-		err = stage()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s: %v\n", os.Args[0], err)
-			return 1
+		if err := stage(); err != nil {
+			return err
 		}
 		switch gameState {
 		case win:
-			switchScene("files/scene/youwin.txt")
+			if err := switchScene("files/scene/youwin.txt"); err != nil {
+				return err
+			}
 			level++
 			gameSpeed = time.Duration(1000-(level-1)*50) * time.Millisecond
 			if level == maxLevel {
-				switchScene("files/scene/congrats.txt")
+				err = switchScene("files/scene/congrats.txt")
+				if err != nil {
+					return err
+				}
 				break game
 			}
 		case lose:
-			switchScene("files/scene/youlose.txt")
+			err = switchScene("files/scene/youlose.txt")
+			if err != nil {
+				return err
+			}
 			life--
 			if life < 0 {
 				break game
@@ -83,15 +92,18 @@ game:
 			break game
 		}
 	}
-	switchScene("files/scene/goodbye.txt")
+	err = switchScene("files/scene/goodbye.txt")
+	if err != nil {
+		return err
+	}
 
-	return 0
+	return err
 }
 
 func stage() error {
 	// ステージマップ読み込み
 	fileName := "files/stage/map" + strconv.Itoa(level) + ".txt"
-	b, w := hogenew(fileName)
+	b, w := initScene(fileName)
 	err := w.ShowWithLineNum(b)
 	if err != nil {
 		return err
@@ -118,7 +130,10 @@ func stage() error {
 		return err
 	}
 	// ステージマップを表示
-	termbox.Flush()
+	err = termbox.Flush()
+	if err != nil {
+		return fmt.Errorf("termbox.Flush(): %s, %v", fileName, err)
+	}
 
 	// ゲーム開始待ち状態
 	standBy()
@@ -139,19 +154,28 @@ func stage() error {
 }
 
 // 画面の切り替え
-func switchScene(fileName string) {
+func switchScene(fileName string) error {
 	termbox.HideCursor()
-	b, w := hogenew(fileName)
-	err := w.Show(b)
+	_, w := initScene(fileName)
+	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("termbox.Clear(): %s, %v", fileName, err)
 	}
-	termbox.Flush()
+	for y, l := range w.lines {
+		for x, r := range l.Text {
+			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
+		}
+	}
+	err = termbox.Flush()
+	if err != nil {
+		return fmt.Errorf("termbox.Flush(): %s, %v", fileName, err)
+	}
 	time.Sleep(1 * time.Second)
+	return err
 }
 
 // 前処理
-func hogenew(fileName string) (*Buffer, *Window) {
+func initScene(fileName string) (*Buffer, *Window) {
 	f, err := static.ReadFile(fileName)
 	if err != nil {
 		panic(err)
