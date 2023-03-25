@@ -19,7 +19,6 @@ type line struct {
 	text []rune
 }
 
-// ファイルを読み込む
 func (b *buffer) readFile(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -29,8 +28,7 @@ func (b *buffer) readFile(reader io.Reader) {
 	}
 }
 
-// マップ読み込み時の処理
-func (b *buffer) checkAllChar() {
+func (b *buffer) createGameScreen() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
 	textHeight := len(b.lines)
@@ -62,7 +60,6 @@ func (b *buffer) checkAllChar() {
 	}
 }
 
-// スコアの表示
 func (b *buffer) displayscore() {
 	textHeight := len(b.lines)
 	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
@@ -71,7 +68,6 @@ func (b *buffer) displayscore() {
 	}
 }
 
-// 補足情報の表示
 func (b *buffer) displayNote() {
 	textMap := map[int]string{
 		0: "Level:" + strconv.Itoa(level),
