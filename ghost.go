@@ -8,7 +8,7 @@ import (
 	termbox "github.com/nsf/termbox-go"
 )
 
-type Ghost struct {
+type ghost struct {
 	x         int
 	y         int
 	underRune rune
@@ -17,7 +17,7 @@ type Ghost struct {
 }
 
 // ゴーストの制御
-func Control(ch chan bool, p *player, gList []*Ghost) {
+func Control(ch chan bool, p *player, gList []*ghost) {
 	var wg sync.WaitGroup
 
 	for gameState == continuing {
@@ -38,7 +38,7 @@ func Control(ch chan bool, p *player, gList []*Ghost) {
 }
 
 // ゴーストを行動させる
-func (g *Ghost) action(wg *sync.WaitGroup, p *player) {
+func (g *ghost) action(wg *sync.WaitGroup, p *player) {
 	defer wg.Done()
 
 	var (
@@ -118,7 +118,7 @@ func lowerLimitZero(i int) int {
 }
 
 // ゴーストを移動させる
-func (g *Ghost) move(x, y int) bool {
+func (g *ghost) move(x, y int) bool {
 	if !isCharWall(x, y) || !isCharGhost(x, y) {
 		// 移動先が壁もしくはゴーストでなければ
 		winWidth, _ := termbox.Size()
@@ -138,7 +138,7 @@ func (g *Ghost) move(x, y int) bool {
 }
 
 // ゴーストがプレイヤーを捕まえたかどうかの判定
-func (g *Ghost) hasCaptured(p *player) bool {
+func (g *ghost) hasCaptured(p *player) bool {
 	if g.x == (p.x) && g.y == p.y {
 		// プレイヤーカーソルとゴーストの座標が一致した場合
 		return true

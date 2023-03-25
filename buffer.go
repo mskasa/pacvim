@@ -83,15 +83,15 @@ func (b *buffer) displayNote() {
 	}
 }
 
-func (b *buffer) displayGhost() ([]*Ghost, error) {
+func (b *buffer) displayGhost() ([]*ghost, error) {
 	var err error
-	var gList []*Ghost
+	var gList []*ghost
 	// 一体目：第二象限 二体目：第四象限 三体目：第一象限 四体目：第三象限
 	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
 
 	// ゲームレベルに応じて最大4体のゴーストを生み出す
 	for i := 0; i < getNumOfGhost(); i++ {
-		g := new(Ghost)
+		g := new(ghost)
 		g.tactics = i/2 + 1
 
 		j := 0
