@@ -29,13 +29,7 @@ func (b *buffer) readFile(reader io.Reader) {
 	}
 }
 
-/*
- * マップ読み込み時の処理
- * 1. viコマンド処理に必要な値を保持（firstTargetY、lastTargetY）
- * 2. 目標スコアの設定：game.AddtargetScore()
- * 3. 壁の文字変換：convertWallChar
- * 4. 毒に色を付与：colorThePoison
- */
+// マップ読み込み時の処理
 func (b *buffer) checkAllChar() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
@@ -49,34 +43,22 @@ func (b *buffer) checkAllChar() {
 				}
 				lastTargetY = y
 				targetScore++
+			} else if isCharWall(x, y) {
+				r := '-'
+				if y == 0 || y == len(b.lines) {
+					r = '-'
+				} else if isCharWall(x, y-1) && isCharWall(x, y+1) {
+					r = '|'
+				} else if isCharWall(x-1, y) || isCharWall(x+1, y) {
+					r = '-'
+				} else if isCharWall(x, y-1) || isCharWall(x, y+1) {
+					r = '|'
+				}
+				termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
+			} else if isCharPoison(x, y) {
+				termbox.SetCell(x, y, chPoison, termbox.ColorMagenta, termbox.ColorBlack)
 			}
-			b.convertWallChar(x, y)
-			colorThePoison(x, y)
 		}
-	}
-}
-
-// 壁を変換（# → | or -）
-func (b *buffer) convertWallChar(x, y int) {
-	if isCharWall(x, y) {
-		r := '-'
-		if y == 0 || y == len(b.lines) {
-			r = '-'
-		} else if isCharWall(x, y-1) && isCharWall(x, y+1) {
-			r = '|'
-		} else if isCharWall(x-1, y) || isCharWall(x+1, y) {
-			r = '-'
-		} else if isCharWall(x, y-1) || isCharWall(x, y+1) {
-			r = '|'
-		}
-		termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
-	}
-}
-
-// 毒に色を付与
-func colorThePoison(x, y int) {
-	if isCharPoison(x, y) {
-		termbox.SetCell(x, y, chPoison, termbox.ColorMagenta, termbox.ColorBlack)
 	}
 }
 
