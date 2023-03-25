@@ -28,7 +28,7 @@ func (b *buffer) readFile(reader io.Reader) {
 	}
 }
 
-func (b *buffer) createGameScreen() {
+func (b *buffer) displayStageMap() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
 	textHeight := len(b.lines)

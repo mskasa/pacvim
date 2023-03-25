@@ -129,7 +129,7 @@ func stage(stageMap string) error {
 	gameState = pose
 	score = 0
 	targetScore = 0
-	b.createGameScreen()
+	b.displayStageMap()
 
 	// プレイヤー初期化
 	p := new(player)
