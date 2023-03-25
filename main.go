@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"embed"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -108,9 +107,11 @@ game:
 }
 
 func stage(stageMap string) error {
-	b, w := initScene(stageMap)
-	err := w.ShowWithLineNum(b)
+	b, w, err := initScene(stageMap)
 	if err != nil {
+		return err
+	}
+	if err = w.ShowWithLineNum(b); err != nil {
 		return err
 	}
 
@@ -135,9 +136,8 @@ func stage(stageMap string) error {
 		return err
 	}
 	// ステージマップを表示
-	err = termbox.Flush()
-	if err != nil {
-		return fmt.Errorf("termbox.Flush(): %s, %v", stageMap, err)
+	if err = termbox.Flush(); err != nil {
+		return err
 	}
 
 	// ゲーム開始待ち状態
@@ -161,29 +161,30 @@ func stage(stageMap string) error {
 // 画面の切り替え
 func switchScene(fileName string) error {
 	termbox.HideCursor()
-	_, w := initScene(fileName)
-	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
+	_, w, err := initScene(fileName)
 	if err != nil {
-		return fmt.Errorf("termbox.Clear(): %s, %v", fileName, err)
+		return err
+	}
+	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
+		return err
 	}
 	for y, l := range w.lines {
 		for x, r := range l.Text {
 			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
 		}
 	}
-	err = termbox.Flush()
-	if err != nil {
-		return fmt.Errorf("termbox.Flush(): %s, %v", fileName, err)
+	if err = termbox.Flush(); err != nil {
+		return err
 	}
 	time.Sleep(1 * time.Second)
 	return err
 }
 
 // 前処理
-func initScene(fileName string) (*Buffer, *Window) {
+func initScene(fileName string) (*Buffer, *Window, error) {
 	f, err := static.ReadFile(fileName)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
 	// バッファ初期化
@@ -193,7 +194,7 @@ func initScene(fileName string) (*Buffer, *Window) {
 	// ウィンドウ初期化
 	w := CreateWindow(b)
 
-	return b, w
+	return b, w, err
 }
 
 // 待機状態
