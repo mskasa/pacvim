@@ -5,7 +5,8 @@ import (
 	"embed"
 	"fmt"
 	"log"
-	"strconv"
+	"os"
+	"path/filepath"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
@@ -18,7 +19,6 @@ const (
 	win
 	lose
 
-	maxLevel      = 10
 	maxNumOfGhost = 4
 
 	sceneDir = "files/scene/"
@@ -56,6 +56,12 @@ func run() error {
 
 	defer termbox.Close()
 
+	stageMaps, err := dirwalk("./files/stage")
+	if err != nil {
+		return err
+	}
+	maxLevel := len(stageMaps)
+
 	// スタート画面表示
 	if err := switchScene(sceneDir + "start.txt"); err != nil {
 		return err
@@ -63,7 +69,7 @@ func run() error {
 
 game:
 	for {
-		if err := stage(); err != nil {
+		if err := stage(stageMaps[level]); err != nil {
 			return err
 		}
 		switch gameState {
@@ -101,10 +107,8 @@ game:
 	return err
 }
 
-func stage() error {
-	// ステージマップ読み込み
-	fileName := "files/stage/map" + strconv.Itoa(level) + ".txt"
-	b, w := initScene(fileName)
+func stage(stageMap string) error {
+	b, w := initScene(stageMap)
 	err := w.ShowWithLineNum(b)
 	if err != nil {
 		return err
@@ -133,7 +137,7 @@ func stage() error {
 	// ステージマップを表示
 	err = termbox.Flush()
 	if err != nil {
-		return fmt.Errorf("termbox.Flush(): %s, %v", fileName, err)
+		return fmt.Errorf("termbox.Flush(): %s, %v", stageMap, err)
 	}
 
 	// ゲーム開始待ち状態
@@ -205,4 +209,18 @@ func standBy() {
 			break
 		}
 	}
+}
+
+func dirwalk(dir string) ([]string, error) {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var paths []string
+	for _, file := range files {
+		paths = append(paths, filepath.Join(dir, file.Name()))
+	}
+
+	return paths, err
 }
