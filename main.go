@@ -192,7 +192,7 @@ func switchScene(fileName string) error {
 }
 
 // 前処理
-func initScene(fileName string) (*buffer, *Window, error) {
+func initScene(fileName string) (*buffer, *window, error) {
 	f, err := static.ReadFile(fileName)
 	if err != nil {
 		return nil, nil, err
@@ -203,7 +203,7 @@ func initScene(fileName string) (*buffer, *Window, error) {
 	b.readFileToBuf(bytes.NewReader(f))
 
 	// ウィンドウ初期化
-	w := new(Window)
+	w := new(window)
 	w.copyBufToWindow(b)
 
 	return b, w, err

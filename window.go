@@ -6,11 +6,11 @@ import (
 	termbox "github.com/nsf/termbox-go"
 )
 
-type Window struct {
+type window struct {
 	lines []*line
 }
 
-func (w *Window) copyBufToWindow(b *buffer) {
+func (w *window) copyBufToWindow(b *buffer) {
 	w.lines = []*line{}
 	winWidth, winHeight := termbox.Size()
 	for i := 0; i < len(b.lines); i++ {
@@ -28,7 +28,7 @@ func (w *Window) copyBufToWindow(b *buffer) {
 }
 
 // 行番号なしで表示
-func (w *Window) Show(b *buffer) error {
+func (w *window) Show(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func (w *Window) Show(b *buffer) error {
 }
 
 // 行番号ありで表示
-func (w *Window) ShowWithLineNum(b *buffer) error {
+func (w *window) ShowWithLineNum(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
 	offset := getDigit(b.getTotalNumOfLines())
 	b.offset = offset + 1
