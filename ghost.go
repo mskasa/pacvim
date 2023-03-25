@@ -17,7 +17,7 @@ type ghost struct {
 }
 
 // ゴーストの制御
-func Control(ch chan bool, p *player, gList []*ghost) {
+func control(ch chan bool, p *player, gList []*ghost) {
 	var wg sync.WaitGroup
 
 	for gameState == continuing {

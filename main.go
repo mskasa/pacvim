@@ -160,7 +160,7 @@ func stage(stageMap string) error {
 
 	// ゴーストゴルーチン開始
 	ch2 := make(chan bool)
-	go Control(ch2, p, gList)
+	go control(ch2, p, gList)
 
 	// プレイヤーとゴーストの同期を取る
 	<-ch1
