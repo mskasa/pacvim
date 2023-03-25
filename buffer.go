@@ -25,8 +25,8 @@ func CreateBuffer() *Buffer {
 }
 
 // 対象の行の文字列を取得
-func (b *Buffer) getTextOnLine(y int) []rune {
-	return b.Lines[y].Text
+func (b *Buffer) getNumOfCharsInTheLine(y int) int {
+	return len(b.Lines[y].Text)
 }
 
 // 行数の取得
@@ -166,7 +166,7 @@ func (b *Buffer) protGhost() ([]*Ghost, error) {
 			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
 			gY := decidePlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
 			// x座標の仮決定
-			xPlotRangeUpperLimit := len(b.getTextOnLine(gY)) + b.Offset
+			xPlotRangeUpperLimit := b.getNumOfCharsInTheLine(gY) + b.Offset
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
 			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 			// 仮決定した座標がドットであれば確定
