@@ -156,7 +156,7 @@ func stage(stageMap string) error {
 
 	// プレイヤーゴルーチン開始
 	ch1 := make(chan bool)
-	go p.Control(ch1, b, w)
+	go p.control(ch1, b, w)
 
 	// ゴーストゴルーチン開始
 	ch2 := make(chan bool)
