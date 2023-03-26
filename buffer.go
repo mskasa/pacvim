@@ -86,30 +86,30 @@ func (b *buffer) displayNote() {
 func (b *buffer) displayGhost() ([]*ghost, error) {
 	var err error
 	var gList []*ghost
-	// 一体目：第二象限 二体目：第四象限 三体目：第一象限 四体目：第三象限
+	// the 1st one:	2nd quadrant
+	// the 2nd one:	4th quadrant
+	// the 3rd one:	1st quadrant
+	// the 4th one:	3rd quadrant
 	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
 
-	// ゲームレベルに応じて最大4体のゴーストを生み出す
 	for i := 0; i < getNumOfGhost(); i++ {
 		g := new(ghost)
 		g.tactics = i/2 + 1
 
 		j := 0
 		for {
-			// y座標の仮決定（可読性のため敢えて本ブロック内に一連の処理をまとめて記述）
 			yPlotRangeUpperLimit := len(b.lines) - 1
 			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
 			gY := decidePlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
-			// x座標の仮決定
 			xPlotRangeUpperLimit := len(b.lines[gY].text) + b.offset
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
 			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
-			// 仮決定した座標がドットであれば確定
+
 			if isCharTarget(gX, gY) && g.move(gX, gY) {
 				gList = append(gList, g)
 				break
 			}
-			// 10000回回してプロット位置が決まらなかった場合
+
 			j++
 			if j == 10000 {
 				return nil, errors.New("ゴーストプロット範囲にターゲットが十分あるマップで遊んでください")
