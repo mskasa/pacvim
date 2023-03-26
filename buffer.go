@@ -19,6 +19,7 @@ type line struct {
 	text []rune
 }
 
+// Save .txt to buffer.
 func (b *buffer) save(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -28,6 +29,9 @@ func (b *buffer) save(reader io.Reader) {
 	}
 }
 
+// Convert characters
+// Color characters
+// Save firstTargetY, lastTargetY and targetScore
 func (b *buffer) plotStageMap() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()

@@ -41,12 +41,13 @@ var (
 	isLowercaseGEntered = false
 	gameSpeed           = time.Second
 
+	// For command gg or G
 	firstTargetY int
 	lastTargetY  int
-)
 
-//go:embed files
-var static embed.FS
+	//go:embed files
+	static embed.FS
+)
 
 func main() {
 	if err := run(); err != nil {
