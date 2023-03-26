@@ -29,6 +29,7 @@ func (p *player) initPosition(b *buffer) {
 
 // プレイヤーの制御
 func (p *player) control(ch chan bool, b *buffer, w *window) {
+	defer close(ch)
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
