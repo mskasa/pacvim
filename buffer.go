@@ -83,13 +83,13 @@ func (b *buffer) displayNote() {
 	}
 }
 
+// the 1st one:	2nd quadrant, tactics1
+// the 2nd one:	4th quadrant, tactics1
+// the 3rd one:	1st quadrant, tactics2
+// the 4th one:	3rd quadrant, tactics2
 func (b *buffer) displayGhost() ([]*ghost, error) {
 	var err error
 	var gList []*ghost
-	// the 1st one:	2nd quadrant
-	// the 2nd one:	4th quadrant
-	// the 3rd one:	1st quadrant
-	// the 4th one:	3rd quadrant
 	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
 
 	for i := 0; i < getNumOfGhost(); i++ {

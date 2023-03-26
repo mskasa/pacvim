@@ -141,8 +141,7 @@ func stage(stageMap string) error {
 	b.displayNote()
 
 	// ゴーストを作成
-	var gList []*ghost
-	gList, err = b.displayGhost()
+	gList, err := b.displayGhost()
 	if err != nil {
 		return err
 	}
