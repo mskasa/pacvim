@@ -19,7 +19,7 @@ const (
 	win
 	lose
 
-	maxNumOfGhost = 4
+	maxNumOfGhosts = 4
 
 	chGhost  = 'G'
 	chTarget = 'o'

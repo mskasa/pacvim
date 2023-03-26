@@ -88,8 +88,7 @@ func (b *buffer) plotSubInfo() {
 // the 3rd one:	1st quadrant, tactics2
 // the 4th one:	3rd quadrant, tactics2
 func (b *buffer) plotGhost() ([]*ghost, error) {
-	var err error
-	var gList []*ghost
+	gList := make([]*ghost, 0, maxNumOfGhosts)
 	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
 
 	for i := 0; i < numOfGhosts(); i++ {
@@ -116,7 +115,7 @@ func (b *buffer) plotGhost() ([]*ghost, error) {
 			}
 		}
 	}
-	return gList, err
+	return gList, nil
 }
 func ghostPlotPosition(min, max int) int {
 	if max-min > min {
@@ -126,8 +125,8 @@ func ghostPlotPosition(min, max int) int {
 }
 func numOfGhosts() int {
 	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
-	if numOfGhost > maxNumOfGhost {
-		numOfGhost = maxNumOfGhost
+	if numOfGhost > maxNumOfGhosts {
+		numOfGhost = maxNumOfGhosts
 	}
 	return numOfGhost
 }
