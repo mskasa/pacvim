@@ -2,9 +2,7 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"io"
-	"math"
 	"strconv"
 
 	termbox "github.com/nsf/termbox-go"
@@ -85,54 +83,6 @@ func (b *buffer) plotSubInfo() {
 		}
 		textHeight++
 	}
-}
-
-// the 1st one:	2nd quadrant, tactics1
-// the 2nd one:	4th quadrant, tactics1
-// the 3rd one:	1st quadrant, tactics2
-// the 4th one:	3rd quadrant, tactics2
-func (b *buffer) plotGhost() ([]*ghost, error) {
-	gList := make([]*ghost, 0, maxNumOfGhosts)
-	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
-
-	for i := 0; i < numOfGhosts(); i++ {
-		g := new(ghost)
-		g.tactics = i/2 + 1
-
-		j := 0
-		for {
-			yPlotRangeUpperLimit := len(b.lines) - 1
-			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
-			gY := ghostPlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
-			xPlotRangeUpperLimit := len(b.lines[gY].text) + b.offset
-			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
-			gX := ghostPlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
-
-			if isCharTarget(gX, gY) && g.move(gX, gY) {
-				gList = append(gList, g)
-				break
-			}
-
-			j++
-			if j == 10000 {
-				return nil, errors.New("Play with maps that have enough targets in the ghostplot range!")
-			}
-		}
-	}
-	return gList, nil
-}
-func ghostPlotPosition(min, max int) int {
-	if max-min > min {
-		return random(0, min)
-	}
-	return random(min, max)
-}
-func numOfGhosts() int {
-	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
-	if numOfGhost > maxNumOfGhosts {
-		numOfGhost = maxNumOfGhosts
-	}
-	return numOfGhost
 }
 
 func isCharWall(x, y int) bool {

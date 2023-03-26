@@ -142,7 +142,7 @@ func stage(stageMap string) error {
 	b.plotSubInfo()
 
 	// ゴーストを作成
-	gList, err := b.plotGhost()
+	gList, err := initPosition(b)
 	if err != nil {
 		return err
 	}
