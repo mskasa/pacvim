@@ -112,7 +112,7 @@ func (b *buffer) displayGhost() ([]*ghost, error) {
 
 			j++
 			if j == 10000 {
-				return nil, errors.New("ゴーストプロット範囲にターゲットが十分あるマップで遊んでください")
+				return nil, errors.New("Play with maps that have enough targets in the ghostplot range!")
 			}
 		}
 	}
