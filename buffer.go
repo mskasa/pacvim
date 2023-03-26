@@ -28,7 +28,7 @@ func (b *buffer) save(reader io.Reader) {
 	}
 }
 
-func (b *buffer) displayStageMap() {
+func (b *buffer) plotStageMap() {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
 	textHeight := len(b.lines)
@@ -60,7 +60,7 @@ func (b *buffer) displayStageMap() {
 	}
 }
 
-func (b *buffer) displayScore() {
+func (b *buffer) plotScore() {
 	textHeight := len(b.lines)
 	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range score {
@@ -68,7 +68,7 @@ func (b *buffer) displayScore() {
 	}
 }
 
-func (b *buffer) displayNote() {
+func (b *buffer) plotSubInfo() {
 	textMap := map[int]string{
 		0: "Level:" + strconv.Itoa(level),
 		1: "Life:" + strconv.Itoa(life),
@@ -87,12 +87,12 @@ func (b *buffer) displayNote() {
 // the 2nd one:	4th quadrant, tactics1
 // the 3rd one:	1st quadrant, tactics2
 // the 4th one:	3rd quadrant, tactics2
-func (b *buffer) displayGhost() ([]*ghost, error) {
+func (b *buffer) plotGhost() ([]*ghost, error) {
 	var err error
 	var gList []*ghost
 	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
 
-	for i := 0; i < getNumOfGhost(); i++ {
+	for i := 0; i < numOfGhosts(); i++ {
 		g := new(ghost)
 		g.tactics = i/2 + 1
 
@@ -100,10 +100,10 @@ func (b *buffer) displayGhost() ([]*ghost, error) {
 		for {
 			yPlotRangeUpperLimit := len(b.lines) - 1
 			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
-			gY := decidePlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
+			gY := ghostPlotPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
 			xPlotRangeUpperLimit := len(b.lines[gY].text) + b.offset
 			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
-			gX := decidePlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
+			gX := ghostPlotPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 
 			if isCharTarget(gX, gY) && g.move(gX, gY) {
 				gList = append(gList, g)
@@ -118,13 +118,13 @@ func (b *buffer) displayGhost() ([]*ghost, error) {
 	}
 	return gList, err
 }
-func decidePlotPosition(min, max int) int {
+func ghostPlotPosition(min, max int) int {
 	if max-min > min {
 		return random(0, min)
 	}
 	return random(min, max)
 }
-func getNumOfGhost() int {
+func numOfGhosts() int {
 	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
 	if numOfGhost > maxNumOfGhost {
 		numOfGhost = maxNumOfGhost

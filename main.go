@@ -130,18 +130,18 @@ func stage(stageMap string) error {
 	gameState = pose
 	score = 0
 	targetScore = 0
-	b.displayStageMap()
+	b.plotStageMap()
 
 	// プレイヤー初期化
 	p := new(player)
 	p.initPosition(b)
 
 	// ゲーム情報の表示
-	b.displayScore()
-	b.displayNote()
+	b.plotScore()
+	b.plotSubInfo()
 
 	// ゴーストを作成
-	gList, err := b.displayGhost()
+	gList, err := b.plotGhost()
 	if err != nil {
 		return err
 	}

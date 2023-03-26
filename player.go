@@ -92,7 +92,7 @@ func (p *player) control(ch chan bool, b *buffer, w *window) {
 			}
 		}
 		termbox.SetCursor(p.x, p.y)
-		b.displayScore()
+		b.plotScore()
 		termbox.Flush()
 	}
 	ch <- true
