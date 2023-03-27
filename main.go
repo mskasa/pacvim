@@ -45,6 +45,13 @@ var (
 	firstTargetY int
 	lastTargetY  int
 
+	ghostPlotRangeList = [][]float64{
+		{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
+		{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA
+		{0.6, 0.4}, // The 3rd one:	1st quadrant, strategyB
+		{0.4, 0.6}, // The 4th one:	3rd quadrant, strategyB
+	}
+
 	//go:embed files
 	static embed.FS
 )
@@ -141,11 +148,18 @@ func stage(stageMap string) error {
 	b.plotScore()
 	b.plotSubInfo()
 
-	// ゴーストを作成
-	gList, err := initPosition(b)
-	if err != nil {
-		return err
+	gList := make([]*ghost, 0, maxNumOfGhosts)
+	for i := 0; i < numOfGhosts(); i++ {
+		g := &ghost{
+			strategy:  newStrategy(i),
+			plotRange: ghostPlotRangeList[i],
+		}
+		if err = g.initPosition(b); err != nil {
+			return err
+		}
+		gList = append(gList, g)
 	}
+
 	// ステージマップを表示
 	if err = termbox.Flush(); err != nil {
 		return err

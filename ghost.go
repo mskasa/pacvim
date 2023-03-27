@@ -14,42 +14,36 @@ type ghost struct {
 	y         int
 	underRune rune
 	color     termbox.Attribute
-	tactics   int
+	strategy  strategy
+	plotRange []float64
 }
 
-// the 1st one:	2nd quadrant, tactics1
-// the 2nd one:	4th quadrant, tactics1
-// the 3rd one:	1st quadrant, tactics2
-// the 4th one:	3rd quadrant, tactics2
-func initPosition(b *buffer) ([]*ghost, error) {
-	gList := make([]*ghost, 0, maxNumOfGhosts)
-	var gPlotRangeList = [][]float64{{0.4, 0.4}, {0.6, 0.6}, {0.6, 0.4}, {0.4, 0.6}}
+type strategy interface {
+	eval(p *player, x, y int) float64
+}
+type strategyA struct{}
+type strategyB struct{}
 
-	for i := 0; i < numOfGhosts(); i++ {
-		g := new(ghost)
-		g.tactics = i/2 + 1
+func (g *ghost) initPosition(b *buffer) error {
+	i := 0
+	for {
+		yPlotRangeUpperLimit := len(b.lines) - 1
+		yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * g.plotRange[1])
+		gY := tempPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
+		xPlotRangeUpperLimit := len(b.lines[gY].text) + b.offset
+		xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * g.plotRange[0])
+		gX := tempPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
 
-		j := 0
-		for {
-			yPlotRangeUpperLimit := len(b.lines) - 1
-			yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * gPlotRangeList[i][1])
-			gY := tempPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
-			xPlotRangeUpperLimit := len(b.lines[gY].text) + b.offset
-			xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * gPlotRangeList[i][0])
-			gX := tempPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
+		if isCharTarget(gX, gY) && g.move(gX, gY) {
+			break
+		}
 
-			if isCharTarget(gX, gY) && g.move(gX, gY) {
-				gList = append(gList, g)
-				break
-			}
-
-			j++
-			if j == 10000 {
-				return nil, errors.New("Play with maps that have enough targets in the ghostplot range!")
-			}
+		i++
+		if i == 10000 {
+			return errors.New("Play with maps that have enough targets in the ghostplot range!")
 		}
 	}
-	return gList, nil
+	return nil
 }
 func tempPosition(min, max int) int {
 	if max-min > min {
@@ -90,24 +84,11 @@ func control(ch chan bool, p *player, gList []*ghost) {
 func (g *ghost) action(wg *sync.WaitGroup, p *player) {
 	defer wg.Done()
 
-	var (
-		up    float64
-		down  float64
-		left  float64
-		right float64
-	)
 	// 移動のための評価値算出
-	if g.tactics == 1 {
-		up = eval(p, g.x, g.y-1)
-		down = eval(p, g.x, g.y+1)
-		left = eval(p, g.x-1, g.y)
-		right = eval(p, g.x+1, g.y)
-	} else {
-		up = eval2(p, g.x, g.y-1)
-		down = eval2(p, g.x, g.y+1)
-		left = eval2(p, g.x-1, g.y)
-		right = eval2(p, g.x+1, g.y)
-	}
+	up := g.strategy.eval(p, g.x, g.y-1)
+	down := g.strategy.eval(p, g.x, g.y+1)
+	left := g.strategy.eval(p, g.x-1, g.y)
+	right := g.strategy.eval(p, g.x+1, g.y)
 
 	// 移動
 	if up <= down && up <= left && up <= right {
@@ -126,8 +107,15 @@ func (g *ghost) action(wg *sync.WaitGroup, p *player) {
 	}
 }
 
+func newStrategy(i int) strategy {
+	if i/2+1 == 1 {
+		return &strategyA{}
+	}
+	return &strategyB{}
+}
+
 // プレイヤー追跡タイプ
-func eval(p *player, x, y int) float64 {
+func (s *strategyA) eval(p *player, x, y int) float64 {
 	if isCharWall(x, y) || isCharGhost(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
 		return 1000
@@ -137,7 +125,7 @@ func eval(p *player, x, y int) float64 {
 }
 
 // 待ち伏せ徘徊タイプ
-func eval2(p *player, x, y int) float64 {
+func (s *strategyB) eval(p *player, x, y int) float64 {
 	if isCharWall(x, y) || isCharGhost(x, y) {
 		return 30
 	}
