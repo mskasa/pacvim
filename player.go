@@ -7,8 +7,10 @@ import (
 )
 
 type player struct {
-	x int
-	y int
+	x        int
+	y        int
+	inputNum int
+	inputG   rune
 }
 
 func (p *player) initPosition(b *buffer) {
@@ -29,67 +31,65 @@ func (p *player) initPosition(b *buffer) {
 
 // プレイヤーの制御
 func (p *player) action(b *buffer, w *window) error {
-	isLowercaseGEntered := false
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			if isLowercaseGEntered {
+			if p.inputG == 'g' {
 				if ev.Ch == 'g' {
-					// 最初の行の行頭の単語の先頭にワープ
+					// Regex: *gg
 					p.warpWord(warpBeginningFirstWordFirstLine, b)
 				}
-				// 入力情報の初期化
-				inputNum = 0
-				isLowercaseGEntered = false
-			} else if ev.Ch == 'g' {
-				isLowercaseGEntered = true
-			} else if s, ok := isInputNum(ev.Ch); ok {
-				if inputNum != 0 {
-					// 既に入力数値がある場合は文字列として数値を足算する（例：1+2=12）
-					s = strconv.Itoa(inputNum) + s
-				}
-				inputNum, _ = strconv.Atoi(s)
+				// Regex: *g.
+				p.inputNum = 0
+				p.inputG = 0
 			} else {
-				switch ev.Ch {
-				// 上に移動
-				case 'k':
-					p.moveCross(0, -1)
-				// 下に移動
-				case 'j':
-					p.moveCross(0, 1)
-				// 左に移動
-				case 'h':
-					p.moveCross(-1, 0)
-				// 右に移動
-				case 'l':
-					p.moveCross(1, 0)
-				// 次の単語の先頭に移動
-				case 'w':
-					p.moveWordByWord(moveBeginningNextWord)
-				// 現在の単語もしくは前の単語の先頭に移動
-				case 'b':
-					p.moveWordByWord(moveBeginningPrevWord)
-				// 単語の最後の文字に移動
-				case 'e':
-					p.moveWordByWord(moveLastWord)
-				// 行頭にワープ
-				case '0':
-					p.warpLine(warpBeginningLine)
-				// 行末にワープ
-				case '$':
-					p.warpLine(warpEndLine)
-				// 行頭の単語の先頭にワープ
-				case '^':
-					p.warpWord(warpBeginningWord, b)
-				// 最後の行の行頭の単語の先頭にワープ
-				case 'G':
-					p.warpWord(warpBeginningFirstWordLastLine, b)
-				// ゲームをやめる
-				case 'q':
-					gameState = quit
+				if ev.Ch == 'g' {
+					p.inputG = 'g'
+				} else if s, ok := p.isInputNum(ev.Ch); ok {
+					s = strconv.Itoa(p.inputNum) + s
+					p.inputNum, _ = strconv.Atoi(s)
+				} else {
+					switch ev.Ch {
+					// 上に移動
+					case 'k':
+						p.moveCross(0, -1)
+					// 下に移動
+					case 'j':
+						p.moveCross(0, 1)
+					// 左に移動
+					case 'h':
+						p.moveCross(-1, 0)
+					// 右に移動
+					case 'l':
+						p.moveCross(1, 0)
+					// 次の単語の先頭に移動
+					case 'w':
+						p.moveWordByWord(moveBeginningNextWord)
+					// 現在の単語もしくは前の単語の先頭に移動
+					case 'b':
+						p.moveWordByWord(moveBeginningPrevWord)
+					// 単語の最後の文字に移動
+					case 'e':
+						p.moveWordByWord(moveLastWord)
+					// 行頭にワープ
+					case '0':
+						p.warpLine(warpBeginningLine)
+					// 行末にワープ
+					case '$':
+						p.warpLine(warpEndLine)
+					// 行頭の単語の先頭にワープ
+					case '^':
+						p.warpWord(warpBeginningWord, b)
+					// 最後の行の行頭の単語の先頭にワープ
+					case 'G':
+						p.warpWord(warpBeginningFirstWordLastLine, b)
+					// ゲームをやめる
+					case 'q':
+						gameState = quit
+					}
+					p.inputNum = 0
+					p.inputG = 0
 				}
-				// 入力数値の初期化
-				inputNum = 0
 			}
 		}
 		termbox.SetCursor(p.x, p.y)
@@ -100,10 +100,10 @@ func (p *player) action(b *buffer, w *window) error {
 	}
 	return nil
 }
-func isInputNum(r rune) (string, bool) {
+func (p *player) isInputNum(r rune) (string, bool) {
 	s := string(r)
 	i, err := strconv.Atoi(s)
-	if err == nil && (i != 0 || (i == 0 && inputNum != 0)) {
+	if err == nil && (i != 0 || (i == 0 && p.inputNum != 0)) {
 		// 数値変換成功かつ入力数値が「0」でない場合
 		return s, true
 	}
@@ -112,8 +112,8 @@ func isInputNum(r rune) (string, bool) {
 
 // 移動（十字）
 func (p *player) moveCross(xDirection, yDirection int) {
-	if inputNum != 0 {
-		for i := 0; i < inputNum; i++ {
+	if p.inputNum != 0 {
+		for i := 0; i < p.inputNum; i++ {
 			if !p.moveOneSquare(xDirection, yDirection) {
 				break
 			}
@@ -139,8 +139,8 @@ func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 
 // 移動（単語単位）
 func (p *player) moveWordByWord(fn func(*player) bool) {
-	if inputNum != 0 {
-		for i := 0; i < inputNum; i++ {
+	if p.inputNum != 0 {
+		for i := 0; i < p.inputNum; i++ {
 			if !fn(p) {
 				break
 			}
@@ -276,24 +276,24 @@ func warpBeginningWord(p *player, b *buffer) {
 
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func warpBeginningFirstWordFirstLine(p *player, b *buffer) {
-	if inputNum == 0 {
+	if p.inputNum == 0 {
 		p.y = b.firstTargetY
-	} else if inputNum > b.lastTargetY {
+	} else if p.inputNum > b.lastTargetY {
 		p.y = b.lastTargetY
 	} else {
-		p.y = inputNum - 1
+		p.y = p.inputNum - 1
 	}
 	warpBeginningWord(p, b)
 }
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func warpBeginningFirstWordLastLine(p *player, b *buffer) {
-	if inputNum == 0 || inputNum > b.lastTargetY {
+	if p.inputNum == 0 || p.inputNum > b.lastTargetY {
 		p.y = b.lastTargetY
-	} else if inputNum <= b.firstTargetY {
+	} else if p.inputNum <= b.firstTargetY {
 		p.y = b.firstTargetY
 	} else {
-		p.y = inputNum - 1
+		p.y = p.inputNum - 1
 	}
 	warpBeginningWord(p, b)
 }

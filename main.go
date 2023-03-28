@@ -40,7 +40,6 @@ var (
 	score       = 0           // main, player, buffer
 	level       = 1           // main, buffer
 	life        = 3           // main, buffer
-	inputNum    = 0           // main, player
 	gameSpeed   = time.Second // mainのrun, stage
 
 	ghostPlotRangeList = [][]float64{
