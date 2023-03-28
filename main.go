@@ -43,10 +43,6 @@ var (
 	isLowercaseGEntered = false
 	gameSpeed           = time.Second
 
-	// For command gg or G
-	firstTargetY int
-	lastTargetY  int
-
 	ghostPlotRangeList = [][]float64{
 		{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
 		{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA

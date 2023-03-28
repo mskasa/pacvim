@@ -11,6 +11,9 @@ import (
 type buffer struct {
 	lines  []*line
 	offset int
+	// For command gg or G
+	firstTargetY int
+	lastTargetY  int
 }
 
 type line struct {
@@ -38,10 +41,10 @@ func (b *buffer) plotStageMap() {
 		for x := b.offset; x < winWidth; x++ {
 			if isCharTarget(x, y) {
 				if firstFlg {
-					firstTargetY = y
+					b.firstTargetY = y
 					firstFlg = false
 				}
-				lastTargetY = y
+				b.lastTargetY = y
 				targetScore++
 			} else if isCharWall(x, y) {
 				r := '-'
