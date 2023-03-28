@@ -50,13 +50,6 @@ func tempPosition(min, max int) int {
 	}
 	return random(min, max)
 }
-func numOfGhosts() int {
-	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
-	if numOfGhost > maxNumOfGhosts {
-		numOfGhost = maxNumOfGhosts
-	}
-	return numOfGhost
-}
 
 // ゴーストを行動させる
 func (g *ghost) action(wg *sync.WaitGroup, p *player) {

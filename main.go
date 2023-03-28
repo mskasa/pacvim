@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -263,6 +264,14 @@ func dirwalk(dir string) ([]string, error) {
 	}
 
 	return paths, err
+}
+
+func numOfGhosts() int {
+	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
+	if numOfGhost > maxNumOfGhosts {
+		numOfGhost = maxNumOfGhosts
+	}
+	return numOfGhost
 }
 
 func random(min, max int) int {
