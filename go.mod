@@ -2,7 +2,10 @@ module pacvim
 
 go 1.20
 
-require github.com/nsf/termbox-go v1.1.1
+require (
+	github.com/nsf/termbox-go v1.1.1
+	golang.org/x/sync v0.1.0
+)
 
 require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect

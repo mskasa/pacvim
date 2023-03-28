@@ -7,9 +7,11 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -168,17 +170,37 @@ func stage(stageMap string) error {
 	// ゲーム開始待ち状態
 	standBy()
 
-	// プレイヤーゴルーチン開始
-	ch1 := make(chan bool)
-	go p.control(ch1, b, w)
+	eg := new(errgroup.Group)
 
-	// ゴーストゴルーチン開始
-	ch2 := make(chan bool)
-	go control(ch2, p, gList)
+	// Starts a new goroutine that runs for player actions
+	eg.Go(func() error {
+		return p.action(b, w)
+	})
 
-	// プレイヤーとゴーストの同期を取る
-	<-ch1
-	<-ch2
+	// Starts a new goroutine that runs for ghost control
+	eg.Go(func() error {
+		var wg sync.WaitGroup
+
+		for gameState == continuing {
+			wg.Add(len(gList))
+			// Starts new goroutines that runs for ghosts actions
+			for _, g := range gList {
+				go g.action(&wg, p)
+			}
+			// Synchronization(waiting for ghosts goroutines to finish)
+			wg.Wait()
+			if err = termbox.Flush(); err != nil {
+				return err
+			}
+			time.Sleep(gameSpeed)
+		}
+		return nil
+	})
+
+	// Synchronization(waiting for player action goroutine and ghost control goroutine to finish)
+	if err := eg.Wait(); err != nil {
+		return err
+	}
 
 	return err
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"math"
 	"sync"
-	"time"
 
 	termbox "github.com/nsf/termbox-go"
 )
@@ -57,27 +56,6 @@ func numOfGhosts() int {
 		numOfGhost = maxNumOfGhosts
 	}
 	return numOfGhost
-}
-
-// ゴーストの制御
-func control(ch chan bool, p *player, gList []*ghost) {
-	var wg sync.WaitGroup
-
-	for gameState == continuing {
-		// ゲームが継続している限り
-		wg.Add(len(gList))
-		// ゴーストを並行に行動させる
-		for _, g := range gList {
-			go g.action(&wg, p)
-		}
-		// ゴーストの行動の同期
-		wg.Wait()
-		// ゴーストを表示
-		termbox.Flush()
-		// ゴーストの行動間隔
-		time.Sleep(gameSpeed)
-	}
-	ch <- true
 }
 
 // ゴーストを行動させる
