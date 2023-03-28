@@ -64,8 +64,8 @@ func (b *buffer) plotStageMap() {
 
 func (b *buffer) plotScore() {
 	textHeight := len(b.lines)
-	score := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
-	for x, r := range score {
+	s := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
+	for x, r := range s {
 		termbox.SetCell(x, textHeight, r, termbox.ColorRed, termbox.ColorBlack)
 	}
 }
