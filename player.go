@@ -45,9 +45,8 @@ func (p *player) action(b *buffer, w *window) error {
 			} else {
 				if ev.Ch == 'g' {
 					p.inputG = 'g'
-				} else if s, ok := p.isInputNum(ev.Ch); ok {
-					s = strconv.Itoa(p.inputNum) + s
-					p.inputNum, _ = strconv.Atoi(s)
+				} else if v, ok := p.isInputNum(ev.Ch); ok {
+					p.inputNum, _ = strconv.Atoi(strconv.Itoa(p.inputNum) + v)
 				} else {
 					switch ev.Ch {
 					// 上に移動
