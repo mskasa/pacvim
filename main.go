@@ -42,13 +42,6 @@ var (
 	life        = 3           // main, buffer
 	gameSpeed   = time.Second // mainのrun, stage
 
-	ghostPlotRangeList = [][]float64{
-		{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
-		{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA
-		{0.6, 0.4}, // The 3rd one:	1st quadrant, strategyB
-		{0.4, 0.6}, // The 4th one:	3rd quadrant, strategyB
-	}
-
 	//go:embed files
 	static embed.FS
 )
@@ -145,7 +138,13 @@ func stage(stageMap string) error {
 	b.plotScore()
 	b.plotSubInfo()
 
-	gList := make([]*ghost, 0, maxNumOfGhosts)
+	ghostList := make([]*ghost, 0, maxNumOfGhosts)
+	ghostPlotRangeList := [][]float64{
+		{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
+		{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA
+		{0.6, 0.4}, // The 3rd one:	1st quadrant, strategyB
+		{0.4, 0.6}, // The 4th one:	3rd quadrant, strategyB
+	}
 	for i := 0; i < numOfGhosts(); i++ {
 		g := &ghost{
 			strategy:  newStrategy(i),
@@ -154,7 +153,7 @@ func stage(stageMap string) error {
 		if err = g.initPosition(b); err != nil {
 			return err
 		}
-		gList = append(gList, g)
+		ghostList = append(ghostList, g)
 	}
 
 	// ステージマップを表示
@@ -177,9 +176,9 @@ func stage(stageMap string) error {
 		var wg sync.WaitGroup
 
 		for gameState == continuing {
-			wg.Add(len(gList))
+			wg.Add(len(ghostList))
 			// Starts new goroutines that runs for ghosts actions
-			for _, g := range gList {
+			for _, g := range ghostList {
 				go g.action(&wg, p)
 			}
 			// Synchronization(waiting for ghosts goroutines to finish)
