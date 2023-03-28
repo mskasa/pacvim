@@ -22,8 +22,6 @@ const (
 	win
 	lose
 
-	maxNumOfGhosts = 4
-
 	chGhost  = 'G'
 	chTarget = 'o'
 	chPoison = 'X'
@@ -31,7 +29,8 @@ const (
 	chWall2  = '|'
 	chWall3  = '-'
 
-	sceneDir = "files/scene/"
+	maxNumOfGhosts = 4
+	sceneDir       = "files/scene/"
 )
 
 var (
