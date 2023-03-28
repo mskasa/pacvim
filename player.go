@@ -29,6 +29,7 @@ func (p *player) initPosition(b *buffer) {
 
 // プレイヤーの制御
 func (p *player) action(b *buffer, w *window) error {
+	isLowercaseGEntered := false
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:

@@ -35,14 +35,13 @@ const (
 )
 
 var (
-	gameState           = 0
-	targetScore         = 0
-	score               = 0
-	level               = 1
-	life                = 3
-	inputNum            = 0
-	isLowercaseGEntered = false
-	gameSpeed           = time.Second
+	gameState   = 0
+	targetScore = 0           // main, player, buffer
+	score       = 0           // main, player, buffer
+	level       = 1           // main, buffer
+	life        = 3           // main, buffer
+	inputNum    = 0           // main, player
+	gameSpeed   = time.Second // mainのrun, stage
 
 	ghostPlotRangeList = [][]float64{
 		{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
