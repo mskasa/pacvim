@@ -114,17 +114,14 @@ game:
 			return err
 		}
 
-		// ゲーム情報の初期化
 		gameState = pose
 		score = 0
 		targetScore = 0
 		b.plotStageMap()
 
-		// プレイヤー初期化
 		p := new(player)
 		p.initPosition(b)
 
-		// ゲーム情報の表示
 		b.plotScore()
 		b.plotSubInfo(*level, *life)
 
@@ -146,12 +143,10 @@ game:
 			ghostList = append(ghostList, g)
 		}
 
-		// ステージマップを表示
 		if err = termbox.Flush(); err != nil {
 			return err
 		}
 
-		// ゲーム開始待ち状態
 		standBy()
 
 		eg := new(errgroup.Group)
