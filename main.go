@@ -3,11 +3,13 @@ package main
 import (
 	"bytes"
 	"embed"
+	"errors"
 	"flag"
 	"log"
 	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -30,6 +32,9 @@ const (
 	chWall2  = '|'
 	chWall3  = '-'
 
+	upperLimitLife      = 5
+	upperLimitMaxGhosts = 4
+
 	sceneDir = "files/scene/"
 )
 
@@ -50,27 +55,33 @@ func main() {
 }
 
 func run() error {
+	// Get path of text files
+	stageMaps, err := dirwalk("./files/stage")
+	if err != nil {
+		return err
+	}
+
+	// Maximum level = Number of stage maps
+	maxLevel := len(stageMaps)
+
 	// Read command line arguments
-	level := flag.Int("level", 1, "level at the start of the game")
-	life := flag.Int("life", 3, "remaining lives")
-	maxNumOfGhosts := flag.Int("maxNumOfGhosts", 4, "maximum number of ghosts")
-	flag.Parse()
+	level := flag.Int("level", 1, "level at the start of the game (upper limit "+strconv.Itoa(maxLevel)+")")
+	life := flag.Int("life", 3, "remaining lives (upper limit "+strconv.Itoa(upperLimitLife)+")")
+	maxGhosts := flag.Int("maxGhosts", 4, "maximum number of ghosts (upper limit "+strconv.Itoa(upperLimitMaxGhosts)+")")
+
+	// Validate command line arguments
+	if err = validateArgs(level, life, maxGhosts, maxLevel); err != nil {
+		return err
+	}
 
 	// Initialize termbox
-	err := termbox.Init()
-	if err != nil {
+	if err = termbox.Init(); err != nil {
 		return err
 	}
 	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
 		return err
 	}
 	defer termbox.Close()
-
-	// Get path of text files
-	stageMaps, err := dirwalk("./files/stage")
-	if err != nil {
-		return err
-	}
 
 	// Display the start screen
 	if err := switchScene(sceneDir + "start.txt"); err != nil {
@@ -104,14 +115,14 @@ game:
 		b.plotScore()
 		b.plotSubInfo(*level, *life)
 
-		ghostList := make([]*ghost, 0, *maxNumOfGhosts)
+		ghostList := make([]*ghost, 0, *maxGhosts)
 		ghostPlotRangeList := [][]float64{
 			{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
 			{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA
 			{0.6, 0.4}, // The 3rd one:	1st quadrant, strategyB
 			{0.4, 0.6}, // The 4th one:	3rd quadrant, strategyB
 		}
-		for i := 0; i < numOfGhosts(*level, *maxNumOfGhosts); i++ {
+		for i := 0; i < numOfGhosts(*level, *maxGhosts); i++ {
 			g := &ghost{
 				strategy:  newStrategy(i),
 				plotRange: ghostPlotRangeList[i],
@@ -169,7 +180,7 @@ game:
 			}
 			*level++
 			gameSpeed = time.Duration(1000-(*level-1)*50) * time.Millisecond
-			if *level == len(stageMaps) {
+			if *level == maxLevel {
 				err = switchScene(sceneDir + "congrats.txt")
 				if err != nil {
 					return err
@@ -195,6 +206,20 @@ game:
 	}
 
 	return err
+}
+
+func validateArgs(level *int, life *int, maxGhosts *int, maxLevel int) error {
+	flag.Parse()
+	if *level > maxLevel {
+		return errors.New("Validation Error: level must be " + strconv.Itoa(maxLevel) + " or less.")
+	}
+	if *life > upperLimitLife {
+		return errors.New("Validation Error: life must be " + strconv.Itoa(upperLimitLife) + " or less.")
+	}
+	if *maxGhosts > upperLimitMaxGhosts {
+		return errors.New("Validation Error: maxGhosts must be " + strconv.Itoa(upperLimitMaxGhosts) + " or less.")
+	}
+	return nil
 }
 
 func switchScene(fileName string) error {
@@ -255,10 +280,10 @@ func dirwalk(dir string) ([]string, error) {
 	return paths, err
 }
 
-func numOfGhosts(level int, maxNumOfGhosts int) int {
+func numOfGhosts(level int, maxGhosts int) int {
 	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
-	if numOfGhost > maxNumOfGhosts {
-		numOfGhost = maxNumOfGhosts
+	if numOfGhost > maxGhosts {
+		numOfGhost = maxGhosts
 	}
 	return numOfGhost
 }
