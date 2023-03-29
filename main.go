@@ -49,28 +49,29 @@ func main() {
 }
 
 func run() error {
+	// Read command line arguments
 	level := flag.Int("level", 1, "level at the start of the game")
 	life := flag.Int("life", 3, "remaining lives")
 	maxNumOfGhosts := flag.Int("maxNumOfGhosts", 4, "maximum number of ghosts")
 	flag.Parse()
 
+	// Initialize termbox
 	err := termbox.Init()
 	if err != nil {
 		return err
 	}
-
 	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
 		return err
 	}
-
 	defer termbox.Close()
 
+	// Get path of text files
 	stageMaps, err := dirwalk("./files/stage")
 	if err != nil {
 		return err
 	}
 
-	// スタート画面表示
+	// Display the start screen
 	if err := switchScene(sceneDir + "start.txt"); err != nil {
 		return err
 	}
