@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"embed"
+	"flag"
 	"log"
 	"math"
 	"os"
@@ -28,21 +29,26 @@ const (
 	chWall2  = '|'
 	chWall3  = '-'
 
-	maxNumOfGhosts = 4
-	sceneDir       = "files/scene/"
+	sceneDir = "files/scene/"
 )
 
 var (
 	gameState   = 0
 	targetScore = 0           // main, player, buffer
 	score       = 0           // main, player, buffer
-	level       = 1           // main, buffer
-	life        = 3           // main, buffer
 	gameSpeed   = time.Second // mainのrun, stage
 
 	//go:embed files
 	static embed.FS
 )
+
+// var level int
+// var life int
+
+// func init() {
+// 	flag.IntVar(&level, "level", 1, "level at the start of the game")
+// 	flag.IntVar(&life, "life", 3, "remaining lives")
+// }
 
 func main() {
 	if err := run(); err != nil {
@@ -51,6 +57,11 @@ func main() {
 }
 
 func run() error {
+	level := flag.Int("level", 1, "level at the start of the game")
+	life := flag.Int("life", 3, "remaining lives")
+	maxNumOfGhosts := flag.Int("maxNumOfGhosts", 4, "maximum number of ghosts")
+	flag.Parse()
+
 	err := termbox.Init()
 	if err != nil {
 		return err
@@ -75,17 +86,97 @@ func run() error {
 
 game:
 	for {
-		if err := stage(stageMaps[level]); err != nil {
+		f, err := static.ReadFile(stageMaps[*level])
+		if err != nil {
 			return err
 		}
+
+		b := createBuffer(bytes.NewReader(f))
+		w := createWindow(b)
+		if err = w.show(b); err != nil {
+			return err
+		}
+
+		// ゲーム情報の初期化
+		gameState = pose
+		score = 0
+		targetScore = 0
+		b.plotStageMap()
+
+		// プレイヤー初期化
+		p := new(player)
+		p.initPosition(b)
+
+		// ゲーム情報の表示
+		b.plotScore()
+		b.plotSubInfo(*level, *life)
+
+		ghostList := make([]*ghost, 0, *maxNumOfGhosts)
+		ghostPlotRangeList := [][]float64{
+			{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
+			{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA
+			{0.6, 0.4}, // The 3rd one:	1st quadrant, strategyB
+			{0.4, 0.6}, // The 4th one:	3rd quadrant, strategyB
+		}
+		for i := 0; i < numOfGhosts(*level, *maxNumOfGhosts); i++ {
+			g := &ghost{
+				strategy:  newStrategy(i),
+				plotRange: ghostPlotRangeList[i],
+			}
+			if err = g.initPosition(b); err != nil {
+				return err
+			}
+			ghostList = append(ghostList, g)
+		}
+
+		// ステージマップを表示
+		if err = termbox.Flush(); err != nil {
+			return err
+		}
+
+		// ゲーム開始待ち状態
+		standBy()
+
+		eg := new(errgroup.Group)
+
+		// Starts a new goroutine that runs for player actions
+		eg.Go(func() error {
+			return p.action(b)
+		})
+
+		// Starts a new goroutine that runs for ghost control
+		eg.Go(func() error {
+			var wg sync.WaitGroup
+
+			for gameState == continuing {
+				wg.Add(len(ghostList))
+				// Starts new goroutines that runs for ghosts actions
+				for _, g := range ghostList {
+					go g.action(&wg, p)
+				}
+				// Synchronization(waiting for ghosts goroutines to finish)
+				wg.Wait()
+				if err = termbox.Flush(); err != nil {
+					return err
+				}
+				time.Sleep(gameSpeed)
+			}
+			return nil
+		})
+
+		// Synchronization(waiting for player action goroutine and ghost control goroutine to finish)
+		if err := eg.Wait(); err != nil {
+			return err
+		}
+
 		switch gameState {
 		case win:
 			if err := switchScene(sceneDir + "youwin.txt"); err != nil {
 				return err
 			}
-			level++
-			gameSpeed = time.Duration(1000-(level-1)*50) * time.Millisecond
-			if level == maxLevel {
+			*level++
+			gameSpeed = time.Duration(1000-(*level-1)*50) * time.Millisecond
+			if *level == maxLevel {
 				err = switchScene(sceneDir + "congrats.txt")
 				if err != nil {
 					return err
@@ -97,8 +188,8 @@ game:
 			if err != nil {
 				return err
 			}
-			life--
-			if life < 0 {
+			*life--
+			if *life < 0 {
 				break game
 			}
 		case quit:
@@ -112,6 +203,7 @@ game:
 
 	return err
 }
+
 func switchScene(fileName string) error {
 	termbox.HideCursor()
 	f, err := static.ReadFile(fileName)
@@ -137,93 +229,6 @@ func switchScene(fileName string) error {
 		return err
 	}
 	time.Sleep(1 * time.Second)
-	return err
-}
-
-func stage(stageMap string) error {
-	f, err := static.ReadFile(stageMap)
-	if err != nil {
-		return err
-	}
-
-	b := createBuffer(bytes.NewReader(f))
-	w := createWindow(b)
-	if err = w.show(b); err != nil {
-		return err
-	}
-
-	// ゲーム情報の初期化
-	gameState = pose
-	score = 0
-	targetScore = 0
-	b.plotStageMap()
-
-	// プレイヤー初期化
-	p := new(player)
-	p.initPosition(b)
-
-	// ゲーム情報の表示
-	b.plotScore()
-	b.plotSubInfo()
-
-	ghostList := make([]*ghost, 0, maxNumOfGhosts)
-	ghostPlotRangeList := [][]float64{
-		{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
-		{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA
-		{0.6, 0.4}, // The 3rd one:	1st quadrant, strategyB
-		{0.4, 0.6}, // The 4th one:	3rd quadrant, strategyB
-	}
-	for i := 0; i < numOfGhosts(); i++ {
-		g := &ghost{
-			strategy:  newStrategy(i),
-			plotRange: ghostPlotRangeList[i],
-		}
-		if err = g.initPosition(b); err != nil {
-			return err
-		}
-		ghostList = append(ghostList, g)
-	}
-
-	// ステージマップを表示
-	if err = termbox.Flush(); err != nil {
-		return err
-	}
-
-	// ゲーム開始待ち状態
-	standBy()
-
-	eg := new(errgroup.Group)
-
-	// Starts a new goroutine that runs for player actions
-	eg.Go(func() error {
-		return p.action(b)
-	})
-
-	// Starts a new goroutine that runs for ghost control
-	eg.Go(func() error {
-		var wg sync.WaitGroup
-
-		for gameState == continuing {
-			wg.Add(len(ghostList))
-			// Starts new goroutines that runs for ghosts actions
-			for _, g := range ghostList {
-				go g.action(&wg, p)
-			}
-			// Synchronization(waiting for ghosts goroutines to finish)
-			wg.Wait()
-			if err = termbox.Flush(); err != nil {
-				return err
-			}
-			time.Sleep(gameSpeed)
-		}
-		return nil
-	})
-
-	// Synchronization(waiting for player action goroutine and ghost control goroutine to finish)
-	if err := eg.Wait(); err != nil {
-		return err
-	}
-
 	return err
 }
 
@@ -255,7 +260,7 @@ func dirwalk(dir string) ([]string, error) {
 	return paths, err
 }
 
-func numOfGhosts() int {
+func numOfGhosts(level int, maxNumOfGhosts int) int {
 	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
 	if numOfGhost > maxNumOfGhosts {
 		numOfGhost = maxNumOfGhosts

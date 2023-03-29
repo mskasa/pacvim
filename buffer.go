@@ -75,7 +75,7 @@ func (b *buffer) plotScore() {
 	}
 }
 
-func (b *buffer) plotSubInfo() {
+func (b *buffer) plotSubInfo(level int, life int) {
 	textMap := map[int]string{
 		0: "Level:" + strconv.Itoa(level),
 		1: "Life:" + strconv.Itoa(life),
