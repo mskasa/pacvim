@@ -38,6 +38,7 @@ const (
 	upperLimitLife      = 5
 	upperLimitMaxGhosts = 4
 
+	stageDir = "files/stage/"
 	sceneDir = "files/scene/"
 )
 
@@ -59,7 +60,7 @@ func main() {
 
 func run() error {
 	// Get path of text files
-	stageMaps, err := dirwalk("./files/stage")
+	stageMaps, err := dirwalk(stageDir)
 	if err != nil {
 		return err
 	}
