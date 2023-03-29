@@ -245,7 +245,7 @@ func dirwalk(dir string) ([]string, error) {
 		return nil, err
 	}
 
-	var paths []string
+	paths := make([]string, 0, 10)
 	for _, file := range files {
 		if !strings.HasPrefix(file.Name(), ".") {
 			paths = append(paths, filepath.Join(dir, file.Name()))
