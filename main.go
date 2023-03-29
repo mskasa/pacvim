@@ -69,7 +69,6 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	maxLevel := len(stageMaps)
 
 	// スタート画面表示
 	if err := switchScene(sceneDir + "start.txt"); err != nil {
@@ -168,7 +167,7 @@ game:
 			}
 			*level++
 			gameSpeed = time.Duration(1000-(*level-1)*50) * time.Millisecond
-			if *level == maxLevel {
+			if *level == len(stageMaps) {
 				err = switchScene(sceneDir + "congrats.txt")
 				if err != nil {
 					return err
