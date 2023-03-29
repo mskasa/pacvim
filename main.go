@@ -42,14 +42,6 @@ var (
 	static embed.FS
 )
 
-// var level int
-// var life int
-
-// func init() {
-// 	flag.IntVar(&level, "level", 1, "level at the start of the game")
-// 	flag.IntVar(&life, "life", 3, "remaining lives")
-// }
-
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
