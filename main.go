@@ -225,11 +225,8 @@ func initScene(fileName string) (*buffer, *window, error) {
 		return nil, nil, err
 	}
 
-	b := new(buffer)
-	b.save(bytes.NewReader(f))
-
-	w := new(window)
-	w.create(b)
+	b := createBuffer(bytes.NewReader(f))
+	w := createWindow(b)
 
 	return b, w, err
 }

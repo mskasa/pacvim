@@ -21,13 +21,15 @@ type line struct {
 }
 
 // Save .txt to buffer.
-func (b *buffer) save(reader io.Reader) {
+func createBuffer(reader io.Reader) *buffer {
+	b := new(buffer)
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		l := new(line)
 		l.text = []rune(scanner.Text())
 		b.lines = append(b.lines, l)
 	}
+	return b
 }
 
 // Convert characters
