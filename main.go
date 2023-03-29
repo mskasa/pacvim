@@ -32,6 +32,9 @@ const (
 	chWall2  = '|'
 	chWall3  = '-'
 
+	defaultLevel        = 1
+	defaultLife         = 3
+	defaultMaxGhosts    = 4
 	upperLimitLife      = 5
 	upperLimitMaxGhosts = 4
 
@@ -65,9 +68,9 @@ func run() error {
 	maxLevel := len(stageMaps)
 
 	// Read command line arguments
-	level := flag.Int("level", 1, "level at the start of the game (upper limit "+strconv.Itoa(maxLevel)+")")
-	life := flag.Int("life", 3, "remaining lives (upper limit "+strconv.Itoa(upperLimitLife)+")")
-	maxGhosts := flag.Int("maxGhosts", 4, "maximum number of ghosts (upper limit "+strconv.Itoa(upperLimitMaxGhosts)+")")
+	level := flag.Int("level", defaultLevel, "level at the start of the game (upper limit "+strconv.Itoa(maxLevel)+")")
+	life := flag.Int("life", defaultLife, "remaining lives (upper limit "+strconv.Itoa(upperLimitLife)+")")
+	maxGhosts := flag.Int("maxGhosts", defaultMaxGhosts, "maximum number of ghosts (upper limit "+strconv.Itoa(upperLimitMaxGhosts)+")")
 
 	// Validate command line arguments
 	if err = validateArgs(level, life, maxGhosts, maxLevel); err != nil {
