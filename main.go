@@ -79,7 +79,7 @@ func run() error {
 
 game:
 	for {
-		f, err := static.ReadFile(stageMaps[*level])
+		f, err := static.ReadFile(stageMaps[*level-1])
 		if err != nil {
 			return err
 		}
