@@ -113,12 +113,42 @@ game:
 
 	return err
 }
-
-func stage(stageMap string) error {
-	b, w, err := initScene(stageMap)
+func switchScene(fileName string) error {
+	termbox.HideCursor()
+	f, err := static.ReadFile(fileName)
 	if err != nil {
 		return err
 	}
+
+	b := createBuffer(bytes.NewReader(f))
+	w := createWindow(b)
+	if err != nil {
+		return err
+	}
+
+	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
+		return err
+	}
+	for y, l := range w.lines {
+		for x, r := range l.text {
+			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
+		}
+	}
+	if err = termbox.Flush(); err != nil {
+		return err
+	}
+	time.Sleep(1 * time.Second)
+	return err
+}
+
+func stage(stageMap string) error {
+	f, err := static.ReadFile(stageMap)
+	if err != nil {
+		return err
+	}
+
+	b := createBuffer(bytes.NewReader(f))
+	w := createWindow(b)
 	if err = w.show(b); err != nil {
 		return err
 	}
@@ -196,39 +226,6 @@ func stage(stageMap string) error {
 	}
 
 	return err
-}
-
-func switchScene(fileName string) error {
-	termbox.HideCursor()
-	_, w, err := initScene(fileName)
-	if err != nil {
-		return err
-	}
-	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
-		return err
-	}
-	for y, l := range w.lines {
-		for x, r := range l.text {
-			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
-		}
-	}
-	if err = termbox.Flush(); err != nil {
-		return err
-	}
-	time.Sleep(1 * time.Second)
-	return err
-}
-
-func initScene(fileName string) (*buffer, *window, error) {
-	f, err := static.ReadFile(fileName)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	b := createBuffer(bytes.NewReader(f))
-	w := createWindow(b)
-
-	return b, w, err
 }
 
 func standBy() {
