@@ -35,6 +35,7 @@ const (
 	defaultLevel        = 1
 	defaultLife         = 3
 	defaultMaxGhosts    = 4
+	defaultGameSpeed    = 3
 	upperLimitLife      = 5
 	upperLimitMaxGhosts = 4
 
@@ -44,9 +45,16 @@ const (
 
 var (
 	gameState   = 0
-	targetScore = 0           // main, player, buffer
-	score       = 0           // main, player, buffer
-	gameSpeed   = time.Second // mainのrun, stage
+	targetScore = 0 // main, player, buffer
+	score       = 0 // main, player, buffer
+
+	gameSpeedList = []time.Duration{
+		1500 * time.Millisecond,
+		1250 * time.Millisecond,
+		1000 * time.Millisecond,
+		750 * time.Millisecond,
+		500 * time.Millisecond,
+	}
 
 	//go:embed files
 	static embed.FS
@@ -69,12 +77,13 @@ func run() error {
 	maxLevel := len(stageMaps)
 
 	// Read command line arguments
-	level := flag.Int("level", defaultLevel, "level at the start of the game (upper limit "+strconv.Itoa(maxLevel)+")")
-	life := flag.Int("life", defaultLife, "remaining lives (upper limit "+strconv.Itoa(upperLimitLife)+")")
-	maxGhosts := flag.Int("maxGhosts", defaultMaxGhosts, "maximum number of ghosts (upper limit "+strconv.Itoa(upperLimitMaxGhosts)+")")
+	level := flag.Int("lv", defaultLevel, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
+	life := flag.Int("l", defaultLife, "Remaining lives. (0-"+strconv.Itoa(upperLimitLife)+")")
+	maxGhosts := flag.Int("mg", defaultMaxGhosts, "Maximum number of ghosts. (1-"+strconv.Itoa(upperLimitMaxGhosts)+")")
+	gameSpeed := flag.Int("gs", defaultGameSpeed, "Game speed. Bigger is faster. (1-"+strconv.Itoa(len(gameSpeedList))+")")
 
 	// Validate command line arguments
-	if err = validateArgs(level, life, maxGhosts, maxLevel); err != nil {
+	if err = validateArgs(level, life, maxGhosts, gameSpeed, maxLevel); err != nil {
 		return err
 	}
 
@@ -167,7 +176,7 @@ game:
 				if err = termbox.Flush(); err != nil {
 					return err
 				}
-				time.Sleep(gameSpeed)
+				time.Sleep(gameSpeedList[*gameSpeed-1])
 			}
 			return nil
 		})
@@ -183,7 +192,6 @@ game:
 				return err
 			}
 			*level++
-			gameSpeed = time.Duration(1000-(*level-1)*50) * time.Millisecond
 			if *level == maxLevel {
 				err = switchScene(sceneDir + "congrats.txt")
 				if err != nil {
@@ -212,16 +220,19 @@ game:
 	return err
 }
 
-func validateArgs(level *int, life *int, maxGhosts *int, maxLevel int) error {
+func validateArgs(level *int, life *int, maxGhosts *int, gameSpeed *int, maxLevel int) error {
 	flag.Parse()
-	if *level > maxLevel {
-		return errors.New("Validation Error: level must be " + strconv.Itoa(maxLevel) + " or less.")
+	if *level > maxLevel || *level < 1 {
+		return errors.New("Validation Error: lv must be (1-" + strconv.Itoa(maxLevel) + ").")
 	}
-	if *life > upperLimitLife {
-		return errors.New("Validation Error: life must be " + strconv.Itoa(upperLimitLife) + " or less.")
+	if *life > upperLimitLife || *life < 0 {
+		return errors.New("Validation Error: l must be (0-" + strconv.Itoa(upperLimitLife) + ").")
 	}
-	if *maxGhosts > upperLimitMaxGhosts {
-		return errors.New("Validation Error: maxGhosts must be " + strconv.Itoa(upperLimitMaxGhosts) + " or less.")
+	if *maxGhosts > upperLimitMaxGhosts || *maxGhosts < 1 {
+		return errors.New("Validation Error: mg must be (1-" + strconv.Itoa(upperLimitMaxGhosts) + ").")
+	}
+	if *gameSpeed > len(gameSpeedList) || *gameSpeed < 1 {
+		return errors.New("Validation Error: gs must be (1-" + strconv.Itoa(len(gameSpeedList)) + ").")
 	}
 	return nil
 }
