@@ -285,9 +285,9 @@ func dirwalk(dir string) ([]string, error) {
 }
 
 func numOfGhosts(level int, maxGhosts int) int {
-	numOfGhost := int(math.Ceil(float64(level)/3.0)) + 1
-	if numOfGhost > maxGhosts {
-		numOfGhost = maxGhosts
+	ghosts := int(math.Ceil(float64(level)/3.0)) + 1
+	if ghosts > maxGhosts {
+		ghosts = maxGhosts
 	}
-	return numOfGhost
+	return ghosts
 }
