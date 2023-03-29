@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 	"math"
+	"math/rand"
 	"sync"
+	"time"
 
 	termbox "github.com/nsf/termbox-go"
 )
@@ -152,4 +154,9 @@ func (g *ghost) hasCaptured(p *player) bool {
 		return true
 	}
 	return false
+}
+
+func random(min, max int) int {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	return rand.Intn(max-min+1) + min
 }

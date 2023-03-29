@@ -5,7 +5,6 @@ import (
 	"embed"
 	"log"
 	"math"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"sync"
@@ -262,9 +261,4 @@ func numOfGhosts() int {
 		numOfGhost = maxNumOfGhosts
 	}
 	return numOfGhost
-}
-
-func random(min, max int) int {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-	return rand.Intn(max-min+1) + min
 }
