@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -246,7 +247,9 @@ func dirwalk(dir string) ([]string, error) {
 
 	var paths []string
 	for _, file := range files {
-		paths = append(paths, filepath.Join(dir, file.Name()))
+		if !strings.HasPrefix(file.Name(), ".") {
+			paths = append(paths, filepath.Join(dir, file.Name()))
+		}
 	}
 
 	return paths, err
