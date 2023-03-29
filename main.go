@@ -45,8 +45,8 @@ const (
 
 var (
 	gameState   = 0
-	targetScore = 0 // main, player, buffer
-	score       = 0 // main, player, buffer
+	targetScore = 0
+	score       = 0
 
 	gameSpeedList = []time.Duration{
 		1500 * time.Millisecond,
