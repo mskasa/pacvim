@@ -167,7 +167,7 @@ func stage(stageMap string) error {
 
 	// Starts a new goroutine that runs for player actions
 	eg.Go(func() error {
-		return p.action(b, w)
+		return p.action(b)
 	})
 
 	// Starts a new goroutine that runs for ghost control
