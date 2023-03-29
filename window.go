@@ -10,7 +10,7 @@ type window struct {
 	lines []*line
 }
 
-func (w *window) copy(b *buffer) {
+func (w *window) create(b *buffer) {
 	w.lines = []*line{}
 	winWidth, winHeight := termbox.Size()
 	for i := 0; i < len(b.lines); i++ {
