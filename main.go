@@ -48,12 +48,12 @@ var (
 	targetScore = 0
 	score       = 0
 
-	gameSpeedList = []time.Duration{
-		1500 * time.Millisecond,
-		1250 * time.Millisecond,
-		1000 * time.Millisecond,
-		750 * time.Millisecond,
-		500 * time.Millisecond,
+	gameSpeedMap = map[int]time.Duration{
+		1: 1500 * time.Millisecond,
+		2: 1250 * time.Millisecond,
+		3: 1000 * time.Millisecond,
+		4: 750 * time.Millisecond,
+		5: 500 * time.Millisecond,
 	}
 
 	//go:embed files
@@ -80,7 +80,7 @@ func run() error {
 	level := flag.Int("lv", defaultLevel, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
 	life := flag.Int("l", defaultLife, "Remaining lives. (0-"+strconv.Itoa(upperLimitLife)+")")
 	maxGhosts := flag.Int("mg", defaultMaxGhosts, "Maximum number of ghosts. (1-"+strconv.Itoa(upperLimitMaxGhosts)+")")
-	gameSpeed := flag.Int("gs", defaultGameSpeed, "Game speed. Bigger is faster. (1-"+strconv.Itoa(len(gameSpeedList))+")")
+	gameSpeed := flag.Int("gs", defaultGameSpeed, "Game speed. Bigger is faster. (1-"+strconv.Itoa(len(gameSpeedMap))+")")
 
 	// Validate command line arguments
 	if err = validateArgs(level, life, maxGhosts, gameSpeed, maxLevel); err != nil {
@@ -171,7 +171,7 @@ game:
 				if err = termbox.Flush(); err != nil {
 					return err
 				}
-				time.Sleep(gameSpeedList[*gameSpeed-1])
+				time.Sleep(gameSpeedMap[*gameSpeed])
 			}
 			return nil
 		})
@@ -226,8 +226,8 @@ func validateArgs(level *int, life *int, maxGhosts *int, gameSpeed *int, maxLeve
 	if *maxGhosts > upperLimitMaxGhosts || *maxGhosts < 1 {
 		return errors.New("Validation Error: mg must be (1-" + strconv.Itoa(upperLimitMaxGhosts) + ").")
 	}
-	if *gameSpeed > len(gameSpeedList) || *gameSpeed < 1 {
-		return errors.New("Validation Error: gs must be (1-" + strconv.Itoa(len(gameSpeedList)) + ").")
+	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
+		return errors.New("Validation Error: gs must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
 	}
 	return nil
 }
