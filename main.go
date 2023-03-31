@@ -82,9 +82,9 @@ func run() error {
 	maxLevel := len(stageMaps)
 
 	// Read command line arguments
-	level := flag.Int("lv", defaultLevel, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
-	life := flag.Int("l", defaultLife, "Remaining lives. (0-"+strconv.Itoa(upperLimitLife)+")")
-	gameSpeed := flag.Int("gs", defaultGameSpeed, "Game speed. Bigger is faster. (1-"+strconv.Itoa(len(gameSpeedMap))+")")
+	level := flag.Int("level", defaultLevel, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
+	life := flag.Int("life", defaultLife, "Remaining lives. (0-"+strconv.Itoa(upperLimitLife)+")")
+	gameSpeed := flag.Int("speed", defaultGameSpeed, "Game speed. Bigger is faster. (1-"+strconv.Itoa(len(gameSpeedMap))+")")
 
 	// Validate command line arguments
 	if err = validateArgs(level, life, gameSpeed, maxLevel); err != nil {
@@ -209,13 +209,13 @@ game:
 func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
 	flag.Parse()
 	if *level > maxLevel || *level < 1 {
-		return errors.New("Validation Error: lv must be (1-" + strconv.Itoa(maxLevel) + ").")
+		return errors.New("Validation Error: level must be (1-" + strconv.Itoa(maxLevel) + ").")
 	}
 	if *life > upperLimitLife || *life < 0 {
-		return errors.New("Validation Error: l must be (0-" + strconv.Itoa(upperLimitLife) + ").")
+		return errors.New("Validation Error: life must be (0-" + strconv.Itoa(upperLimitLife) + ").")
 	}
 	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
-		return errors.New("Validation Error: gs must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
+		return errors.New("Validation Error: speed must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
 	}
 	return nil
 }
