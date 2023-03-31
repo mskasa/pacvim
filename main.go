@@ -74,7 +74,7 @@ func run() error {
 		return err
 	}
 
-	if err = validFiles(stageMaps); err != nil {
+	if err = validateFiles(stageMaps); err != nil {
 		return err
 	}
 
@@ -206,20 +206,6 @@ game:
 	return err
 }
 
-func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
-	flag.Parse()
-	if *level > maxLevel || *level < 1 {
-		return errors.New("Validation Error: level must be (1-" + strconv.Itoa(maxLevel) + ").")
-	}
-	if *life > upperLimitLife || *life < 0 {
-		return errors.New("Validation Error: life must be (0-" + strconv.Itoa(upperLimitLife) + ").")
-	}
-	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
-		return errors.New("Validation Error: speed must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
-	}
-	return nil
-}
-
 func switchScene(fileName string) error {
 	termbox.HideCursor()
 	f, err := static.ReadFile(fileName)
@@ -283,18 +269,18 @@ func dirwalk(dir string) (map[int]string, error) {
 	return pathMap, nil
 }
 
-func validFiles(stageMaps map[int]string) error {
+func validateFiles(stageMaps map[int]string) error {
 	for i := 1; i <= len(stageMaps); i++ {
-		if err := validMimeType(stageMaps[i]); err != nil {
+		if err := validateMimeType(stageMaps[i]); err != nil {
 			return err
 		}
-		if err := validFileSize(stageMaps[i]); err != nil {
+		if err := validateFileSize(stageMaps[i]); err != nil {
 			return err
 		}
 	}
 	return nil
 }
-func validMimeType(stageMap string) error {
+func validateMimeType(stageMap string) error {
 	bytes, err := os.ReadFile(stageMap)
 	if err != nil {
 		return err
@@ -305,7 +291,7 @@ func validMimeType(stageMap string) error {
 	}
 	return nil
 }
-func validFileSize(dir string) (err error) {
+func validateFileSize(dir string) (err error) {
 	f, err := os.Open(dir)
 	if err != nil {
 		return err
@@ -322,6 +308,20 @@ func validFileSize(dir string) (err error) {
 
 	if fi.Size() > maxFileSize {
 		return errors.New("File size exceeded:" + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ")")
+	}
+	return nil
+}
+
+func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
+	flag.Parse()
+	if *level > maxLevel || *level < 1 {
+		return errors.New("Validation Error: level must be (1-" + strconv.Itoa(maxLevel) + ").")
+	}
+	if *life > upperLimitLife || *life < 0 {
+		return errors.New("Validation Error: life must be (0-" + strconv.Itoa(upperLimitLife) + ").")
+	}
+	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
+		return errors.New("Validation Error: speed must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
 	}
 	return nil
 }
