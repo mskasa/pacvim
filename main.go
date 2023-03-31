@@ -16,6 +16,7 @@ import (
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
+	"go.uber.org/multierr"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -43,6 +44,7 @@ const (
 	stageDir         = "files/stage/"
 	sceneDir         = "files/scene/"
 	stageMapMimeType = "text/plain; charset=utf-8"
+	maxFileSize      = 512
 )
 
 var (
@@ -74,7 +76,8 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	if err = validMimeType(stageMaps); err != nil {
+
+	if err = validFiles(stageMaps); err != nil {
 		return err
 	}
 
@@ -300,16 +303,45 @@ func dirwalk(dir string) (map[int]string, error) {
 	return pathMap, nil
 }
 
-func validMimeType(stageMaps map[int]string) error {
+func validFiles(stageMaps map[int]string) error {
 	for i := 1; i <= len(stageMaps); i++ {
-		bytes, err := os.ReadFile(stageMaps[i])
-		if err != nil {
+		if err := validMimeType(stageMaps[i]); err != nil {
 			return err
 		}
-		mimeType := http.DetectContentType(bytes)
-		if mimeType != stageMapMimeType {
-			return errors.New("Invalid mime type: " + mimeType)
+		if err := validFileSize(stageMaps[i]); err != nil {
+			return err
 		}
+	}
+	return nil
+}
+func validMimeType(stageMap string) error {
+	bytes, err := os.ReadFile(stageMap)
+	if err != nil {
+		return err
+	}
+	mimeType := http.DetectContentType(bytes)
+	if mimeType != stageMapMimeType {
+		return errors.New("Invalid mime type: " + mimeType)
+	}
+	return nil
+}
+func validFileSize(dir string) (err error) {
+	f, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		err = multierr.Append(err, f.Close())
+	}()
+
+	fi, err := f.Stat()
+	if err != nil {
+		return err
+	}
+
+	if fi.Size() > maxFileSize {
+		return errors.New("File size exceeded:" + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ")")
 	}
 	return nil
 }
