@@ -9,8 +9,8 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -103,7 +103,7 @@ func run() error {
 
 game:
 	for {
-		f, err := static.ReadFile(stageMaps[*level-1])
+		f, err := static.ReadFile(stageMaps[*level])
 		if err != nil {
 			return err
 		}
@@ -274,20 +274,25 @@ func standBy() {
 	}
 }
 
-func dirwalk(dir string) ([]string, error) {
-	files, err := os.ReadDir(dir)
-	if err != nil {
+func dirwalk(dir string) (map[int]string, error) {
+	pathMap := make(map[int]string, 10)
+	r1 := regexp.MustCompile(`^map`)
+	r2 := regexp.MustCompile(`.txt$`)
+
+	i := 1
+	if err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && r1.MatchString(info.Name()) && r2.MatchString(info.Name()) {
+			pathMap[i] = filepath.Join(dir, info.Name())
+			i++
+		}
+		return nil
+	}); err != nil {
 		return nil, err
 	}
-
-	paths := make([]string, 0, 10)
-	for _, file := range files {
-		if !strings.HasPrefix(file.Name(), ".") {
-			paths = append(paths, filepath.Join(dir, file.Name()))
-		}
-	}
-
-	return paths, err
+	return pathMap, nil
 }
 
 func numOfGhosts(level int, maxGhosts int) int {
