@@ -25,6 +25,43 @@ type strategy interface {
 type strategyA struct{}
 type strategyB struct{}
 
+func createGhosts(level int, b *buffer) ([]*ghost, error) {
+	ghosts := []*ghost{
+		{
+			strategy:  &strategyA{},
+			plotRange: []float64{0.4, 0.4}, // 2nd quadrant
+		},
+		{
+			strategy:  &strategyA{},
+			plotRange: []float64{0.6, 0.6}, // 4th quadrant
+		},
+		{
+			strategy:  &strategyB{},
+			plotRange: []float64{0.6, 0.4}, // 1st quadrant
+		},
+		{
+			strategy:  &strategyB{},
+			plotRange: []float64{0.4, 0.6}, // 3rd quadrant
+		},
+	}
+	maxGhosts := len(ghosts)
+	ghostList := make([]*ghost, 0, maxGhosts)
+	for i := 0; i < func() int {
+		n := int(math.Ceil(float64(level)/3.0)) + 1
+		if n > maxGhosts {
+			n = maxGhosts
+		}
+		return n
+	}(); i++ {
+		g := ghosts[i]
+		if err := g.initPosition(b); err != nil {
+			return nil, err
+		}
+		ghostList = append(ghostList, g)
+	}
+	return ghostList, nil
+}
+
 func (g *ghost) initPosition(b *buffer) error {
 	i := 0
 	for {
@@ -78,13 +115,6 @@ func (g *ghost) action(wg *sync.WaitGroup, p *player) {
 		// ゴーストがプレイヤーを捕まえた場合
 		gameState = lose
 	}
-}
-
-func newStrategy(i int) strategy {
-	if i/2+1 == 1 {
-		return &strategyA{}
-	}
-	return &strategyB{}
 }
 
 // プレイヤー追跡タイプ

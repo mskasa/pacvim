@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"log"
-	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -34,12 +33,10 @@ const (
 	chWall2  = '|'
 	chWall3  = '-'
 
-	defaultLevel        = 1
-	defaultLife         = 3
-	defaultMaxGhosts    = 4
-	defaultGameSpeed    = 3
-	upperLimitLife      = 5
-	upperLimitMaxGhosts = 4
+	defaultLevel     = 1
+	defaultLife      = 3
+	defaultGameSpeed = 3
+	upperLimitLife   = 5
 
 	stageDir         = "files/stage/"
 	sceneDir         = "files/scene/"
@@ -87,11 +84,10 @@ func run() error {
 	// Read command line arguments
 	level := flag.Int("lv", defaultLevel, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
 	life := flag.Int("l", defaultLife, "Remaining lives. (0-"+strconv.Itoa(upperLimitLife)+")")
-	maxGhosts := flag.Int("mg", defaultMaxGhosts, "Maximum number of ghosts. (1-"+strconv.Itoa(upperLimitMaxGhosts)+")")
 	gameSpeed := flag.Int("gs", defaultGameSpeed, "Game speed. Bigger is faster. (1-"+strconv.Itoa(len(gameSpeedMap))+")")
 
 	// Validate command line arguments
-	if err = validateArgs(level, life, maxGhosts, gameSpeed, maxLevel); err != nil {
+	if err = validateArgs(level, life, gameSpeed, maxLevel); err != nil {
 		return err
 	}
 
@@ -133,22 +129,9 @@ game:
 		b.plotScore()
 		b.plotSubInfo(*level, *life)
 
-		ghostList := make([]*ghost, 0, *maxGhosts)
-		ghostPlotRangeList := [][]float64{
-			{0.4, 0.4}, // The 1st one:	2nd quadrant, strategyA
-			{0.6, 0.6}, // The 2nd one:	4th quadrant, strategyA
-			{0.6, 0.4}, // The 3rd one:	1st quadrant, strategyB
-			{0.4, 0.6}, // The 4th one:	3rd quadrant, strategyB
-		}
-		for i := 0; i < numOfGhosts(*level, *maxGhosts); i++ {
-			g := &ghost{
-				strategy:  newStrategy(i),
-				plotRange: ghostPlotRangeList[i],
-			}
-			if err = g.initPosition(b); err != nil {
-				return err
-			}
-			ghostList = append(ghostList, g)
+		ghostList, err := createGhosts(*level, b)
+		if err != nil {
+			return err
 		}
 
 		if err = termbox.Flush(); err != nil {
@@ -223,16 +206,13 @@ game:
 	return err
 }
 
-func validateArgs(level *int, life *int, maxGhosts *int, gameSpeed *int, maxLevel int) error {
+func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
 	flag.Parse()
 	if *level > maxLevel || *level < 1 {
 		return errors.New("Validation Error: lv must be (1-" + strconv.Itoa(maxLevel) + ").")
 	}
 	if *life > upperLimitLife || *life < 0 {
 		return errors.New("Validation Error: l must be (0-" + strconv.Itoa(upperLimitLife) + ").")
-	}
-	if *maxGhosts > upperLimitMaxGhosts || *maxGhosts < 1 {
-		return errors.New("Validation Error: mg must be (1-" + strconv.Itoa(upperLimitMaxGhosts) + ").")
 	}
 	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
 		return errors.New("Validation Error: gs must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
@@ -344,12 +324,4 @@ func validFileSize(dir string) (err error) {
 		return errors.New("File size exceeded:" + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ")")
 	}
 	return nil
-}
-
-func numOfGhosts(level int, maxGhosts int) int {
-	ghosts := int(math.Ceil(float64(level)/3.0)) + 1
-	if ghosts > maxGhosts {
-		ghosts = maxGhosts
-	}
-	return ghosts
 }
