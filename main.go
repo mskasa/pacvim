@@ -7,6 +7,7 @@ import (
 	"flag"
 	"log"
 	"math"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -39,8 +40,9 @@ const (
 	upperLimitLife      = 5
 	upperLimitMaxGhosts = 4
 
-	stageDir = "files/stage/"
-	sceneDir = "files/scene/"
+	stageDir         = "files/stage/"
+	sceneDir         = "files/scene/"
+	stageMapMimeType = "text/plain; charset=utf-8"
 )
 
 var (
@@ -70,6 +72,9 @@ func run() error {
 	// Get path of text files
 	stageMaps, err := dirwalk(stageDir)
 	if err != nil {
+		return err
+	}
+	if err = validMimeType(stageMaps); err != nil {
 		return err
 	}
 
@@ -293,6 +298,20 @@ func dirwalk(dir string) (map[int]string, error) {
 		return nil, err
 	}
 	return pathMap, nil
+}
+
+func validMimeType(stageMaps map[int]string) error {
+	for i := 1; i <= len(stageMaps); i++ {
+		bytes, err := os.ReadFile(stageMaps[i])
+		if err != nil {
+			return err
+		}
+		mimeType := http.DetectContentType(bytes)
+		if mimeType != stageMapMimeType {
+			return errors.New("Invalid mime type: " + mimeType)
+		}
+	}
+	return nil
 }
 
 func numOfGhosts(level int, maxGhosts int) int {
