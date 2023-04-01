@@ -1,6 +1,8 @@
 package main
 
 import (
+	"math"
+	"sort"
 	"strconv"
 
 	termbox "github.com/nsf/termbox-go"
@@ -14,22 +16,44 @@ type player struct {
 }
 
 func (p *player) initPosition(b *buffer) {
-	// マップ中央座標をセット
-	p.y = len(b.lines)/2 - 1
-	p.x = len(b.lines[p.y].text) / 2
-	for {
+	squares := squaresAround(2)
+	p.y = len(b.lines) / 2
+	p.x = (len(b.lines[p.y].text) + b.offset) / 2
+	for _, v := range squares {
 		if isCharSpace(p.x, p.y) || isCharTarget(p.x, p.y) {
-			// スペースかターゲットの場合は確定
-			p.moveOneSquare(0, 0)
+			// determine
 			termbox.SetCursor(p.x, p.y)
+			p.turnGreen()
 			break
 		}
-		// 適当に右へ TODO
-		p.x++
+		// try to move
+		p.moveCross(v[0], v[1])
+		if isCharPoison(p.x, p.y) {
+			// undo
+			p.moveCross(-v[0], -v[1])
+		}
 	}
 }
 
-// プレイヤーの制御
+// Get the relative coordinates of the surrounding n squares
+func squaresAround(n int) [][]int {
+	cap := (2*n + 1) * (2*n + 1)
+	upper := n
+	lower := n * -1
+	squares := make([][]int, 0, cap)
+	for x := lower; x <= upper; x++ {
+		for y := lower; y <= upper; y++ {
+			distance := int(math.Abs(float64(x)) + math.Abs(float64(y)))
+			squares = append(squares, []int{x, y, distance})
+		}
+	}
+	// ascending order of distance
+	sort.Slice(squares, func(i, j int) bool {
+		return squares[i][2] < squares[j][2]
+	})
+	return squares
+}
+
 func (p *player) action(b *buffer) error {
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
