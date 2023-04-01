@@ -37,7 +37,7 @@ func (p *player) action(b *buffer) error {
 			if p.inputG == 'g' {
 				if ev.Ch == 'g' {
 					// Regex: *gg
-					p.warpWord(warpBeginningFirstWordFirstLine, b)
+					p.warpWord(p.warpBeginningFirstWordFirstLine, b)
 				}
 				// Regex: *g.
 				p.inputNum = 0
@@ -63,25 +63,25 @@ func (p *player) action(b *buffer) error {
 						p.moveCross(1, 0)
 					// 次の単語の先頭に移動
 					case 'w':
-						p.moveWordByWord(moveBeginningNextWord)
+						p.moveWordByWord(p.moveBeginningNextWord)
 					// 現在の単語もしくは前の単語の先頭に移動
 					case 'b':
-						p.moveWordByWord(moveBeginningPrevWord)
+						p.moveWordByWord(p.moveBeginningPrevWord)
 					// 単語の最後の文字に移動
 					case 'e':
-						p.moveWordByWord(moveLastWord)
+						p.moveWordByWord(p.moveLastWord)
 					// 行頭にワープ
 					case '0':
-						p.warpLine(warpBeginningLine)
+						p.warpLine(p.warpBeginningLine)
 					// 行末にワープ
 					case '$':
-						p.warpLine(warpEndLine)
+						p.warpLine(p.warpEndLine)
 					// 行頭の単語の先頭にワープ
 					case '^':
-						p.warpWord(warpBeginningWord, b)
+						p.warpWord(p.warpBeginningWord, b)
 					// 最後の行の行頭の単語の先頭にワープ
 					case 'G':
-						p.warpWord(warpBeginningFirstWordLastLine, b)
+						p.warpWord(p.warpBeginningFirstWordLastLine, b)
 					// ゲームをやめる
 					case 'q':
 						gameState = quit
@@ -137,20 +137,20 @@ func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 }
 
 // 移動（単語単位）
-func (p *player) moveWordByWord(fn func(*player) bool) {
+func (p *player) moveWordByWord(fn func() bool) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
-			if !fn(p) {
+			if !fn() {
 				break
 			}
 		}
 	} else {
-		fn(p)
+		fn()
 	}
 }
 
 // 次の単語の先頭に移動
-func moveBeginningNextWord(p *player) bool {
+func (p *player) moveBeginningNextWord() bool {
 	spaceFlg := false
 	for {
 		if isCharSpace(p.x, p.y) {
@@ -168,14 +168,14 @@ func moveBeginningNextWord(p *player) bool {
 }
 
 // ワープ（行頭・行末）
-func (p *player) warpLine(fn func(*player)) {
-	fn(p)
+func (p *player) warpLine(fn func()) {
+	fn()
 	p.checkActionResult()
 }
 
 // ワープ（単語の先頭）
-func (p *player) warpWord(fn func(*player, *buffer), b *buffer) {
-	fn(p, b)
+func (p *player) warpWord(fn func(*buffer), b *buffer) {
+	fn(b)
 	p.checkActionResult()
 }
 
@@ -189,7 +189,7 @@ func (p *player) checkActionResult() {
 }
 
 // b:現在の単語もしくは前の単語の先頭に移動
-func moveBeginningPrevWord(p *player) bool {
+func (p *player) moveBeginningPrevWord() bool {
 	for isCharSpace(p.x-1, p.y) {
 		if !p.moveOneSquare(-1, 0) {
 			break
@@ -204,7 +204,7 @@ func moveBeginningPrevWord(p *player) bool {
 }
 
 // e:単語の最後の文字に移動
-func moveLastWord(p *player) bool {
+func (p *player) moveLastWord() bool {
 	for isCharSpace(p.x+1, p.y) {
 		if !p.moveOneSquare(1, 0) {
 			break
@@ -219,7 +219,7 @@ func moveLastWord(p *player) bool {
 }
 
 // 0:行頭にワープ
-func warpBeginningLine(p *player) {
+func (p *player) warpBeginningLine() {
 	p.x = 0
 	for {
 		if !isCharWall(p.x, p.y) {
@@ -238,7 +238,7 @@ func warpBeginningLine(p *player) {
 }
 
 // $:行末にワープ
-func warpEndLine(p *player) {
+func (p *player) warpEndLine() {
 	p.x, _ = termbox.Size()
 	for {
 		if !isCharWall(p.x, p.y) {
@@ -257,8 +257,8 @@ func warpEndLine(p *player) {
 }
 
 // ^:行頭の単語の先頭にワープ
-func warpBeginningWord(p *player, b *buffer) {
-	warpBeginningLine(p)
+func (p *player) warpBeginningWord(b *buffer) {
+	p.warpBeginningLine()
 	width := len(b.lines[p.y].text) + b.offset
 	x := p.x
 	for {
@@ -274,7 +274,7 @@ func warpBeginningWord(p *player, b *buffer) {
 }
 
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func warpBeginningFirstWordFirstLine(p *player, b *buffer) {
+func (p *player) warpBeginningFirstWordFirstLine(b *buffer) {
 	if p.inputNum == 0 {
 		p.y = b.firstTargetY
 	} else if p.inputNum > b.lastTargetY {
@@ -282,11 +282,11 @@ func warpBeginningFirstWordFirstLine(p *player, b *buffer) {
 	} else {
 		p.y = p.inputNum - 1
 	}
-	warpBeginningWord(p, b)
+	p.warpBeginningWord(b)
 }
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func warpBeginningFirstWordLastLine(p *player, b *buffer) {
+func (p *player) warpBeginningFirstWordLastLine(b *buffer) {
 	if p.inputNum == 0 || p.inputNum > b.lastTargetY {
 		p.y = b.lastTargetY
 	} else if p.inputNum <= b.firstTargetY {
@@ -294,7 +294,7 @@ func warpBeginningFirstWordLastLine(p *player, b *buffer) {
 	} else {
 		p.y = p.inputNum - 1
 	}
-	warpBeginningWord(p, b)
+	p.warpBeginningWord(b)
 }
 
 // ターゲットの色を変更（白→緑）
