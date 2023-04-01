@@ -138,7 +138,18 @@ game:
 			return err
 		}
 
-		standBy()
+		// stand-by
+		for {
+			ev := termbox.PollEvent()
+			if ev.Key == termbox.KeyEnter {
+				gameState = continuing
+				break
+			}
+			if ev.Ch == 'q' {
+				gameState = quit
+				break
+			}
+		}
 
 		eg := new(errgroup.Group)
 
@@ -232,20 +243,6 @@ func switchScene(fileName string) error {
 	}
 	time.Sleep(1 * time.Second)
 	return err
-}
-
-func standBy() {
-	for {
-		ev := termbox.PollEvent()
-		if ev.Key == termbox.KeyEnter {
-			gameState = continuing
-			break
-		}
-		if ev.Ch == 'q' {
-			gameState = quit
-			break
-		}
-	}
 }
 
 func dirwalk(dir string) (map[int]string, error) {
