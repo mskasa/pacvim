@@ -22,25 +22,25 @@ type ghost struct {
 type strategy interface {
 	eval(p *player, x, y int) float64
 }
-type strategyA struct{}
-type strategyB struct{}
+type assault struct{}
+type ambush struct{}
 
 func createGhosts(level int, b *buffer) ([]*ghost, error) {
 	ghosts := []*ghost{
 		{
-			strategy:  &strategyA{},
+			strategy:  &assault{},
 			plotRange: []float64{0.4, 0.4}, // 2nd quadrant
 		},
 		{
-			strategy:  &strategyA{},
+			strategy:  &assault{},
 			plotRange: []float64{0.6, 0.6}, // 4th quadrant
 		},
 		{
-			strategy:  &strategyB{},
+			strategy:  &ambush{},
 			plotRange: []float64{0.6, 0.4}, // 1st quadrant
 		},
 		{
-			strategy:  &strategyB{},
+			strategy:  &ambush{},
 			plotRange: []float64{0.4, 0.6}, // 3rd quadrant
 		},
 	}
@@ -117,8 +117,7 @@ func (g *ghost) action(wg *sync.WaitGroup, p *player) {
 	}
 }
 
-// プレイヤー追跡タイプ
-func (s *strategyA) eval(p *player, x, y int) float64 {
+func (s *assault) eval(p *player, x, y int) float64 {
 	if isCharWall(x, y) || isCharGhost(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
 		return 1000
@@ -127,8 +126,7 @@ func (s *strategyA) eval(p *player, x, y int) float64 {
 	return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 }
 
-// 待ち伏せ徘徊タイプ
-func (s *strategyB) eval(p *player, x, y int) float64 {
+func (s *ambush) eval(p *player, x, y int) float64 {
 	if isCharWall(x, y) || isCharGhost(x, y) {
 		return 30
 	}
