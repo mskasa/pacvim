@@ -17,15 +17,15 @@ func Test_switchScene(t *testing.T) {
 		t.Error(err)
 	}
 	defer termbox.Close()
-	fileNames := []string{
+	scenes := []string{
 		sceneStart,
 		sceneYouwin,
 		sceneYoulose,
 		sceneCongrats,
 		sceneGoodbye,
 	}
-	for _, fn := range fileNames {
-		if err := switchScene(sceneDir + fn); err != nil {
+	for _, s := range scenes {
+		if err := switchScene(s); err != nil {
 			t.Error(err)
 		}
 	}
