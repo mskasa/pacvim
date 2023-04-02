@@ -289,7 +289,7 @@ func (p *player) warpBeginningWord(b *buffer) {
 		if x > width {
 			return
 		}
-		if isCharTarget(x, p.y) {
+		if isCharTarget(x, p.y) || isCharPoison(x, p.y) {
 			p.x = x
 			break
 		}
