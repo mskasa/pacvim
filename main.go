@@ -194,7 +194,7 @@ game:
 				return err
 			}
 			*level++
-			if *level == maxLevel {
+			if *level > maxLevel {
 				err = switchScene(sceneDir + sceneCongrats)
 				if err != nil {
 					return err
