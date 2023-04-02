@@ -40,6 +40,11 @@ const (
 
 	stageDir         = "files/stage/"
 	sceneDir         = "files/scene/"
+	sceneStart       = "start.txt"
+	sceneYouwin      = "youwin.txt"
+	sceneYoulose     = "youlose.txt"
+	sceneCongrats    = "congrats.txt"
+	sceneGoodbye     = "goodbye.txt"
 	stageMapMimeType = "text/plain; charset=utf-8"
 	maxFileSize      = 512
 )
@@ -101,7 +106,7 @@ func run() error {
 	defer termbox.Close()
 
 	// Display the start screen
-	if err := switchScene(sceneDir + "start.txt"); err != nil {
+	if err := switchScene(sceneDir + sceneStart); err != nil {
 		return err
 	}
 
@@ -185,19 +190,19 @@ game:
 
 		switch gameState {
 		case win:
-			if err := switchScene(sceneDir + "youwin.txt"); err != nil {
+			if err := switchScene(sceneDir + sceneYouwin); err != nil {
 				return err
 			}
 			*level++
 			if *level == maxLevel {
-				err = switchScene(sceneDir + "congrats.txt")
+				err = switchScene(sceneDir + sceneCongrats)
 				if err != nil {
 					return err
 				}
 				break game
 			}
 		case lose:
-			err = switchScene(sceneDir + "youlose.txt")
+			err = switchScene(sceneDir + sceneYoulose)
 			if err != nil {
 				return err
 			}
@@ -209,7 +214,7 @@ game:
 			break game
 		}
 	}
-	err = switchScene(sceneDir + "goodbye.txt")
+	err = switchScene(sceneDir + sceneGoodbye)
 	if err != nil {
 		return err
 	}
