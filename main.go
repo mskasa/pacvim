@@ -243,7 +243,7 @@ func switchScene(fileName string) error {
 	if err = termbox.Flush(); err != nil {
 		return err
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(750 * time.Millisecond)
 	return err
 }
 
