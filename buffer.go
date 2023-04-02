@@ -69,16 +69,16 @@ func (b *buffer) plotStageMap() {
 
 func (b *buffer) plotScore() {
 	textHeight := len(b.lines)
-	s := []rune("score:" + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
+	s := []rune("score: " + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range s {
-		termbox.SetCell(x, textHeight, r, termbox.ColorRed, termbox.ColorBlack)
+		termbox.SetCell(x, textHeight, r, termbox.ColorGreen, termbox.ColorBlack)
 	}
 }
 
 func (b *buffer) plotSubInfo(level int, life int) {
 	textMap := map[int]string{
-		0: "Level:" + strconv.Itoa(level),
-		1: "Life:" + strconv.Itoa(life),
+		0: "Level: " + strconv.Itoa(level),
+		1: "Life : " + strconv.Itoa(life),
 		2: "PRESS ENTER TO PLAY!",
 		3: "q TO EXIT!"}
 	textHeight := len(b.lines) + 1
