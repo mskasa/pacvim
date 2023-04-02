@@ -195,15 +195,13 @@ game:
 			}
 			*level++
 			if *level > maxLevel {
-				err = switchScene(sceneDir + sceneCongrats)
-				if err != nil {
+				if err = switchScene(sceneDir + sceneCongrats); err != nil {
 					return err
 				}
 				break game
 			}
 		case lose:
-			err = switchScene(sceneDir + sceneYoulose)
-			if err != nil {
+			if err = switchScene(sceneDir + sceneYoulose); err != nil {
 				return err
 			}
 			*life--
@@ -214,8 +212,7 @@ game:
 			break game
 		}
 	}
-	err = switchScene(sceneDir + sceneGoodbye)
-	if err != nil {
+	if err = switchScene(sceneDir + sceneGoodbye); err != nil {
 		return err
 	}
 
