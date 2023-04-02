@@ -103,11 +103,11 @@ func (g *ghost) action(wg *sync.WaitGroup, p *player) {
 	// 移動
 	if up <= down && up <= left && up <= right {
 		g.move(g.x, g.y-1) // 上
-	} else if down <= left && down <= right && down <= up {
+	} else if down <= left && down <= right {
 		g.move(g.x, g.y+1) // 下
-	} else if left <= right && left <= up && left <= down {
+	} else if left <= right {
 		g.move(g.x-1, g.y) // 左
-	} else if right <= up && right <= down && right <= left {
+	} else {
 		g.move(g.x+1, g.y) // 右
 	}
 
