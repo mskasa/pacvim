@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -249,15 +249,13 @@ func switchScene(fileName string) error {
 
 func dirwalk(dir string) (map[int]string, error) {
 	pathMap := make(map[int]string, 10)
-	r1 := regexp.MustCompile(`^map`)
-	r2 := regexp.MustCompile(`.txt$`)
 
 	i := 1
 	if err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && r1.MatchString(info.Name()) && r2.MatchString(info.Name()) {
+		if !info.IsDir() && strings.HasPrefix(info.Name(), "map") && strings.HasSuffix(info.Name(), ".txt") {
 			pathMap[i] = filepath.Join(dir, info.Name())
 			i++
 		}
