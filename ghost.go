@@ -15,8 +15,8 @@ type ghost struct {
 	y         int
 	underRune rune
 	color     termbox.Attribute
-	strategy  strategy
 	plotRange []float64
+	strategy
 }
 
 type strategy interface {
