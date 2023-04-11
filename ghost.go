@@ -44,7 +44,7 @@ func createGhosts(level int, b *buffer) ([]*ghost, error) {
 		},
 	}
 	maxGhosts := len(ghosts)
-	ghostList := make([]*ghost, 0, maxGhosts)
+	resultList := make([]*ghost, 0, maxGhosts)
 	for i := 0; i < func() int {
 		n := int(math.Ceil(float64(level)/3.0)) + 1
 		if n > maxGhosts {
@@ -56,9 +56,9 @@ func createGhosts(level int, b *buffer) ([]*ghost, error) {
 		if err := g.initPosition(b); err != nil {
 			return nil, err
 		}
-		ghostList = append(ghostList, g)
+		resultList = append(resultList, g)
 	}
-	return ghostList, nil
+	return resultList, nil
 }
 
 func (g *ghost) initPosition(b *buffer) error {
