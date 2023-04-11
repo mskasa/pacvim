@@ -133,7 +133,7 @@ game:
 		b.plotScore()
 		b.plotSubInfo(*level, *life)
 
-		ghostList, err := createGhosts(*level, b)
+		ghosts, err := createGhosts(*level, b)
 		if err != nil {
 			return err
 		}
@@ -167,7 +167,7 @@ game:
 
 			for gameState == continuing {
 				// Starts new goroutines that runs for ghosts actions
-				for _, g := range ghostList {
+				for _, g := range ghosts {
 					g.action(p)
 				}
 				// Synchronization(waiting for ghosts goroutines to finish)
