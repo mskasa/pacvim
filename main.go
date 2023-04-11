@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
@@ -165,16 +164,13 @@ game:
 
 		// Starts a new goroutine that runs for ghost control
 		eg.Go(func() error {
-			var wg sync.WaitGroup
 
 			for gameState == continuing {
-				wg.Add(len(ghostList))
 				// Starts new goroutines that runs for ghosts actions
 				for _, g := range ghostList {
-					go g.action(&wg, p)
+					g.action(p)
 				}
 				// Synchronization(waiting for ghosts goroutines to finish)
-				wg.Wait()
 				if err = termbox.Flush(); err != nil {
 					return err
 				}

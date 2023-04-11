@@ -4,7 +4,6 @@ import (
 	"errors"
 	"math"
 	"math/rand"
-	"sync"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
@@ -91,8 +90,7 @@ func tempPosition(min, max int) int {
 }
 
 // ゴーストを行動させる
-func (g *ghost) action(wg *sync.WaitGroup, p *player) {
-	defer wg.Done()
+func (g *ghost) action(p *player) {
 
 	// 移動のための評価値算出
 	up := g.strategy.eval(p, g.x, g.y-1)
