@@ -22,7 +22,7 @@ type strategy interface {
 	eval(p *player, x, y int) float64
 }
 type assault struct{}
-type ambush struct{}
+type tricky struct{}
 
 func createGhosts(level int, b *buffer) ([]*ghost, error) {
 	ghosts := []*ghost{
@@ -35,11 +35,11 @@ func createGhosts(level int, b *buffer) ([]*ghost, error) {
 			plotRange: []float64{0.6, 0.6}, // 4th quadrant
 		},
 		{
-			strategy:  &ambush{},
+			strategy:  &tricky{},
 			plotRange: []float64{0.6, 0.4}, // 1st quadrant
 		},
 		{
-			strategy:  &ambush{},
+			strategy:  &tricky{},
 			plotRange: []float64{0.4, 0.6}, // 3rd quadrant
 		},
 	}
@@ -124,33 +124,16 @@ func (s *assault) eval(p *player, x, y int) float64 {
 	return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 }
 
-func (s *ambush) eval(p *player, x, y int) float64 {
+func (s *tricky) eval(p *player, x, y int) float64 {
 	if isCharWall(x, y) || isCharGhost(x, y) {
-		return 30
+		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
+		return 1000
 	}
-	if !isThereTargetsAround(x, y) {
-		return 20
-	}
-	return float64(random(1, 10))
-}
-func isThereTargetsAround(x, y int) bool {
-	k := x + 2
-	l := y + 2
-	for i := lowerLimitZero(x); i <= k; i++ {
-		for j := lowerLimitZero(y); j <= l; j++ {
-			if isCharTarget(i, j) && isColorWhite(i, j) {
-				return true
-			}
-		}
-	}
-	return false
-}
-func lowerLimitZero(i int) int {
-	ret := i - 2
-	if ret < 0 {
+	if random(0, 4) == 0 {
 		return 0
+	} else {
+		return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 	}
-	return ret
 }
 
 // ゴーストを移動させる
