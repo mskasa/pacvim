@@ -147,10 +147,10 @@ func (g *ghost) move(x, y int) bool {
 		cell := termbox.CellBuffer()[(winWidth*y)+x]
 		g.x = x
 		g.y = y
-		g.underRune = rune(cell.Ch)
+		g.underRune = cell.Ch
 		g.color = cell.Fg
 		// 移動先のセルにゴーストをセット
-		termbox.SetCell(x, y, rune(chGhost), termbox.ColorRed, termbox.ColorBlack)
+		termbox.SetCell(x, y, chGhost, termbox.ColorRed, termbox.ColorBlack)
 		return true
 	}
 	return false

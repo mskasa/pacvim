@@ -325,8 +325,8 @@ func (p *player) warpBeginningFirstWordLastLine(b *buffer) {
 func (p *player) turnGreen() {
 	winWidth, _ := termbox.Size()
 	cell := termbox.CellBuffer()[(winWidth*p.y)+p.x]
-	if rune(cell.Ch) == chTarget && cell.Fg == termbox.ColorWhite {
-		termbox.SetCell(p.x, p.y, rune(cell.Ch), termbox.ColorGreen, termbox.ColorBlack)
+	if cell.Ch == chTarget && cell.Fg == termbox.ColorWhite {
+		termbox.SetCell(p.x, p.y, cell.Ch, termbox.ColorGreen, termbox.ColorBlack)
 		score++
 		if score == targetScore {
 			// 目標スコアに達した場合、ステージクリア
