@@ -90,15 +90,6 @@ func initStages() []stage {
 	}
 }
 
-func getStage(stages []stage, level int) (stage, error) {
-	for _, stage := range stages {
-		if level == stage.level {
-			return stage, nil
-		}
-	}
-	return stage{}, errors.New("File does not exist: " + stages[level].mapPath)
-}
-
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
@@ -240,6 +231,15 @@ game:
 	}
 
 	return nil
+}
+
+func getStage(stages []stage, level int) (stage, error) {
+	for _, stage := range stages {
+		if level == stage.level {
+			return stage, nil
+		}
+	}
+	return stage{}, errors.New("File does not exist: " + stages[level].mapPath)
 }
 
 func switchScene(fileName string) error {
