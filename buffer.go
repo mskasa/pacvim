@@ -50,16 +50,14 @@ func (b *buffer) plotStageMap(s stage) {
 				}
 				b.lastTargetY = y
 				targetScore++
-			} else if isCharWall(x, y) {
-				r := '-'
-				if y == 0 || y == len(b.lines) {
-					r = '-'
-				} else if isCharWall(x, y-1) && isCharWall(x, y+1) {
-					r = '|'
-				} else if isCharWall(x-1, y) || isCharWall(x+1, y) {
-					r = '-'
-				} else if isCharWall(x, y-1) || isCharWall(x, y+1) {
-					r = '|'
+			} else if isCharBorder(x, y) {
+				termbox.SetCell(x, y, chBorder, termbox.ColorYellow, termbox.ColorBlack)
+			} else if isCharObstacle(x, y) {
+				var r rune
+				if isCharObstacle(x-1, y) || isCharObstacle(x+1, y) {
+					r = chObstacle1
+				} else if isCharObstacle(x, y-1) || isCharObstacle(x, y+1) {
+					r = chObstacle2
 				}
 				termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
 			} else if isCharPoison(x, y) {
@@ -104,8 +102,14 @@ func (b *buffer) plotSubInfo(level int, life int) {
 	}
 }
 
+func isCharBorder(x, y int) bool {
+	return isChar(x, y, chBorder)
+}
+func isCharObstacle(x, y int) bool {
+	return isChar(x, y, chObstacle1) || isChar(x, y, chObstacle2) || isChar(x, y, chObstacle3)
+}
 func isCharWall(x, y int) bool {
-	return isChar(x, y, chWall1) || isChar(x, y, chWall2) || isChar(x, y, chWall3)
+	return isCharObstacle(x, y) || isCharBorder(x, y)
 }
 func isCharHunter(x, y int) bool {
 	return isChar(x, y, chHunter)

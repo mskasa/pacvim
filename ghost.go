@@ -92,7 +92,7 @@ func (h *hunter) move(x, y int) {
 	}
 }
 func (g *ghost) move(x, y int) {
-	if !isCharEnemy(x, y) {
+	if !isCharBorder(x, y) || !isCharEnemy(x, y) {
 		g.enemy.move(x, y)
 	}
 }
@@ -121,7 +121,7 @@ func (h *hunter) eval(p *player, x, y int) float64 {
 }
 
 func (g *ghost) eval(p *player, x, y int) float64 {
-	if isCharEnemy(x, y) {
+	if isCharBorder(x, y) || isCharEnemy(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
 		return 1000
 	}

@@ -23,13 +23,14 @@ const (
 	win
 	lose
 
-	chHunter = 'H'
-	chGhost  = 'G'
-	chTarget = 'o'
-	chPoison = 'X'
-	chWall1  = '#'
-	chWall2  = '|'
-	chWall3  = '-'
+	chHunter    = 'H'
+	chGhost     = 'G'
+	chTarget    = 'o'
+	chPoison    = 'X'
+	chBorder    = '+'
+	chObstacle1 = '-'
+	chObstacle2 = '|'
+	chObstacle3 = '!'
 
 	defaultLevel     = 1
 	defaultLife      = 3
