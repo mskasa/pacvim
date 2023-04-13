@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"math"
 	"math/rand"
 	"time"
@@ -9,13 +8,30 @@ import (
 	termbox "github.com/nsf/termbox-go"
 )
 
-type ghost struct {
-	x         int
-	y         int
-	underRune rune
-	color     termbox.Attribute
-	plotRange []float64
+type iEnemy interface {
+	getPosition() (x, y int)
+	think(p *player) (x, y int)
+	move(x, y int)
+	hasCaptured(p *player)
+	eval(p *player, x, y int) float64
+}
+
+type enemy struct {
+	x           int
+	y           int
+	char        rune
+	underRune   rune
+	waitingTime int
+	color       termbox.Attribute
 	strategy
+}
+
+type hunter struct {
+	enemy
+}
+
+type ghost struct {
+	enemy
 }
 
 type strategy interface {
@@ -24,145 +40,105 @@ type strategy interface {
 type assault struct{}
 type tricky struct{}
 
-func createGhosts(level int, b *buffer) ([]*ghost, error) {
-	ghosts := []*ghost{
-		{
-			strategy:  &assault{},
-			plotRange: []float64{0.4, 0.4}, // 2nd quadrant
-		},
-		{
-			strategy:  &assault{},
-			plotRange: []float64{0.6, 0.6}, // 4th quadrant
-		},
-		{
-			strategy:  &tricky{},
-			plotRange: []float64{0.6, 0.4}, // 1st quadrant
-		},
-		{
-			strategy:  &tricky{},
-			plotRange: []float64{0.4, 0.6}, // 3rd quadrant
-		},
-	}
-	maxGhosts := len(ghosts)
-	resultList := make([]*ghost, 0, maxGhosts)
-	for i := 0; i < func() int {
-		n := int(math.Ceil(float64(level)/3.0)) + 1
-		if n > maxGhosts {
-			n = maxGhosts
-		}
-		return n
-	}(); i++ {
-		g := ghosts[i]
-		if err := g.initPosition(b); err != nil {
-			return nil, err
-		}
-		resultList = append(resultList, g)
-	}
-	return resultList, nil
+func (h *hunter) getPosition() (x, y int) {
+	return h.x, h.y
+}
+func (g *ghost) getPosition() (x, y int) {
+	return g.x, g.y
 }
 
-func (g *ghost) initPosition(b *buffer) error {
-	i := 0
-	for {
-		yPlotRangeUpperLimit := len(b.lines) - 1
-		yPlotRangeBorder := int(float64(yPlotRangeUpperLimit) * g.plotRange[1])
-		gY := tempPosition(yPlotRangeBorder, yPlotRangeUpperLimit)
-		xPlotRangeUpperLimit := len(b.lines[gY].text) + b.offset
-		xPlotRangeBorder := int(float64(xPlotRangeUpperLimit) * g.plotRange[0])
-		gX := tempPosition(xPlotRangeBorder, xPlotRangeUpperLimit)
-
-		if isCharTarget(gX, gY) && g.move(gX, gY) {
-			break
-		}
-
-		i++
-		if i == 10000 {
-			return errors.New("Play with maps that have enough targets in the ghostplot range!")
-		}
-	}
-	return nil
+func (h *hunter) think(p *player) (x, y int) {
+	return fuga(h, p)
 }
-func tempPosition(min, max int) int {
-	if max-min > min {
-		return random(0, min)
-	}
-	return random(min, max)
+func (g *ghost) think(p *player) (x, y int) {
+	return fuga(g, p)
 }
-
-// ゴーストを行動させる
-func (g *ghost) action(p *player) {
-
+func fuga(e iEnemy, p *player) (int, int) {
+	x, y := e.getPosition()
 	// 移動のための評価値算出
-	up := g.strategy.eval(p, g.x, g.y-1)
-	down := g.strategy.eval(p, g.x, g.y+1)
-	left := g.strategy.eval(p, g.x-1, g.y)
-	right := g.strategy.eval(p, g.x+1, g.y)
+	up := e.eval(p, x, y-1)
+	down := e.eval(p, x, y+1)
+	left := e.eval(p, x-1, y)
+	right := e.eval(p, x+1, y)
 
 	// 移動
 	if up <= down && up <= left && up <= right {
-		g.move(g.x, g.y-1) // 上
+		return x, y - 1 // 上
 	} else if down <= left && down <= right {
-		g.move(g.x, g.y+1) // 下
+		return x, y + 1 // 下
 	} else if left <= right {
-		g.move(g.x-1, g.y) // 左
+		return x - 1, y // 左
 	} else {
-		g.move(g.x+1, g.y) // 右
+		return x + 1, y // 右
 	}
+}
 
-	if g.hasCaptured(p) {
-		// ゴーストがプレイヤーを捕まえた場合
+func (e *enemy) move(x, y int) {
+	winWidth, _ := termbox.Size()
+	// 移動元のセルに元の文字をセット
+	termbox.SetCell(e.x, e.y, e.underRune, e.color, termbox.ColorBlack)
+	// 移動先のセル情報を保持（次の移動の際に元の文字をセットする必要があるため）
+	cell := termbox.CellBuffer()[(winWidth*y)+x]
+	e.x = x
+	e.y = y
+	e.underRune = cell.Ch
+	e.color = cell.Fg
+	// 移動先のセルにゴーストをセット
+	termbox.SetCell(x, y, e.char, termbox.ColorRed, termbox.ColorBlack)
+}
+func (h *hunter) move(x, y int) {
+	if !isCharWall(x, y) || !isCharEnemy(x, y) {
+		h.enemy.move(x, y)
+	}
+}
+func (g *ghost) move(x, y int) {
+	if !isCharEnemy(x, y) {
+		g.enemy.move(x, y)
+	}
+}
+
+func (h *hunter) hasCaptured(p *player) {
+	if h.x == (p.x) && h.y == p.y {
+		// プレイヤーカーソルとゴーストの座標が一致した場合
 		gameState = lose
 	}
 }
 
-func (s *assault) eval(p *player, x, y int) float64 {
-	if isCharWall(x, y) || isCharGhost(x, y) {
+// ゴーストがプレイヤーを捕まえたかどうかの判定
+func (g *ghost) hasCaptured(p *player) {
+	if g.x == (p.x) && g.y == p.y {
+		// プレイヤーカーソルとゴーストの座標が一致した場合
+		gameState = lose
+	}
+}
+
+func (h *hunter) eval(p *player, x, y int) float64 {
+	if isCharWall(x, y) || isCharEnemy(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
 		return 1000
 	}
+	return h.strategy.eval(p, x, y)
+}
+
+func (g *ghost) eval(p *player, x, y int) float64 {
+	if isCharEnemy(x, y) {
+		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
+		return 1000
+	}
+	return g.strategy.eval(p, x, y)
+}
+
+func (s *assault) eval(p *player, x, y int) float64 {
 	// X軸の距離とY軸の距離それぞれの二乗の和の平方根
 	return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 }
 
 func (s *tricky) eval(p *player, x, y int) float64 {
-	if isCharWall(x, y) || isCharGhost(x, y) {
-		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
-		return 1000
-	}
 	if random(0, 4) == 0 {
 		return 0
 	} else {
 		return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 	}
-}
-
-// ゴーストを移動させる
-func (g *ghost) move(x, y int) bool {
-	if !isCharWall(x, y) || !isCharGhost(x, y) {
-		// 移動先が壁もしくはゴーストでなければ
-		winWidth, _ := termbox.Size()
-		// 移動元のセルに元の文字をセット
-		termbox.SetCell(g.x, g.y, g.underRune, g.color, termbox.ColorBlack)
-		// 移動先のセル情報を保持（次の移動の際に元の文字をセットする必要があるため）
-		cell := termbox.CellBuffer()[(winWidth*y)+x]
-		g.x = x
-		g.y = y
-		g.underRune = cell.Ch
-		g.color = cell.Fg
-		// 移動先のセルにゴーストをセット
-		termbox.SetCell(x, y, chGhost, termbox.ColorRed, termbox.ColorBlack)
-		return true
-	}
-	return false
-}
-
-// ゴーストがプレイヤーを捕まえたかどうかの判定
-func (g *ghost) hasCaptured(p *player) bool {
-	if g.x == (p.x) && g.y == p.y {
-		// プレイヤーカーソルとゴーストの座標が一致した場合
-		return true
-	}
-	return false
 }
 
 func random(min, max int) int {

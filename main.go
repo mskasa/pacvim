@@ -8,9 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
@@ -25,6 +23,7 @@ const (
 	win
 	lose
 
+	chHunter = 'H'
 	chGhost  = 'G'
 	chTarget = 'o'
 	chPoison = 'X'
@@ -65,6 +64,39 @@ var (
 	static embed.FS
 )
 
+type stage struct {
+	level   int
+	mapPath string
+	hunter  hunter
+	ghost   ghost
+}
+
+func initStages() []stage {
+	return []stage{
+		{
+			level:   1,
+			mapPath: "files/stage/map01.txt",
+			hunter:  hunter{enemy{char: chHunter, waitingTime: 1, strategy: &assault{}}},
+			ghost:   ghost{},
+		},
+		{
+			level:   2,
+			mapPath: "files/stage/map02.txt",
+			hunter:  hunter{enemy{char: chHunter, waitingTime: 1, strategy: &assault{}}},
+			ghost:   ghost{enemy{char: chGhost, waitingTime: 1, strategy: &assault{}}},
+		},
+	}
+}
+
+func getStage(stages []stage, level int) (stage, error) {
+	for _, stage := range stages {
+		if level == stage.level {
+			return stage, nil
+		}
+	}
+	return stage{}, errors.New("File does not exist: " + stages[level].mapPath)
+}
+
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
@@ -72,18 +104,11 @@ func main() {
 }
 
 func run() error {
-	// Get path of text files
-	stageMaps, err := dirwalk(stageDir)
-	if err != nil {
+	stages := initStages()
+	if err := validateFiles(stages); err != nil {
 		return err
 	}
-
-	if err = validateFiles(stageMaps); err != nil {
-		return err
-	}
-
-	// Maximum level = Number of stage maps
-	maxLevel := len(stageMaps)
+	maxLevel := len(stages)
 
 	// Read command line arguments
 	level := flag.Int("level", defaultLevel, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
@@ -91,15 +116,15 @@ func run() error {
 	gameSpeed := flag.Int("speed", defaultGameSpeed, "Game speed. Bigger is faster. (1-"+strconv.Itoa(len(gameSpeedMap))+")")
 
 	// Validate command line arguments
-	if err = validateArgs(level, life, gameSpeed, maxLevel); err != nil {
+	if err := validateArgs(level, life, gameSpeed, maxLevel); err != nil {
 		return err
 	}
 
 	// Initialize termbox
-	if err = termbox.Init(); err != nil {
+	if err := termbox.Init(); err != nil {
 		return err
 	}
-	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
+	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
 		return err
 	}
 	defer termbox.Close()
@@ -111,7 +136,11 @@ func run() error {
 
 game:
 	for {
-		f, err := static.ReadFile(stageMaps[*level])
+		stage, err := getStage(stages, *level)
+		if err != nil {
+			return err
+		}
+		f, err := static.ReadFile(stage.mapPath)
 		if err != nil {
 			return err
 		}
@@ -125,18 +154,13 @@ game:
 		gameState = pose
 		score = 0
 		targetScore = 0
-		b.plotStageMap()
+		b.plotStageMap(stage)
 
 		p := new(player)
 		p.initPosition(b)
 
 		b.plotScore()
 		b.plotSubInfo(*level, *life)
-
-		ghosts, err := createGhosts(*level, b)
-		if err != nil {
-			return err
-		}
 
 		if err = termbox.Flush(); err != nil {
 			return err
@@ -164,13 +188,15 @@ game:
 
 		// Starts a new goroutine that runs for ghost control
 		eg.Go(func() error {
-
 			for gameState == continuing {
-				// Starts new goroutines that runs for ghosts actions
-				for _, g := range ghosts {
-					g.action(p)
+				for _, h := range b.hunters {
+					h.move(h.think(p))
+					h.hasCaptured(p)
 				}
-				// Synchronization(waiting for ghosts goroutines to finish)
+				for _, g := range b.ghosts {
+					g.move(g.think(p))
+					g.hasCaptured(p)
+				}
 				if err = termbox.Flush(); err != nil {
 					return err
 				}
@@ -208,11 +234,11 @@ game:
 			break game
 		}
 	}
-	if err = switchScene(sceneGoodbye); err != nil {
+	if err := switchScene(sceneGoodbye); err != nil {
 		return err
 	}
 
-	return err
+	return nil
 }
 
 func switchScene(fileName string) error {
@@ -243,31 +269,12 @@ func switchScene(fileName string) error {
 	return err
 }
 
-func dirwalk(dir string) (map[int]string, error) {
-	pathMap := make(map[int]string, 10)
-
-	i := 1
-	if err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
+func validateFiles(stages []stage) error {
+	for i := 0; i < len(stages); i++ {
+		if err := validateMimeType(stages[i].mapPath); err != nil {
 			return err
 		}
-		if !info.IsDir() && strings.HasPrefix(info.Name(), "map") && strings.HasSuffix(info.Name(), ".txt") {
-			pathMap[i] = filepath.Join(dir, info.Name())
-			i++
-		}
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-	return pathMap, nil
-}
-
-func validateFiles(stageMaps map[int]string) error {
-	for i := 1; i <= len(stageMaps); i++ {
-		if err := validateMimeType(stageMaps[i]); err != nil {
-			return err
-		}
-		if err := validateFileSize(stageMaps[i]); err != nil {
+		if err := validateFileSize(stages[i].mapPath); err != nil {
 			return err
 		}
 	}

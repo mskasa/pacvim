@@ -9,8 +9,10 @@ import (
 )
 
 type buffer struct {
-	lines  []*line
-	offset int
+	lines   []*line
+	offset  int
+	hunters []*hunter
+	ghosts  []*ghost
 	// For command gg or G
 	firstTargetY int
 	lastTargetY  int
@@ -35,7 +37,7 @@ func createBuffer(reader io.Reader) *buffer {
 // Convert characters
 // Color characters
 // Save firstTargetY, lastTargetY and targetScore
-func (b *buffer) plotStageMap() {
+func (b *buffer) plotStageMap(s stage) {
 	firstFlg := true
 	winWidth, _ := termbox.Size()
 	textHeight := len(b.lines)
@@ -62,6 +64,18 @@ func (b *buffer) plotStageMap() {
 				termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
 			} else if isCharPoison(x, y) {
 				termbox.SetCell(x, y, chPoison, termbox.ColorMagenta, termbox.ColorBlack)
+			} else if isCharHunter(x, y) {
+				hunter := s.hunter
+				hunter.x = x
+				hunter.y = y
+				termbox.SetCell(hunter.x, hunter.y, hunter.char, termbox.ColorRed, termbox.ColorBlack)
+				b.hunters = append(b.hunters, &hunter)
+			} else if isCharGhost(x, y) {
+				ghost := s.ghost
+				ghost.x = x
+				ghost.y = y
+				termbox.SetCell(ghost.x, ghost.y, ghost.char, termbox.ColorRed, termbox.ColorBlack)
+				b.ghosts = append(b.ghosts, &ghost)
 			}
 		}
 	}
@@ -93,8 +107,14 @@ func (b *buffer) plotSubInfo(level int, life int) {
 func isCharWall(x, y int) bool {
 	return isChar(x, y, chWall1) || isChar(x, y, chWall2) || isChar(x, y, chWall3)
 }
+func isCharHunter(x, y int) bool {
+	return isChar(x, y, chHunter)
+}
 func isCharGhost(x, y int) bool {
 	return isChar(x, y, chGhost)
+}
+func isCharEnemy(x, y int) bool {
+	return isCharHunter(x, y) || isCharGhost(x, y)
 }
 func isCharSpace(x, y int) bool {
 	return isChar(x, y, ' ')

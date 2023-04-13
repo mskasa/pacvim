@@ -205,7 +205,7 @@ func (p *player) warpWord(fn func(*buffer), b *buffer) {
 
 // 移動結果の判定
 func (p *player) checkActionResult() {
-	if isCharGhost(p.x, p.y) || isCharPoison(p.x, p.y) {
+	if isCharEnemy(p.x, p.y) || isCharPoison(p.x, p.y) {
 		gameState = lose
 	} else {
 		p.turnGreen()

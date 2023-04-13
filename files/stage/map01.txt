@@ -1,7 +1,7 @@
 #############################
 # oooo        o        oooo #
 # oooo       ooo       oooo #
-# oooo     ooooooo     oooo #
+# ooooH    ooooooo     oooo #
 #        ooooooooooo        #
 #      oooooo###oooooo      #
 #    oooo#ooooooooo#oooo    #
@@ -9,7 +9,7 @@
 #    oooo#ooooooooo#oooo    #
 #      oooooo###oooooo      #
 #        ooooooooooo        #
-# oooo     ooooooo     oooo #
+# oooo     ooooooo    Hoooo #
 # oooo       ooo       oooo #
 # oooo        o        oooo #
 #############################
