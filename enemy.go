@@ -94,17 +94,18 @@ func (g *ghost) move(x, y int) {
 	}
 }
 
-func (h *hunter) hasCaptured(p *player) {
-	if h.x == (p.x) && h.y == p.y {
-		// プレイヤーカーソルとゴーストの座標が一致した場合
+func (e *enemy) hasCaptured(p *player) {
+	if e.x == (p.x) && e.y == p.y {
 		gameState = lose
 	}
 }
+
+func (h *hunter) hasCaptured(p *player) {
+	h.enemy.hasCaptured(p)
+}
+
 func (g *ghost) hasCaptured(p *player) {
-	if g.x == (p.x) && g.y == p.y {
-		// プレイヤーカーソルとゴーストの座標が一致した場合
-		gameState = lose
-	}
+	g.enemy.hasCaptured(p)
 }
 
 func (h *hunter) eval(p *player, x, y int) float64 {

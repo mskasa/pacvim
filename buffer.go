@@ -11,8 +11,8 @@ import (
 type buffer struct {
 	lines   []*line
 	offset  int
-	hunters []*hunter
-	ghosts  []*ghost
+	hunters []iEnemy
+	ghosts  []iEnemy
 	// For command gg or G
 	firstTargetY int
 	lastTargetY  int
