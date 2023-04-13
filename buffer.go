@@ -39,10 +39,10 @@ func createBuffer(reader io.Reader) *buffer {
 // Save firstTargetY, lastTargetY and targetScore
 func (b *buffer) plotStageMap(s stage) {
 	firstFlg := true
-	winWidth, _ := termbox.Size()
-	textHeight := len(b.lines)
-	for y := 0; y < textHeight; y++ {
-		for x := b.offset; x < winWidth; x++ {
+	width, _ := termbox.Size()
+	height := len(b.lines)
+	for y := 0; y < height; y++ {
+		for x := b.offset; x < width; x++ {
 			if isCharTarget(x, y) {
 				if firstFlg {
 					b.firstTargetY = y
@@ -82,10 +82,10 @@ func (b *buffer) plotStageMap(s stage) {
 }
 
 func (b *buffer) plotScore() {
-	textHeight := len(b.lines)
+	position := len(b.lines)
 	s := []rune("score: " + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
 	for x, r := range s {
-		termbox.SetCell(x, textHeight, r, termbox.ColorGreen, termbox.ColorBlack)
+		termbox.SetCell(x, position, r, termbox.ColorGreen, termbox.ColorBlack)
 	}
 }
 
@@ -95,12 +95,12 @@ func (b *buffer) plotSubInfo(level int, life int) {
 		1: "Life : " + strconv.Itoa(life),
 		2: "PRESS ENTER TO PLAY!",
 		3: "q TO EXIT!"}
-	textHeight := len(b.lines) + 1
+	position := len(b.lines) + 1
 	for i := 0; i < len(textMap); i++ {
 		for x, r := range []rune(textMap[i]) {
-			termbox.SetCell(x, textHeight, r, termbox.ColorWhite, termbox.ColorBlack)
+			termbox.SetCell(x, position, r, termbox.ColorWhite, termbox.ColorBlack)
 		}
-		textHeight++
+		position++
 	}
 }
 
