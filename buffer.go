@@ -37,7 +37,7 @@ func createBuffer(reader io.Reader) *buffer {
 // Convert characters
 // Color characters
 // Save firstTargetY, lastTargetY and targetScore
-func (b *buffer) plotStageMap(s stage) {
+func (b *buffer) plotStageMap(s stage, p *player) {
 	firstFlg := true
 	width, _ := termbox.Size()
 	height := len(b.lines)
@@ -50,6 +50,11 @@ func (b *buffer) plotStageMap(s stage) {
 				}
 				b.lastTargetY = y
 				targetScore++
+			} else if isCharPlayer(x, y) {
+				p.x = x
+				p.y = y
+				termbox.SetCell(p.x, p.y, ' ', termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCursor(p.x, p.y)
 			} else if isCharBorder(x, y) {
 				termbox.SetCell(x, y, chBorder, termbox.ColorYellow, termbox.ColorBlack)
 			} else if isCharObstacle(x, y) {
@@ -110,6 +115,9 @@ func isCharObstacle(x, y int) bool {
 }
 func isCharWall(x, y int) bool {
 	return isCharObstacle(x, y) || isCharBorder(x, y)
+}
+func isCharPlayer(x, y int) bool {
+	return isChar(x, y, chPlayer)
 }
 func isCharHunter(x, y int) bool {
 	return isChar(x, y, chHunter)

@@ -23,6 +23,7 @@ const (
 	win
 	lose
 
+	chPlayer    = 'P'
 	chHunter    = 'H'
 	chGhost     = 'G'
 	chTarget    = 'o'
@@ -155,11 +156,10 @@ game:
 		gameState = pose
 		score = 0
 		targetScore = 0
-		b.plotStageMap(stage)
 
 		p := new(player)
-		p.initPosition(b)
 
+		b.plotStageMap(stage, p)
 		b.plotScore()
 		b.plotSubInfo(*level, *life)
 
