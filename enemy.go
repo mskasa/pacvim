@@ -15,7 +15,6 @@ type iEnemy interface {
 	hasCaptured(p *player)
 	eval(p *player, x, y int) float64
 }
-
 type enemy struct {
 	x           int
 	y           int
@@ -25,11 +24,9 @@ type enemy struct {
 	color       termbox.Attribute
 	strategy
 }
-
 type hunter struct {
 	enemy
 }
-
 type ghost struct {
 	enemy
 }
@@ -103,8 +100,6 @@ func (h *hunter) hasCaptured(p *player) {
 		gameState = lose
 	}
 }
-
-// ゴーストがプレイヤーを捕まえたかどうかの判定
 func (g *ghost) hasCaptured(p *player) {
 	if g.x == (p.x) && g.y == p.y {
 		// プレイヤーカーソルとゴーストの座標が一致した場合
@@ -119,7 +114,6 @@ func (h *hunter) eval(p *player, x, y int) float64 {
 	}
 	return h.strategy.eval(p, x, y)
 }
-
 func (g *ghost) eval(p *player, x, y int) float64 {
 	if isCharBorder(x, y) || isCharEnemy(x, y) {
 		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
@@ -127,12 +121,10 @@ func (g *ghost) eval(p *player, x, y int) float64 {
 	}
 	return g.strategy.eval(p, x, y)
 }
-
 func (s *assault) eval(p *player, x, y int) float64 {
 	// X軸の距離とY軸の距離それぞれの二乗の和の平方根
 	return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 }
-
 func (s *tricky) eval(p *player, x, y int) float64 {
 	if random(0, 4) == 0 {
 		return 0
