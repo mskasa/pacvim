@@ -67,17 +67,17 @@ func (b *buffer) plotStageMap(s stage, p *player) {
 			} else if isCharPoison(x, y) {
 				termbox.SetCell(x, y, chPoison, termbox.ColorMagenta, termbox.ColorBlack)
 			} else if isCharHunter(x, y) {
-				hunter := s.hunter
-				hunter.x = x
-				hunter.y = y
-				termbox.SetCell(hunter.x, hunter.y, hunter.char, hunter.color, termbox.ColorBlack)
-				b.enemies = append(b.enemies, &hunter)
+				h := s.hunterBuilder.build()
+				h.setPosition(x, y)
+				char, color := h.getDisplayFormat()
+				termbox.SetCell(x, y, char, color, termbox.ColorBlack)
+				b.enemies = append(b.enemies, h)
 			} else if isCharGhost(x, y) {
-				ghost := s.ghost
-				ghost.x = x
-				ghost.y = y
-				termbox.SetCell(ghost.x, ghost.y, ghost.char, ghost.color, termbox.ColorBlack)
-				b.enemies = append(b.enemies, &ghost)
+				g := s.ghostBuilder.build()
+				g.setPosition(x, y)
+				char, color := g.getDisplayFormat()
+				termbox.SetCell(x, y, char, color, termbox.ColorBlack)
+				b.enemies = append(b.enemies, g)
 			}
 		}
 	}

@@ -67,25 +67,27 @@ var (
 )
 
 type stage struct {
-	level   int
-	mapPath string
-	hunter  hunter
-	ghost   ghost
+	level         int
+	mapPath       string
+	hunterBuilder iEnemyBuilder
+	ghostBuilder  iEnemyBuilder
 }
 
 func initStages() []stage {
+	defaultHunterBuilder := newEnemyBuilder().defaultHunter()
+	defaultGhostBuilder := newEnemyBuilder().defaultGhost()
 	return []stage{
 		{
-			level:   1,
-			mapPath: "files/stage/map01.txt",
-			hunter:  hunter{enemy{char: chHunter, color: termbox.ColorRed, waitingTime: 1, oneActionInN: 1, strategy: &assault{}}},
-			ghost:   ghost{},
+			level:         1,
+			mapPath:       "files/stage/map01.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
 		},
 		{
-			level:   2,
-			mapPath: "files/stage/map02.txt",
-			hunter:  hunter{enemy{char: chHunter, color: termbox.ColorRed, waitingTime: 1, oneActionInN: 1, strategy: &tricky{}}},
-			ghost:   ghost{enemy{char: chGhost, color: termbox.ColorBlue, waitingTime: 2, oneActionInN: 2, strategy: &assault{}}},
+			level:         2,
+			mapPath:       "files/stage/map02.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
 		},
 	}
 }

@@ -10,7 +10,9 @@ import (
 
 type iEnemy interface {
 	getPosition() (x, y int)
-	think(p *player) (x, y int)
+	setPosition(x, y int)
+	getDisplayFormat() (rune, termbox.Attribute)
+	think(p *player) (int, int)
 	move(x, y int)
 	hasCaptured(p *player)
 	eval(p *player, x, y int) float64
@@ -22,6 +24,7 @@ type enemy struct {
 	color        termbox.Attribute
 	waitingTime  int
 	oneActionInN int
+	canMove      func(int, int) bool
 	strategy
 	underRune
 }
@@ -43,20 +46,98 @@ type underRune struct {
 	color termbox.Attribute
 }
 
-func (h *hunter) getPosition() (x, y int) {
-	return h.x, h.y
-}
-func (g *ghost) getPosition() (x, y int) {
-	return g.x, g.y
+type iEnemyBuilder interface {
+	position(int, int) iEnemyBuilder
+	displayFormat(rune, string) iEnemyBuilder
+	speed(int) iEnemyBuilder
+	strategize(strategy) iEnemyBuilder
+	movable(func(int, int) bool) iEnemyBuilder
+	defaultHunter() iEnemyBuilder
+	defaultGhost() iEnemyBuilder
+	build() iEnemy
 }
 
-func (h *hunter) think(p *player) (x, y int) {
-	return think(h, p)
+type enemyBuilder struct {
+	x            int
+	y            int
+	char         rune
+	color        termbox.Attribute
+	waitingTime  int
+	oneActionInN int
+	canMove      func(int, int) bool
+	strategy     strategy
 }
-func (g *ghost) think(p *player) (x, y int) {
-	return think(g, p)
+
+func (eb *enemyBuilder) position(x int, y int) iEnemyBuilder {
+	eb.x = x
+	eb.y = y
+	return eb
 }
-func think(e iEnemy, p *player) (int, int) {
+func (eb *enemyBuilder) displayFormat(r rune, s string) iEnemyBuilder {
+	eb.char = r
+	switch s {
+	case "RED":
+		eb.color = termbox.ColorRed
+	case "BLUE":
+		eb.color = termbox.ColorBlue
+	}
+	return eb
+}
+func (eb *enemyBuilder) speed(i int) iEnemyBuilder {
+	eb.waitingTime = i
+	eb.oneActionInN = i
+	return eb
+}
+func (eb *enemyBuilder) movable(fn func(int, int) bool) iEnemyBuilder {
+	eb.canMove = fn
+	return eb
+}
+func (eb *enemyBuilder) strategize(s strategy) iEnemyBuilder {
+	eb.strategy = s
+	return eb
+}
+func (eb *enemyBuilder) defaultHunter() iEnemyBuilder {
+	fn := func(x, y int) bool {
+		return !isCharWall(x, y) && !isCharEnemy(x, y)
+	}
+	return eb.displayFormat(chHunter, "RED").speed(1).movable(fn).strategize(&assault{})
+}
+func (eb *enemyBuilder) defaultGhost() iEnemyBuilder {
+	fn := func(x, y int) bool {
+		return !isCharBorder(x, y) && !isCharEnemy(x, y)
+	}
+	return eb.displayFormat(chGhost, "BLUE").speed(2).movable(fn).strategize(&assault{})
+}
+func (eb *enemyBuilder) build() iEnemy {
+	return &enemy{
+		x:            eb.x,
+		y:            eb.y,
+		char:         eb.char,
+		color:        eb.color,
+		waitingTime:  eb.waitingTime,
+		oneActionInN: eb.oneActionInN,
+		canMove:      eb.canMove,
+		strategy:     eb.strategy,
+	}
+}
+func newEnemyBuilder() iEnemyBuilder {
+	return &enemyBuilder{}
+}
+
+func (e *enemy) getPosition() (x, y int) {
+	return e.x, e.y
+}
+
+func (e *enemy) setPosition(x, y int) {
+	e.x = x
+	e.y = y
+}
+
+func (e *enemy) getDisplayFormat() (rune, termbox.Attribute) {
+	return e.char, e.color
+}
+
+func (e *enemy) think(p *player) (int, int) {
 	x, y := e.getPosition()
 	// 移動のための評価値算出
 	up := e.eval(p, x, y-1)
@@ -76,30 +157,20 @@ func think(e iEnemy, p *player) (int, int) {
 }
 
 func (e *enemy) move(x, y int) {
-	winWidth, _ := termbox.Size()
-	// 移動元のセルに元の文字をセット
-	termbox.SetCell(e.x, e.y, e.underRune.char, e.underRune.color, termbox.ColorBlack)
-	// 移動先のセル情報を保持（次の移動の際に元の文字をセットする必要があるため）
-	cell := termbox.CellBuffer()[(winWidth*y)+x]
-	e.x = x
-	e.y = y
-	e.underRune.char = cell.Ch
-	e.underRune.color = cell.Fg
-	// 移動先のセルにゴーストをセット
-	termbox.SetCell(x, y, e.char, e.color, termbox.ColorBlack)
-}
-func (h *hunter) move(x, y int) {
-	h.waitingTime--
-	if h.waitingTime <= 0 && (!isCharWall(x, y) || !isCharEnemy(x, y)) {
-		h.enemy.move(x, y)
-		h.waitingTime = h.oneActionInN
-	}
-}
-func (g *ghost) move(x, y int) {
-	g.waitingTime--
-	if g.waitingTime <= 0 && (!isCharBorder(x, y) || !isCharEnemy(x, y)) {
-		g.enemy.move(x, y)
-		g.waitingTime = g.oneActionInN
+	e.waitingTime--
+	if e.waitingTime <= 0 && e.canMove(x, y) {
+		winWidth, _ := termbox.Size()
+		// 移動元のセルに元の文字をセット
+		termbox.SetCell(e.x, e.y, e.underRune.char, e.underRune.color, termbox.ColorBlack)
+		// 移動先のセル情報を保持（次の移動の際に元の文字をセットする必要があるため）
+		cell := termbox.CellBuffer()[(winWidth*y)+x]
+		e.x = x
+		e.y = y
+		e.underRune.char = cell.Ch
+		e.underRune.color = cell.Fg
+		// 移動先のセルにゴーストをセット
+		termbox.SetCell(x, y, e.char, e.color, termbox.ColorBlack)
+		e.waitingTime = e.oneActionInN
 	}
 }
 
@@ -108,26 +179,12 @@ func (e *enemy) hasCaptured(p *player) {
 		gameState = lose
 	}
 }
-func (h *hunter) hasCaptured(p *player) {
-	h.enemy.hasCaptured(p)
-}
-func (g *ghost) hasCaptured(p *player) {
-	g.enemy.hasCaptured(p)
-}
 
-func (h *hunter) eval(p *player, x, y int) float64 {
-	if isCharWall(x, y) || isCharEnemy(x, y) {
-		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
+func (e *enemy) eval(p *player, x, y int) float64 {
+	if !e.canMove(x, y) {
 		return 1000
 	}
-	return h.strategy.eval(p, x, y)
-}
-func (g *ghost) eval(p *player, x, y int) float64 {
-	if isCharBorder(x, y) || isCharEnemy(x, y) {
-		// 移動先が壁もしくはゴーストの場合は移動先から除外（十分に大きな値を返却）
-		return 1000
-	}
-	return g.strategy.eval(p, x, y)
+	return e.strategy.eval(p, x, y)
 }
 func (s *assault) eval(p *player, x, y int) float64 {
 	// X軸の距離とY軸の距離それぞれの二乗の和の平方根
