@@ -16,12 +16,13 @@ type iEnemy interface {
 	eval(p *player, x, y int) float64
 }
 type enemy struct {
-	x           int
-	y           int
-	char        rune
-	underRune   rune
-	waitingTime int
-	color       termbox.Attribute
+	x            int
+	y            int
+	char         rune
+	underRune    rune
+	waitingTime  int
+	oneActionInN int
+	color        termbox.Attribute
 	strategy
 }
 type hunter struct {
@@ -84,13 +85,17 @@ func (e *enemy) move(x, y int) {
 	termbox.SetCell(x, y, e.char, termbox.ColorRed, termbox.ColorBlack)
 }
 func (h *hunter) move(x, y int) {
-	if !isCharWall(x, y) || !isCharEnemy(x, y) {
+	h.waitingTime--
+	if h.waitingTime <= 0 && (!isCharWall(x, y) || !isCharEnemy(x, y)) {
 		h.enemy.move(x, y)
+		h.waitingTime = h.oneActionInN
 	}
 }
 func (g *ghost) move(x, y int) {
-	if !isCharBorder(x, y) || !isCharEnemy(x, y) {
+	g.waitingTime--
+	if g.waitingTime <= 0 && (!isCharBorder(x, y) || !isCharEnemy(x, y)) {
 		g.enemy.move(x, y)
+		g.waitingTime = g.oneActionInN
 	}
 }
 
