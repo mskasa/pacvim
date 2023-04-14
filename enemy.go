@@ -19,6 +19,7 @@ type enemy struct {
 	x            int
 	y            int
 	char         rune
+	color        termbox.Attribute
 	waitingTime  int
 	oneActionInN int
 	strategy
@@ -86,7 +87,7 @@ func (e *enemy) move(x, y int) {
 	e.underRune.char = cell.Ch
 	e.underRune.color = cell.Fg
 	// 移動先のセルにゴーストをセット
-	termbox.SetCell(x, y, e.char, termbox.ColorRed, termbox.ColorBlack)
+	termbox.SetCell(x, y, e.char, e.color, termbox.ColorBlack)
 }
 func (h *hunter) move(x, y int) {
 	h.waitingTime--

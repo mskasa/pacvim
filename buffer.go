@@ -70,13 +70,13 @@ func (b *buffer) plotStageMap(s stage, p *player) {
 				hunter := s.hunter
 				hunter.x = x
 				hunter.y = y
-				termbox.SetCell(hunter.x, hunter.y, hunter.char, termbox.ColorRed, termbox.ColorBlack)
+				termbox.SetCell(hunter.x, hunter.y, hunter.char, hunter.color, termbox.ColorBlack)
 				b.enemies = append(b.enemies, &hunter)
 			} else if isCharGhost(x, y) {
 				ghost := s.ghost
 				ghost.x = x
 				ghost.y = y
-				termbox.SetCell(ghost.x, ghost.y, ghost.char, termbox.ColorRed, termbox.ColorBlack)
+				termbox.SetCell(ghost.x, ghost.y, ghost.char, ghost.color, termbox.ColorBlack)
 				b.enemies = append(b.enemies, &ghost)
 			}
 		}
