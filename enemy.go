@@ -19,11 +19,10 @@ type enemy struct {
 	x            int
 	y            int
 	char         rune
-	underRune    rune
 	waitingTime  int
 	oneActionInN int
-	color        termbox.Attribute
 	strategy
+	underRune
 }
 type hunter struct {
 	enemy
@@ -37,6 +36,11 @@ type strategy interface {
 }
 type assault struct{}
 type tricky struct{}
+
+type underRune struct {
+	char  rune
+	color termbox.Attribute
+}
 
 func (h *hunter) getPosition() (x, y int) {
 	return h.x, h.y
@@ -74,13 +78,13 @@ func fuga(e iEnemy, p *player) (int, int) {
 func (e *enemy) move(x, y int) {
 	winWidth, _ := termbox.Size()
 	// 移動元のセルに元の文字をセット
-	termbox.SetCell(e.x, e.y, e.underRune, e.color, termbox.ColorBlack)
+	termbox.SetCell(e.x, e.y, e.underRune.char, e.underRune.color, termbox.ColorBlack)
 	// 移動先のセル情報を保持（次の移動の際に元の文字をセットする必要があるため）
 	cell := termbox.CellBuffer()[(winWidth*y)+x]
 	e.x = x
 	e.y = y
-	e.underRune = cell.Ch
-	e.color = cell.Fg
+	e.underRune.char = cell.Ch
+	e.underRune.color = cell.Fg
 	// 移動先のセルにゴーストをセット
 	termbox.SetCell(x, y, e.char, termbox.ColorRed, termbox.ColorBlack)
 }
