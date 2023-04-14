@@ -51,12 +51,12 @@ func (g *ghost) getPosition() (x, y int) {
 }
 
 func (h *hunter) think(p *player) (x, y int) {
-	return fuga(h, p)
+	return think(h, p)
 }
 func (g *ghost) think(p *player) (x, y int) {
-	return fuga(g, p)
+	return think(g, p)
 }
-func fuga(e iEnemy, p *player) (int, int) {
+func think(e iEnemy, p *player) (int, int) {
 	x, y := e.getPosition()
 	// 移動のための評価値算出
 	up := e.eval(p, x, y-1)
@@ -64,7 +64,6 @@ func fuga(e iEnemy, p *player) (int, int) {
 	left := e.eval(p, x-1, y)
 	right := e.eval(p, x+1, y)
 
-	// 移動
 	if up <= down && up <= left && up <= right {
 		return x, y - 1 // 上
 	} else if down <= left && down <= right {
@@ -109,11 +108,9 @@ func (e *enemy) hasCaptured(p *player) {
 		gameState = lose
 	}
 }
-
 func (h *hunter) hasCaptured(p *player) {
 	h.enemy.hasCaptured(p)
 }
-
 func (g *ghost) hasCaptured(p *player) {
 	g.enemy.hasCaptured(p)
 }
@@ -143,7 +140,6 @@ func (s *tricky) eval(p *player, x, y int) float64 {
 		return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 	}
 }
-
 func random(min, max int) int {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	return rand.Intn(max-min+1) + min
