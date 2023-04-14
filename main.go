@@ -84,7 +84,7 @@ func initStages() []stage {
 		{
 			level:   2,
 			mapPath: "files/stage/map02.txt",
-			hunter:  hunter{enemy{char: chHunter, waitingTime: 1, oneActionInN: 1, strategy: &assault{}}},
+			hunter:  hunter{enemy{char: chHunter, waitingTime: 1, oneActionInN: 1, strategy: &tricky{}}},
 			ghost:   ghost{enemy{char: chGhost, waitingTime: 2, oneActionInN: 2, strategy: &assault{}}},
 		},
 	}
@@ -181,13 +181,9 @@ game:
 		// Starts a new goroutine that runs for ghost control
 		eg.Go(func() error {
 			for gameState == continuing {
-				for _, h := range b.hunters {
-					h.move(h.think(p))
-					h.hasCaptured(p)
-				}
-				for _, g := range b.ghosts {
-					g.move(g.think(p))
-					g.hasCaptured(p)
+				for _, e := range b.enemies {
+					e.move(e.think(p))
+					e.hasCaptured(p)
 				}
 				if err = termbox.Flush(); err != nil {
 					return err

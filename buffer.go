@@ -11,8 +11,7 @@ import (
 type buffer struct {
 	lines   []*line
 	offset  int
-	hunters []iEnemy
-	ghosts  []iEnemy
+	enemies []iEnemy
 	// For command gg or G
 	firstTargetY int
 	lastTargetY  int
@@ -72,13 +71,13 @@ func (b *buffer) plotStageMap(s stage, p *player) {
 				hunter.x = x
 				hunter.y = y
 				termbox.SetCell(hunter.x, hunter.y, hunter.char, termbox.ColorRed, termbox.ColorBlack)
-				b.hunters = append(b.hunters, &hunter)
+				b.enemies = append(b.enemies, &hunter)
 			} else if isCharGhost(x, y) {
 				ghost := s.ghost
 				ghost.x = x
 				ghost.y = y
 				termbox.SetCell(ghost.x, ghost.y, ghost.char, termbox.ColorRed, termbox.ColorBlack)
-				b.ghosts = append(b.ghosts, &ghost)
+				b.enemies = append(b.enemies, &ghost)
 			}
 		}
 	}
