@@ -203,40 +203,38 @@ func (p *player) moveLastWord() bool {
 
 // 0:行頭にワープ
 func (p *player) warpBeginningLine() {
-	p.x = 0
+	x := 0
 	for {
-		if !isCharWall(p.x, p.y) {
-			p.x++
-		} else {
+		x++
+		if isCharBorder(x, p.y) {
 			break
 		}
 	}
 	for {
-		if isCharWall(p.x, p.y) {
-			p.x++
-		} else {
+		x++
+		if !isCharWall(x, p.y) {
 			break
 		}
 	}
+	p.x = x
 }
 
 // $:行末にワープ
 func (p *player) warpEndLine() {
-	p.x, _ = termbox.Size()
+	x, _ := termbox.Size()
 	for {
-		if !isCharWall(p.x, p.y) {
-			p.x--
-		} else {
+		x--
+		if isCharBorder(x, p.y) {
 			break
 		}
 	}
 	for {
-		if isCharWall(p.x, p.y) {
-			p.x--
-		} else {
+		x--
+		if !isCharWall(x, p.y) {
 			break
 		}
 	}
+	p.x = x
 }
 
 // ^:行頭の単語の先頭にワープ
