@@ -31,10 +31,10 @@ func createWindow(b *buffer) *window {
 
 func (w *window) show(b *buffer) error {
 	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
-	offset := getDigit(len(b.lines))
-	b.offset = offset + 1
+	maxDigit := getDigit(len(b.lines))
+	b.offset = getOffset(len(b.lines))
 	for y, l := range w.lines {
-		linenums := makeLineNum(y+1, offset)
+		linenums := makeLineNum(y+1, maxDigit, b.offset)
 		t := append(linenums, l.text...)
 		for x, r := range t {
 			termbox.SetCell(x, y, r, termbox.ColorWhite, termbox.ColorBlack)
@@ -42,15 +42,17 @@ func (w *window) show(b *buffer) error {
 	}
 	return err
 }
-func makeLineNum(num int, offset int) []rune {
-	numstr := strconv.Itoa(num)
-	lineNum := make([]rune, offset+1)
+func makeLineNum(num int, maxDigit int, maxOffset int) []rune {
+	lineNum := make([]rune, maxOffset)
 	for i := 0; i < len(lineNum); i++ {
+		// fill with spaces
 		lineNum[i] = ' '
 	}
-	digit := getDigit(num)
+	numstr := strconv.Itoa(num)
+	currentDigit := getDigit(num)
 	for i, v := range numstr {
-		lineNum[i+(offset-digit)] = v
+		// align right
+		lineNum[i+(maxDigit-currentDigit)] = v
 	}
 	return lineNum
 }
@@ -61,4 +63,8 @@ func getDigit(linenum int) int {
 		d++
 	}
 	return d
+}
+func getOffset(linenum int) int {
+	// 1 is a half-width space to the right of the line number
+	return getDigit(linenum) + 1
 }
