@@ -56,7 +56,6 @@ type iEnemyBuilder interface {
 	defaultGhost() iEnemyBuilder
 	build() iEnemy
 }
-
 type enemyBuilder struct {
 	x            int
 	y            int
@@ -108,6 +107,9 @@ func (eb *enemyBuilder) defaultGhost() iEnemyBuilder {
 	}
 	return eb.displayFormat(chGhost, "BLUE").speed(2).movable(fn).strategize(&assault{})
 }
+func newEnemyBuilder() iEnemyBuilder {
+	return &enemyBuilder{}
+}
 func (eb *enemyBuilder) build() iEnemy {
 	return &enemy{
 		x:            eb.x,
@@ -120,14 +122,10 @@ func (eb *enemyBuilder) build() iEnemy {
 		strategy:     eb.strategy,
 	}
 }
-func newEnemyBuilder() iEnemyBuilder {
-	return &enemyBuilder{}
-}
 
 func (e *enemy) getPosition() (x, y int) {
 	return e.x, e.y
 }
-
 func (e *enemy) setPosition(x, y int) {
 	e.x = x
 	e.y = y
