@@ -165,8 +165,7 @@ func (e *enemy) move(x, y int) {
 		// Retains destination cell information
 		// Because it is necessary to set the original character at the next move
 		cell := termbox.CellBuffer()[(winWidth*y)+x]
-		e.x = x
-		e.y = y
+		e.setPosition(x, y)
 		e.underRune.char = cell.Ch
 		e.underRune.color = cell.Fg
 		termbox.SetCell(x, y, e.char, e.color, termbox.ColorBlack)
