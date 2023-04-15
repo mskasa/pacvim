@@ -1,5 +1,5 @@
 +++++++++++++++++++++++++++++
-+     !               !    o+
++ o   !  ooooo ooooo  !   o +
 +ooo  !oooooo   oooooo!  ooo+
 + o  !!oooo       oooo!!  o +
 +ooooHooo           ooo oooo+
