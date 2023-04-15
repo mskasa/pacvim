@@ -42,15 +42,15 @@ func (w *window) show(b *buffer) error {
 	}
 	return err
 }
-func makeLineNum(num int, digit int) []rune {
+func makeLineNum(num int, offset int) []rune {
 	numstr := strconv.Itoa(num)
-	lineNum := make([]rune, digit+1)
+	lineNum := make([]rune, offset+1)
 	for i := 0; i < len(lineNum); i++ {
 		lineNum[i] = ' '
 	}
-	cdigit := getDigit(num)
-	for i, c := range numstr {
-		lineNum[i+(digit-cdigit)] = c
+	digit := getDigit(num)
+	for i, v := range numstr {
+		lineNum[i+(offset-digit)] = v
 	}
 	return lineNum
 }
