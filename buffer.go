@@ -9,9 +9,8 @@ import (
 )
 
 type buffer struct {
-	lines   []*line
-	offset  int
-	enemies []iEnemy
+	lines  []*line
+	offset int
 	// For command gg or G
 	firstTargetY int
 	lastTargetY  int
@@ -36,7 +35,7 @@ func createBuffer(reader io.Reader) *buffer {
 // Convert characters
 // Color characters
 // Save firstTargetY, lastTargetY and targetScore
-func (b *buffer) plotStageMap(s stage, p *player) {
+func (s *stage) plot(b *buffer, p *player) {
 	firstFlg := true
 	width, height := termbox.Size()
 	for y := 0; y < height; y++ {
@@ -70,13 +69,13 @@ func (b *buffer) plotStageMap(s stage, p *player) {
 				h.setPosition(x, y)
 				char, color := h.getDisplayFormat()
 				termbox.SetCell(x, y, char, color, termbox.ColorBlack)
-				b.enemies = append(b.enemies, h)
+				s.enemies = append(s.enemies, h)
 			} else if isCharGhost(x, y) {
 				g := s.ghostBuilder.build()
 				g.setPosition(x, y)
 				char, color := g.getDisplayFormat()
 				termbox.SetCell(x, y, char, color, termbox.ColorBlack)
-				b.enemies = append(b.enemies, g)
+				s.enemies = append(s.enemies, g)
 			}
 		}
 	}

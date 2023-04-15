@@ -71,6 +71,7 @@ type stage struct {
 	mapPath       string
 	hunterBuilder iEnemyBuilder
 	ghostBuilder  iEnemyBuilder
+	enemies       []iEnemy
 }
 
 func initStages() []stage {
@@ -152,7 +153,7 @@ game:
 
 		p := new(player)
 
-		b.plotStageMap(stage, p)
+		stage.plot(b, p)
 		b.plotScore()
 		b.plotSubInfo(*level, *life)
 
@@ -183,7 +184,7 @@ game:
 		// Starts a new goroutine that runs for ghost control
 		eg.Go(func() error {
 			for gameState == continuing {
-				for _, e := range b.enemies {
+				for _, e := range stage.enemies {
 					e.move(e.think(p))
 					e.hasCaptured(p)
 				}
