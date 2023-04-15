@@ -12,17 +12,9 @@ type window struct {
 
 func createWindow(b *buffer) *window {
 	w := new(window)
-	w.lines = []*line{}
-	winWidth, winHeight := termbox.Size()
 	for i := 0; i < len(b.lines); i++ {
-		if i > winHeight-1 {
-			break
-		}
 		w.lines = append(w.lines, &line{})
 		for j := 0; j < len(b.lines[i].text); j++ {
-			if j+getDigit(len(b.lines))+1 > winWidth-1 {
-				break
-			}
 			w.lines[i].text = append(w.lines[i].text, b.lines[i].text[j])
 		}
 	}
