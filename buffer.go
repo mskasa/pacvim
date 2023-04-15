@@ -38,8 +38,7 @@ func createBuffer(reader io.Reader) *buffer {
 // Save firstTargetY, lastTargetY and targetScore
 func (b *buffer) plotStageMap(s stage, p *player) {
 	firstFlg := true
-	width, _ := termbox.Size()
-	height := len(b.lines)
+	width, height := termbox.Size()
 	for y := 0; y < height; y++ {
 		for x := b.offset; x < width; x++ {
 			if isCharTarget(x, y) {
