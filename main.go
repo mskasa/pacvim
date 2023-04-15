@@ -205,34 +205,6 @@ game:
 	return nil
 }
 
-func switchScene(fileName string) error {
-	termbox.HideCursor()
-	f, err := static.ReadFile(fileName)
-	if err != nil {
-		return err
-	}
-
-	b := createBuffer(bytes.NewReader(f))
-	w := createWindow(b)
-	if err != nil {
-		return err
-	}
-
-	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
-		return err
-	}
-	for y, l := range w.lines {
-		for x, r := range l.text {
-			termbox.SetCell(x, y, r, termbox.ColorYellow, termbox.ColorBlack)
-		}
-	}
-	if err = termbox.Flush(); err != nil {
-		return err
-	}
-	time.Sleep(750 * time.Millisecond)
-	return err
-}
-
 func validateFiles(stages []stage) error {
 	for i := 0; i < len(stages); i++ {
 		if err := validateMimeType(stages[i].mapPath); err != nil {
