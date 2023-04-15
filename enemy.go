@@ -137,20 +137,22 @@ func (e *enemy) getDisplayFormat() (rune, termbox.Attribute) {
 
 func (e *enemy) think(p *player) (int, int) {
 	x, y := e.getPosition()
-	// 移動のための評価値算出
+	// Calculate the evaluation value for movement
 	up := e.eval(p, x, y-1)
 	down := e.eval(p, x, y+1)
 	left := e.eval(p, x-1, y)
 	right := e.eval(p, x+1, y)
 
+	// The evaluation value is the distance between the player and the enemy
+	// So prefer lower (closer) values
 	if up <= down && up <= left && up <= right {
-		return x, y - 1 // 上
+		return x, y - 1 // up
 	} else if down <= left && down <= right {
-		return x, y + 1 // 下
+		return x, y + 1 // down
 	} else if left <= right {
-		return x - 1, y // 左
+		return x - 1, y // left
 	} else {
-		return x + 1, y // 右
+		return x + 1, y // right
 	}
 }
 
@@ -158,15 +160,15 @@ func (e *enemy) move(x, y int) {
 	e.waitingTime--
 	if e.waitingTime <= 0 && e.canMove(x, y) {
 		winWidth, _ := termbox.Size()
-		// 移動元のセルに元の文字をセット
+		// Set the original character in the original cell
 		termbox.SetCell(e.x, e.y, e.underRune.char, e.underRune.color, termbox.ColorBlack)
-		// 移動先のセル情報を保持（次の移動の際に元の文字をセットする必要があるため）
+		// Retains destination cell information
+		// Because it is necessary to set the original character at the next move
 		cell := termbox.CellBuffer()[(winWidth*y)+x]
 		e.x = x
 		e.y = y
 		e.underRune.char = cell.Ch
 		e.underRune.color = cell.Fg
-		// 移動先のセルにゴーストをセット
 		termbox.SetCell(x, y, e.char, e.color, termbox.ColorBlack)
 		e.waitingTime = e.oneActionInN
 	}
@@ -180,21 +182,26 @@ func (e *enemy) hasCaptured(p *player) {
 
 func (e *enemy) eval(p *player, x, y int) float64 {
 	if !e.canMove(x, y) {
+		// Returns a large enough value if it can't move
 		return 1000
 	}
 	return e.strategy.eval(p, x, y)
 }
 func (s *assault) eval(p *player, x, y int) float64 {
-	// X軸の距離とY軸の距離それぞれの二乗の和の平方根
+	// Distance between two points
 	return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 }
 func (s *tricky) eval(p *player, x, y int) float64 {
 	if random(0, 4) == 0 {
+		// Ignore 1 out of 5 times
 		return 0
 	} else {
 		return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 	}
 }
+
+// Return a value between min and max
+// e.g. random(0, 4) returns 0,1,2,3,4
 func random(min, max int) int {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	return rand.Intn(max-min+1) + min
