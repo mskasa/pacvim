@@ -27,6 +27,7 @@ const (
 	chHunter    = 'H'
 	chGhost     = 'G'
 	chTarget    = 'o'
+	chSpace     = ' '
 	chPoison    = 'X'
 	chBorder    = '+'
 	chObstacle1 = '-'

@@ -46,21 +46,23 @@ func getStage(stages []stage, level int) (stage, error) {
 // Color characters
 // Save firstTargetY, lastTargetY and targetScore
 func (s *stage) plot(b *buffer, p *player) {
-	firstFlg := true
-	width, height := termbox.Size()
-	for y := 0; y < height; y++ {
-		for x := b.offset; x < width; x++ {
-			if isCharTarget(x, y) {
-				if firstFlg {
-					b.firstTargetY = y
-					firstFlg = false
+	b.firstLine = 0
+	rightEnd := len(b.lines[0].text) + b.offset
+	lowerEnd := len(b.lines)
+	for y := 0; y < lowerEnd; y++ {
+		for x := b.offset; x < rightEnd; x++ {
+			if isCharTarget(x, y) || isCharSpace(x, y) {
+				if b.firstLine == 0 {
+					b.firstLine = y
 				}
-				b.lastTargetY = y
-				targetScore++
+				b.endLine = y
+				if isCharTarget(x, y) {
+					targetScore++
+				}
 			} else if isCharPlayer(x, y) {
 				p.x = x
 				p.y = y
-				termbox.SetCell(p.x, p.y, ' ', termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCell(p.x, p.y, chSpace, termbox.ColorWhite, termbox.ColorBlack)
 				termbox.SetCursor(p.x, p.y)
 			} else if isCharBorder(x, y) {
 				termbox.SetCell(x, y, chBorder, termbox.ColorYellow, termbox.ColorBlack)

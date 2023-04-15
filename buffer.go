@@ -11,11 +11,10 @@ import (
 )
 
 type buffer struct {
-	lines  []*line
-	offset int
-	// For command gg or G
-	firstTargetY int
-	lastTargetY  int
+	lines     []*line
+	offset    int
+	firstLine int
+	endLine   int
 }
 
 type window struct {
@@ -89,7 +88,7 @@ func makeLineNum(num int, maxDigit int, maxOffset int) []rune {
 	lineNum := make([]rune, maxOffset)
 	for i := 0; i < len(lineNum); i++ {
 		// fill with spaces
-		lineNum[i] = ' '
+		lineNum[i] = chSpace
 	}
 	numstr := strconv.Itoa(num)
 	currentDigit := getDigit(num)
@@ -162,7 +161,7 @@ func isCharEnemy(x, y int) bool {
 	return isCharHunter(x, y) || isCharGhost(x, y)
 }
 func isCharSpace(x, y int) bool {
-	return isChar(x, y, ' ')
+	return isChar(x, y, chSpace)
 }
 func isCharTarget(x, y int) bool {
 	return isChar(x, y, chTarget)

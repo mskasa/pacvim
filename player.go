@@ -257,25 +257,32 @@ func (p *player) warpBeginningWord(b *buffer) {
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func (p *player) warpBeginningFirstWordFirstLine(b *buffer) {
 	if p.inputNum == 0 {
-		p.y = b.firstTargetY
-	} else if p.inputNum > b.lastTargetY {
-		p.y = b.lastTargetY
+		p.y = b.firstLine
 	} else {
-		p.y = p.inputNum - 1
+		p.warpToSelectedLine(b)
 	}
 	p.warpBeginningWord(b)
 }
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
 func (p *player) warpBeginningFirstWordLastLine(b *buffer) {
-	if p.inputNum == 0 || p.inputNum > b.lastTargetY {
-		p.y = b.lastTargetY
-	} else if p.inputNum <= b.firstTargetY {
-		p.y = b.firstTargetY
+	if p.inputNum == 0 {
+		p.y = b.endLine
 	} else {
-		p.y = p.inputNum - 1
+		p.warpToSelectedLine(b)
 	}
 	p.warpBeginningWord(b)
+}
+
+func (p *player) warpToSelectedLine(b *buffer) {
+	switch {
+	case p.inputNum < b.firstLine:
+		p.y = b.firstLine
+	case p.inputNum > b.endLine:
+		p.y = b.endLine
+	default:
+		p.y = p.inputNum - 1
+	}
 }
 
 // ターゲットの色を変更（白→緑）
