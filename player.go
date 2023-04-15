@@ -136,7 +136,7 @@ func (p *player) moveWordByWord(fn func() bool) {
 func (p *player) moveBeginningNextWord() bool {
 	spaceFlg := false
 	for {
-		if isCharSpace(p.x, p.y) {
+		if isCharSpace(p.x, p.y) || isCharEnemy(p.x, p.y) {
 			spaceFlg = true
 		}
 		if !p.moveOneSquare(1, 0) {
@@ -173,12 +173,12 @@ func (p *player) checkActionResult() {
 
 // b:現在の単語もしくは前の単語の先頭に移動
 func (p *player) moveBeginningPrevWord() bool {
-	for isCharSpace(p.x-1, p.y) {
+	for isCharSpace(p.x-1, p.y) || isCharEnemy(p.x-1, p.y) {
 		if !p.moveOneSquare(-1, 0) {
 			break
 		}
 	}
-	for !isCharSpace(p.x-1, p.y) {
+	for !isCharSpace(p.x-1, p.y) && !isCharEnemy(p.x-1, p.y) {
 		if !p.moveOneSquare(-1, 0) {
 			return false
 		}
@@ -186,14 +186,14 @@ func (p *player) moveBeginningPrevWord() bool {
 	return true
 }
 
-// e:単語の最後の文字に移動
+// e:現在の単語もしくは次の単語の最後の文字に移動
 func (p *player) moveLastWord() bool {
-	for isCharSpace(p.x+1, p.y) {
+	for isCharSpace(p.x+1, p.y) || isCharEnemy(p.x+1, p.y) {
 		if !p.moveOneSquare(1, 0) {
 			break
 		}
 	}
-	for !isCharSpace(p.x+1, p.y) {
+	for !isCharSpace(p.x+1, p.y) && !isCharEnemy(p.x+1, p.y) {
 		if !p.moveOneSquare(1, 0) {
 			return false
 		}
