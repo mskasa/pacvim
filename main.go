@@ -50,7 +50,7 @@ const (
 
 	stageDir         = "files/stage/"
 	stageMapMimeType = "text/plain; charset=utf-8"
-	maxFileSize      = 512
+	maxFileSize      = 1024
 )
 
 var (
