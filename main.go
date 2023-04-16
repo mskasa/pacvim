@@ -47,8 +47,6 @@ const (
 	sceneYoulose  = "files/scene/youlose.txt"
 	sceneCongrats = "files/scene/congrats.txt"
 	sceneGoodbye  = "files/scene/goodbye.txt"
-
-	stageDir = "files/stage/"
 )
 
 var (
