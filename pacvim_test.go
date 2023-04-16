@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	termbox "github.com/nsf/termbox-go"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_switchScene(t *testing.T) {
@@ -92,4 +93,52 @@ func Test_isInputNum(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_validateStageMap(t *testing.T) {
+	cases := map[string]struct {
+		mapPath  string
+		expected string
+	}{
+		"normal/map01": {
+			mapPath:  "files/test/map01.txt",
+			expected: "",
+		},
+		"normal/map02": {
+			mapPath:  "files/test/map02.txt",
+			expected: "",
+		},
+		"error/map03": {
+			mapPath:  "files/test/map03.txt",
+			expected: "files/test/map03.txt: Make the stage map 20 to 50 columns: Stage Map Validation Error",
+		},
+		"error/map04": {
+			mapPath:  "files/test/map04.txt",
+			expected: "files/test/map04.txt: Make the stage map 10 to 20 lines: Stage Map Validation Error",
+		},
+		"error/map05": {
+			mapPath:  "files/test/map05.txt",
+			expected: "files/test/map05.txt: Make the stage map 20 to 50 columns: Stage Map Validation Error",
+		},
+		"error/map06": {
+			mapPath:  "files/test/map06.txt",
+			expected: "files/test/map06.txt: Make the stage map 10 to 20 lines: Stage Map Validation Error",
+		},
+		"error/map07": {
+			mapPath: "files/test/map07.txt",
+			expected: "the following errors occurred:\n" +
+				" -  files/test/map07.txt: Make the width of the stage map uniform (line 6,8,10)\n" +
+				" -  files/test/map07.txt: Create a boundary for the stage map with '+' (line 1,8,10,15): Stage Map Validation Error",
+		},
+	}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if result := validateStageMap(tt.mapPath); result != nil {
+				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)
+			}
+		})
+	}
+
 }

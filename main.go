@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"embed"
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
@@ -259,6 +262,67 @@ func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
 	}
 	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
 		return errors.New("Validation Error: speed must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
+	}
+	return nil
+}
+
+var stageMapValidationError = errors.New("Stage Map Validation Error")
+
+func validateStageMaps(stages []stage) error {
+	for _, stage := range stages {
+		if err := validateStageMap(stage.mapPath); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func validateStageMap(stageMapPath string) error {
+	var err error
+	f, _ := os.Open(stageMapPath)
+	defer func() {
+		err = multierr.Append(err, f.Close())
+	}()
+	scanner := bufio.NewScanner(f)
+	lines := []string{}
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	height := len(lines)
+	if height < 10 || height > 20 {
+		err = errors.New(stageMapPath + ": Make the stage map 10 to 20 lines")
+		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
+	}
+	width := len(lines[0])
+	if width < 20 || width > 50 {
+		err = errors.New(stageMapPath + ": Make the stage map 20 to 50 columns")
+		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
+	}
+	i := 1
+	var errNoBorder1 []string
+	var errNoBorder2 []string
+	for _, s := range lines {
+		if len(s) != width {
+			errNoBorder1 = append(errNoBorder1, strconv.Itoa(i))
+		}
+		if i == 1 || i == height {
+			if s != strings.Repeat(string(chBorder), width) {
+				errNoBorder2 = append(errNoBorder2, strconv.Itoa(i))
+			}
+		} else {
+			if !strings.HasPrefix(s, string(chBorder)) || !strings.HasSuffix(s, string(chBorder)) {
+				errNoBorder2 = append(errNoBorder2, strconv.Itoa(i))
+			}
+		}
+		i++
+	}
+	if len(errNoBorder1) > 0 {
+		err = multierr.Append(err, errors.New(stageMapPath+": Make the width of the stage map uniform (line "+strings.Join(errNoBorder1, ",")+")"))
+	}
+	if len(errNoBorder2) > 0 {
+		err = multierr.Append(err, errors.New(stageMapPath+": Create a boundary for the stage map with '+' (line "+strings.Join(errNoBorder2, ",")+")"))
+	}
+	if err != nil {
+		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
 	}
 	return nil
 }
