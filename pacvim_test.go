@@ -131,7 +131,7 @@ func Test_validateFileSize(t *testing.T) {
 		},
 		"error/map02": {
 			mapPath:  "files/test/validateFileSize/map02.txt",
-			expected: "files/test/validateFileSize/map02.txt: File size exceeded:1049 (Max file size is 1024): File Size Validation Error",
+			expected: "File Size Validation Error: files/test/validateFileSize/map02.txt; File size exceeded: 1049 (Max file size is 1024);",
 		},
 	}
 	for name, tt := range cases {

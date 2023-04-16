@@ -274,8 +274,8 @@ func validateFileSize(filePath string) (err error) {
 	}
 
 	if fi.Size() > maxFileSize {
-		err = errors.New(filePath + ": File size exceeded:" + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ")")
-		return fmt.Errorf("%+v: %w", err, fileSizeValidationError)
+		err = errors.New(filePath + "; File size exceeded: " + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ");")
+		return fmt.Errorf("%w: %+v", fileSizeValidationError, err)
 	}
 	return nil
 }
