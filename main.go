@@ -48,9 +48,7 @@ const (
 	sceneCongrats = "files/scene/congrats.txt"
 	sceneGoodbye  = "files/scene/goodbye.txt"
 
-	stageDir         = "files/stage/"
-	stageMapMimeType = "text/plain; charset=utf-8"
-	maxFileSize      = 1024
+	stageDir = "files/stage/"
 )
 
 var (
@@ -237,6 +235,11 @@ func validateFiles(stages []stage) error {
 	}
 	return nil
 }
+
+var mimeTypeValidationError = errors.New("MIME Type Validation Error")
+
+const stageMapMimeType = "text/plain; charset=utf-8"
+
 func validateMimeType(filePath string) error {
 	bytes, err := os.ReadFile(filePath)
 	if err != nil {
@@ -244,10 +247,16 @@ func validateMimeType(filePath string) error {
 	}
 	mimeType := http.DetectContentType(bytes)
 	if mimeType != stageMapMimeType {
-		return errors.New("Invalid mime type: " + mimeType)
+		err = errors.New(filePath + "; Invalid mime type: " + mimeType + ";")
+		return fmt.Errorf("%w: %+v", mimeTypeValidationError, err)
 	}
 	return nil
 }
+
+var fileSizeValidationError = errors.New("File Size Validation Error")
+
+const maxFileSize = 1024
+
 func validateFileSize(filePath string) (err error) {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -264,7 +273,8 @@ func validateFileSize(filePath string) (err error) {
 	}
 
 	if fi.Size() > maxFileSize {
-		return errors.New("File size exceeded:" + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ")")
+		err = errors.New(filePath + ": File size exceeded:" + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ")")
+		return fmt.Errorf("%+v: %w", err, fileSizeValidationError)
 	}
 	return nil
 }

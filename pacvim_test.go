@@ -95,6 +95,56 @@ func Test_isInputNum(t *testing.T) {
 	}
 }
 
+func Test_validateMimeType(t *testing.T) {
+	cases := map[string]struct {
+		mapPath  string
+		expected string
+	}{
+		"normal/map01": {
+			mapPath:  "files/test/validateMimeType/map01.txt",
+			expected: "",
+		},
+		"error/map02": {
+			mapPath:  "files/test/validateMimeType/map02.txt",
+			expected: "MIME Type Validation Error: files/test/validateMimeType/map02.txt; Invalid mime type: application/octet-stream;",
+		},
+	}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if result := validateMimeType(tt.mapPath); result != nil {
+				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)
+			}
+		})
+	}
+}
+
+func Test_validateFileSize(t *testing.T) {
+	cases := map[string]struct {
+		mapPath  string
+		expected string
+	}{
+		"normal/map01": {
+			mapPath:  "files/test/validateFileSize/map01.txt",
+			expected: "",
+		},
+		"error/map02": {
+			mapPath:  "files/test/validateFileSize/map02.txt",
+			expected: "files/test/validateFileSize/map02.txt: File size exceeded:1049 (Max file size is 1024): File Size Validation Error",
+		},
+	}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if result := validateFileSize(tt.mapPath); result != nil {
+				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)
+			}
+		})
+	}
+}
+
 func Test_validateStageMap(t *testing.T) {
 	cases := map[string]struct {
 		mapPath  string
@@ -151,5 +201,4 @@ func Test_validateStageMap(t *testing.T) {
 			}
 		})
 	}
-
 }
