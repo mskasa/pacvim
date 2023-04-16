@@ -130,6 +130,17 @@ func Test_validateStageMap(t *testing.T) {
 				" -  files/test/map07.txt: Make the width of the stage map uniform (line 6,8,10)\n" +
 				" -  files/test/map07.txt: Create a boundary for the stage map with '+' (line 1,8,10,15): Stage Map Validation Error",
 		},
+		"error/map08": {
+			mapPath: "files/test/map08.txt",
+			expected: "the following errors occurred:\n" +
+				" -  files/test/map08.txt: Please set one P\n" +
+				" -  files/test/map08.txt: Please set one or more enemies\n" +
+				" -  files/test/map08.txt: Please set one or more targets: Stage Map Validation Error",
+		},
+		"error/map09": {
+			mapPath:  "files/test/map09.txt",
+			expected: "files/test/map09.txt: Please set only one P: Stage Map Validation Error",
+		},
 	}
 	for name, tt := range cases {
 		tt := tt

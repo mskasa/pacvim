@@ -209,19 +209,36 @@ game:
 	return nil
 }
 
+func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
+	flag.Parse()
+	if *level > maxLevel || *level < 1 {
+		return errors.New("Validation Error: level must be (1-" + strconv.Itoa(maxLevel) + ").")
+	}
+	if *life > upperLimitLife || *life < 0 {
+		return errors.New("Validation Error: life must be (0-" + strconv.Itoa(upperLimitLife) + ").")
+	}
+	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
+		return errors.New("Validation Error: speed must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
+	}
+	return nil
+}
+
 func validateFiles(stages []stage) error {
-	for i := 0; i < len(stages); i++ {
-		if err := validateMimeType(stages[i].mapPath); err != nil {
+	for _, s := range stages {
+		if err := validateMimeType(s.mapPath); err != nil {
 			return err
 		}
-		if err := validateFileSize(stages[i].mapPath); err != nil {
+		if err := validateFileSize(s.mapPath); err != nil {
+			return err
+		}
+		if err := validateStageMap(s.mapPath); err != nil {
 			return err
 		}
 	}
 	return nil
 }
-func validateMimeType(stageMap string) error {
-	bytes, err := os.ReadFile(stageMap)
+func validateMimeType(filePath string) error {
+	bytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -231,8 +248,8 @@ func validateMimeType(stageMap string) error {
 	}
 	return nil
 }
-func validateFileSize(dir string) (err error) {
-	f, err := os.Open(dir)
+func validateFileSize(filePath string) (err error) {
+	f, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
@@ -252,33 +269,11 @@ func validateFileSize(dir string) (err error) {
 	return nil
 }
 
-func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
-	flag.Parse()
-	if *level > maxLevel || *level < 1 {
-		return errors.New("Validation Error: level must be (1-" + strconv.Itoa(maxLevel) + ").")
-	}
-	if *life > upperLimitLife || *life < 0 {
-		return errors.New("Validation Error: life must be (0-" + strconv.Itoa(upperLimitLife) + ").")
-	}
-	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
-		return errors.New("Validation Error: speed must be (1-" + strconv.Itoa(len(gameSpeedMap)) + ").")
-	}
-	return nil
-}
-
 var stageMapValidationError = errors.New("Stage Map Validation Error")
 
-func validateStageMaps(stages []stage) error {
-	for _, stage := range stages {
-		if err := validateStageMap(stage.mapPath); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-func validateStageMap(stageMapPath string) error {
+func validateStageMap(filePath string) error {
 	var err error
-	f, _ := os.Open(stageMapPath)
+	f, _ := os.Open(filePath)
 	defer func() {
 		err = multierr.Append(err, f.Close())
 	}()
@@ -289,17 +284,20 @@ func validateStageMap(stageMapPath string) error {
 	}
 	height := len(lines)
 	if height < 10 || height > 20 {
-		err = errors.New(stageMapPath + ": Make the stage map 10 to 20 lines")
+		err = errors.New(filePath + ": Make the stage map 10 to 20 lines")
 		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
 	}
 	width := len(lines[0])
 	if width < 20 || width > 50 {
-		err = errors.New(stageMapPath + ": Make the stage map 20 to 50 columns")
+		err = errors.New(filePath + ": Make the stage map 20 to 50 columns")
 		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
 	}
 	i := 1
 	var errNoBorder1 []string
 	var errNoBorder2 []string
+	countPlayer := 0
+	countEnemy := 0
+	countTarget := 0
 	for _, s := range lines {
 		if len(s) != width {
 			errNoBorder1 = append(errNoBorder1, strconv.Itoa(i))
@@ -312,14 +310,31 @@ func validateStageMap(stageMapPath string) error {
 			if !strings.HasPrefix(s, string(chBorder)) || !strings.HasSuffix(s, string(chBorder)) {
 				errNoBorder2 = append(errNoBorder2, strconv.Itoa(i))
 			}
+			countPlayer += strings.Count(s, string(chPlayer))
+			if countPlayer > 1 {
+				err = multierr.Append(err, errors.New(filePath+": Please set only one P"))
+				return fmt.Errorf("%+v: %w", err, stageMapValidationError)
+			}
+			countEnemy += strings.Count(s, string(chHunter))
+			countEnemy += strings.Count(s, string(chGhost))
+			countTarget += strings.Count(s, string(chTarget))
 		}
 		i++
 	}
 	if len(errNoBorder1) > 0 {
-		err = multierr.Append(err, errors.New(stageMapPath+": Make the width of the stage map uniform (line "+strings.Join(errNoBorder1, ",")+")"))
+		err = multierr.Append(err, errors.New(filePath+": Make the width of the stage map uniform (line "+strings.Join(errNoBorder1, ",")+")"))
 	}
 	if len(errNoBorder2) > 0 {
-		err = multierr.Append(err, errors.New(stageMapPath+": Create a boundary for the stage map with '+' (line "+strings.Join(errNoBorder2, ",")+")"))
+		err = multierr.Append(err, errors.New(filePath+": Create a boundary for the stage map with '+' (line "+strings.Join(errNoBorder2, ",")+")"))
+	}
+	if countPlayer == 0 {
+		err = multierr.Append(err, errors.New(filePath+": Please set one P"))
+	}
+	if countEnemy == 0 {
+		err = multierr.Append(err, errors.New(filePath+": Please set one or more enemies"))
+	}
+	if countTarget == 0 {
+		err = multierr.Append(err, errors.New(filePath+": Please set one or more targets"))
 	}
 	if err != nil {
 		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
