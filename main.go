@@ -293,13 +293,13 @@ func validateStageMap(filePath string) error {
 	}
 	height := len(lines)
 	if height < 10 || height > 20 {
-		err = errors.New(filePath + ": Make the stage map 10 to 20 lines")
-		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
+		err = errors.New(filePath + "; Make the stage map 10 to 20 lines;")
+		return fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
 	width := len(lines[0])
 	if width < 20 || width > 50 {
-		err = errors.New(filePath + ": Make the stage map 20 to 50 columns")
-		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
+		err = errors.New(filePath + "; Make the stage map 20 to 50 columns;")
+		return fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
 	i := 1
 	var errNoBorder1 []string
@@ -321,8 +321,8 @@ func validateStageMap(filePath string) error {
 			}
 			countPlayer += strings.Count(s, string(chPlayer))
 			if countPlayer > 1 {
-				err = multierr.Append(err, errors.New(filePath+": Please set only one P"))
-				return fmt.Errorf("%+v: %w", err, stageMapValidationError)
+				err = multierr.Append(err, errors.New(filePath+"; Please set only one P;"))
+				return fmt.Errorf("%w: %+v", stageMapValidationError, err)
 			}
 			countEnemy += strings.Count(s, string(chHunter))
 			countEnemy += strings.Count(s, string(chGhost))
@@ -331,22 +331,22 @@ func validateStageMap(filePath string) error {
 		i++
 	}
 	if len(errNoBorder1) > 0 {
-		err = multierr.Append(err, errors.New(filePath+": Make the width of the stage map uniform (line "+strings.Join(errNoBorder1, ",")+")"))
+		err = multierr.Append(err, errors.New(filePath+"; Make the width of the stage map uniform (line "+strings.Join(errNoBorder1, ",")+");"))
 	}
 	if len(errNoBorder2) > 0 {
-		err = multierr.Append(err, errors.New(filePath+": Create a boundary for the stage map with '+' (line "+strings.Join(errNoBorder2, ",")+")"))
+		err = multierr.Append(err, errors.New(filePath+"; Create a boundary for the stage map with '+' (line "+strings.Join(errNoBorder2, ",")+");"))
 	}
 	if countPlayer == 0 {
-		err = multierr.Append(err, errors.New(filePath+": Please set one P"))
+		err = multierr.Append(err, errors.New(filePath+"; Please set one P;"))
 	}
 	if countEnemy == 0 {
-		err = multierr.Append(err, errors.New(filePath+": Please set one or more enemies"))
+		err = multierr.Append(err, errors.New(filePath+"; Please set one or more enemies;"))
 	}
 	if countTarget == 0 {
-		err = multierr.Append(err, errors.New(filePath+": Please set one or more targets"))
+		err = multierr.Append(err, errors.New(filePath+"; Please set one or more targets;"))
 	}
 	if err != nil {
-		return fmt.Errorf("%+v: %w", err, stageMapValidationError)
+		return fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
 	return nil
 }
