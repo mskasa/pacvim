@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 
 	termbox "github.com/nsf/termbox-go"
@@ -198,6 +199,61 @@ func Test_validateStageMap(t *testing.T) {
 			t.Parallel()
 			if result := validateStageMap(tt.mapPath); result != nil {
 				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)
+			}
+		})
+	}
+}
+
+func Test_getDigit(t *testing.T) {
+	cases := map[string]struct {
+		linenum  int
+		expected int
+	}{
+		"1digit": {
+			linenum:  1,
+			expected: 1,
+		},
+		"2digit": {
+			linenum:  10,
+			expected: 2,
+		},
+	}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			result := getDigit(tt.linenum)
+			if tt.expected != result {
+				t.Error("expected:", tt.expected, "result:", result)
+			}
+		})
+	}
+}
+
+func Test_makeLineNum(t *testing.T) {
+	cases := map[string]struct {
+		num      int
+		maxDigit int
+		expected []rune
+	}{
+		"1digit": {
+			num:      1,
+			maxDigit: 2,
+			expected: []rune{' ', '1', ' '},
+		},
+		"2digit": {
+			num:      10,
+			maxDigit: 2,
+			expected: []rune{'1', '0', ' '},
+		},
+	}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			result := makeLineNum(tt.num, tt.maxDigit, tt.maxDigit+1)
+			if !reflect.DeepEqual(tt.expected, result) {
+				t.Error("expected:", tt.expected, "result:", result)
 			}
 		})
 	}
