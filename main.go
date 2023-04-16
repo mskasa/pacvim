@@ -219,6 +219,17 @@ func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
 	return nil
 }
 
+var (
+	mimeTypeValidationError = errors.New("MIME Type Validation Error")
+	fileSizeValidationError = errors.New("File Size Validation Error")
+	stageMapValidationError = errors.New("Stage Map Validation Error")
+)
+
+const (
+	stageMapMimeType = "text/plain; charset=utf-8"
+	maxFileSize      = 1024
+)
+
 func validateFiles(stages []stage) error {
 	for _, s := range stages {
 		if err := validateMimeType(s.mapPath); err != nil {
@@ -234,10 +245,6 @@ func validateFiles(stages []stage) error {
 	return nil
 }
 
-var mimeTypeValidationError = errors.New("MIME Type Validation Error")
-
-const stageMapMimeType = "text/plain; charset=utf-8"
-
 func validateMimeType(filePath string) error {
 	bytes, err := os.ReadFile(filePath)
 	if err != nil {
@@ -250,10 +257,6 @@ func validateMimeType(filePath string) error {
 	}
 	return nil
 }
-
-var fileSizeValidationError = errors.New("File Size Validation Error")
-
-const maxFileSize = 1024
 
 func validateFileSize(filePath string) (err error) {
 	f, err := os.Open(filePath)
@@ -276,8 +279,6 @@ func validateFileSize(filePath string) (err error) {
 	}
 	return nil
 }
-
-var stageMapValidationError = errors.New("Stage Map Validation Error")
 
 func validateStageMap(filePath string) error {
 	var err error
