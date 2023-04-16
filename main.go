@@ -49,14 +49,6 @@ var (
 	targetScore = 0
 	score       = 0
 
-	gameSpeedMap = map[int]time.Duration{
-		1: 1500 * time.Millisecond,
-		2: 1250 * time.Millisecond,
-		3: 1000 * time.Millisecond,
-		4: 750 * time.Millisecond,
-		5: 500 * time.Millisecond,
-	}
-
 	//go:embed files
 	static embed.FS
 )
@@ -77,10 +69,9 @@ func run() error {
 	// Read command line arguments
 	level := flag.Int("level", 1, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
 	life := flag.Int("life", 3, "Remaining lives. (0-5)")
-	gameSpeed := flag.Int("speed", 3, "Game speed. Bigger is faster. (1-5)")
 
 	// Validate command line arguments
-	if err := validateArgs(level, life, gameSpeed, maxLevel); err != nil {
+	if err := validateArgs(level, life, maxLevel); err != nil {
 		return err
 	}
 
@@ -159,7 +150,7 @@ game:
 				if err = termbox.Flush(); err != nil {
 					return err
 				}
-				time.Sleep(gameSpeedMap[*gameSpeed])
+				time.Sleep(stage.gameSpeed)
 			}
 			return nil
 		})
@@ -200,16 +191,13 @@ game:
 	return nil
 }
 
-func validateArgs(level *int, life *int, gameSpeed *int, maxLevel int) error {
+func validateArgs(level *int, life *int, maxLevel int) error {
 	flag.Parse()
 	if *level > maxLevel || *level < 1 {
 		return errors.New("Validation Error: level must be (1-" + strconv.Itoa(maxLevel) + ").")
 	}
 	if *life > 5 || *life < 0 {
 		return errors.New("Validation Error: life must be (0-5).")
-	}
-	if *gameSpeed > len(gameSpeedMap) || *gameSpeed < 1 {
-		return errors.New("Validation Error: speed must be (1-5).")
 	}
 	return nil
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"time"
 
 	termbox "github.com/nsf/termbox-go"
 )
@@ -12,6 +13,7 @@ type stage struct {
 	hunterBuilder iEnemyBuilder
 	ghostBuilder  iEnemyBuilder
 	enemies       []iEnemy
+	gameSpeed     time.Duration
 }
 
 func initStages() []stage {
@@ -23,12 +25,14 @@ func initStages() []stage {
 			mapPath:       "files/stage/map01.txt",
 			hunterBuilder: defaultHunterBuilder,
 			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     1250 * time.Millisecond,
 		},
 		{
 			level:         2,
 			mapPath:       "files/stage/map02.txt",
 			hunterBuilder: defaultHunterBuilder,
 			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     1000 * time.Millisecond,
 		},
 	}
 }
