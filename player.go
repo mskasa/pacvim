@@ -48,13 +48,13 @@ func (p *player) action(b *buffer) error {
 						p.moveCross(1, 0)
 					// to the beginning of the next word
 					case 'w':
-						p.moveWordByWord(p.moveBeginningNextWord)
+						p.moveByWord(p.moveBeginningNextWord)
 					// to the beginning of the previous word
 					case 'b':
-						p.moveWordByWord(p.moveBeginningPrevWord)
+						p.moveByWord(p.moveBeginningPrevWord)
 					// to the end of the current word
 					case 'e':
-						p.moveWordByWord(p.moveLastWord)
+						p.moveByWord(p.moveLastWord)
 					// to the beginning of the current line
 					case '0':
 						p.warpLine(p.warpBeginningLine)
@@ -122,7 +122,7 @@ func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 }
 
 // Move (by word)
-func (p *player) moveWordByWord(fn func() bool) {
+func (p *player) moveByWord(fn func() bool) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
 			if !fn() {
