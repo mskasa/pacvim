@@ -106,8 +106,6 @@ func (p *player) moveCross(xDirection, yDirection int) {
 		p.moveOneSquare(xDirection, yDirection)
 	}
 }
-
-// Move (1 square)
 func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 	x := p.x + xDirection
 	y := p.y + yDirection
@@ -117,7 +115,7 @@ func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 	} else {
 		return false
 	}
-	p.checkActionResult()
+	p.judgeMoveResult()
 	return true
 }
 
@@ -131,6 +129,36 @@ func (p *player) moveByWord(fn func() bool) {
 		}
 	} else {
 		fn()
+	}
+}
+
+// Jump (to beginning/end of line)
+func (p *player) jumpLine(fn func()) {
+	fn()
+	p.judgeMoveResult()
+}
+
+// Jump (to beginning of word)
+func (p *player) jumpWord(fn func(*buffer), b *buffer) {
+	fn(b)
+	p.judgeMoveResult()
+}
+
+// Judge the movement result
+func (p *player) judgeMoveResult() {
+	if isCharEnemy(p.x, p.y) || isCharPoison(p.x, p.y) {
+		gameState = lose
+	} else {
+		// Change target color (white → green)
+		winWidth, _ := termbox.Size()
+		cell := termbox.CellBuffer()[(winWidth*p.y)+p.x]
+		if cell.Ch == chTarget && cell.Fg == termbox.ColorWhite {
+			termbox.SetCell(p.x, p.y, cell.Ch, termbox.ColorGreen, termbox.ColorBlack)
+			score++
+			if score == targetScore {
+				gameState = win
+			}
+		}
 	}
 }
 
@@ -149,27 +177,6 @@ func (p *player) moveBeginningNextWord() bool {
 				return true
 			}
 		}
-	}
-}
-
-// ワープ（行頭・行末）
-func (p *player) jumpLine(fn func()) {
-	fn()
-	p.checkActionResult()
-}
-
-// ワープ（単語の先頭）
-func (p *player) jumpWord(fn func(*buffer), b *buffer) {
-	fn(b)
-	p.checkActionResult()
-}
-
-// 移動結果の判定
-func (p *player) checkActionResult() {
-	if isCharEnemy(p.x, p.y) || isCharPoison(p.x, p.y) {
-		gameState = lose
-	} else {
-		p.turnGreen()
 	}
 }
 
@@ -284,18 +291,5 @@ func (p *player) jumpToSelectedLine(b *buffer) {
 		p.y = b.endLine
 	default:
 		p.y = p.inputNum - 1
-	}
-}
-
-// Change target color (white → green)
-func (p *player) turnGreen() {
-	winWidth, _ := termbox.Size()
-	cell := termbox.CellBuffer()[(winWidth*p.y)+p.x]
-	if cell.Ch == chTarget && cell.Fg == termbox.ColorWhite {
-		termbox.SetCell(p.x, p.y, cell.Ch, termbox.ColorGreen, termbox.ColorBlack)
-		score++
-		if score == targetScore {
-			gameState = win
-		}
 	}
 }
