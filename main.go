@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -222,11 +221,11 @@ func validateFiles(stages []stage) error {
 }
 
 func validateMimeType(filePath string) error {
-	bytes, err := os.ReadFile(filePath)
+	b, err := static.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
-	mimeType := http.DetectContentType(bytes)
+	mimeType := http.DetectContentType(b)
 	if mimeType != stageMapMimeType {
 		err = errors.New(filePath + "; Invalid mime type: " + mimeType + ";")
 		return fmt.Errorf("%w: %+v", mimeTypeValidationError, err)
@@ -235,7 +234,7 @@ func validateMimeType(filePath string) error {
 }
 
 func validateFileSize(filePath string) (err error) {
-	f, err := os.Open(filePath)
+	f, err := static.Open(filePath)
 	if err != nil {
 		return err
 	}
@@ -258,10 +257,11 @@ func validateFileSize(filePath string) (err error) {
 
 func validateStageMap(filePath string) error {
 	var err error
-	f, _ := os.Open(filePath)
-	defer func() {
-		err = multierr.Append(err, f.Close())
-	}()
+	b, err := static.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+	f := bytes.NewReader(b)
 	scanner := bufio.NewScanner(f)
 	lines := []string{}
 	for scanner.Scan() {
