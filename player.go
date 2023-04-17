@@ -21,7 +21,7 @@ func (p *player) action(b *buffer) error {
 				if ev.Ch == 'g' {
 					// Regex: *gg
 					// Move cursor to the beginning of the first word on the first line
-					p.warpWord(p.warpBeginningFirstWordFirstLine, b)
+					p.jumpWord(p.jumpBeginningFirstWordFirstLine, b)
 				}
 				// Regex: *g.
 				p.inputNum = 0
@@ -57,16 +57,16 @@ func (p *player) action(b *buffer) error {
 						p.moveByWord(p.moveLastWord)
 					// to the beginning of the current line
 					case '0':
-						p.warpLine(p.warpBeginningLine)
+						p.jumpLine(p.jumpBeginningLine)
 					// to the end of the current line
 					case '$':
-						p.warpLine(p.warpEndLine)
+						p.jumpLine(p.jumpEndLine)
 					// to the beginning of the first word on the current line
 					case '^':
-						p.warpWord(p.warpBeginningWord, b)
+						p.jumpWord(p.jumpBeginningWord, b)
 					// to the beginning of the first word on the last line
 					case 'G':
-						p.warpWord(p.warpBeginningFirstWordLastLine, b)
+						p.jumpWord(p.jumpBeginningFirstWordLastLine, b)
 					// quit
 					case 'q':
 						gameState = quit
@@ -153,13 +153,13 @@ func (p *player) moveBeginningNextWord() bool {
 }
 
 // ワープ（行頭・行末）
-func (p *player) warpLine(fn func()) {
+func (p *player) jumpLine(fn func()) {
 	fn()
 	p.checkActionResult()
 }
 
 // ワープ（単語の先頭）
-func (p *player) warpWord(fn func(*buffer), b *buffer) {
+func (p *player) jumpWord(fn func(*buffer), b *buffer) {
 	fn(b)
 	p.checkActionResult()
 }
@@ -204,7 +204,7 @@ func (p *player) moveLastWord() bool {
 }
 
 // 0:行頭にワープ
-func (p *player) warpBeginningLine() {
+func (p *player) jumpBeginningLine() {
 	x := 0
 	for {
 		x++
@@ -222,7 +222,7 @@ func (p *player) warpBeginningLine() {
 }
 
 // $:行末にワープ
-func (p *player) warpEndLine() {
+func (p *player) jumpEndLine() {
 	x, _ := termbox.Size()
 	for {
 		x--
@@ -240,8 +240,8 @@ func (p *player) warpEndLine() {
 }
 
 // ^:行頭の単語の先頭にワープ
-func (p *player) warpBeginningWord(b *buffer) {
-	p.warpBeginningLine()
+func (p *player) jumpBeginningWord(b *buffer) {
+	p.jumpBeginningLine()
 	width := len(b.lines[p.y].text) + b.offset
 	x := p.x
 	for {
@@ -257,26 +257,26 @@ func (p *player) warpBeginningWord(b *buffer) {
 }
 
 // gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func (p *player) warpBeginningFirstWordFirstLine(b *buffer) {
+func (p *player) jumpBeginningFirstWordFirstLine(b *buffer) {
 	if p.inputNum == 0 {
 		p.y = b.firstLine
 	} else {
-		p.warpToSelectedLine(b)
+		p.jumpToSelectedLine(b)
 	}
-	p.warpBeginningWord(b)
+	p.jumpBeginningWord(b)
 }
 
 // G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
-func (p *player) warpBeginningFirstWordLastLine(b *buffer) {
+func (p *player) jumpBeginningFirstWordLastLine(b *buffer) {
 	if p.inputNum == 0 {
 		p.y = b.endLine
 	} else {
-		p.warpToSelectedLine(b)
+		p.jumpToSelectedLine(b)
 	}
-	p.warpBeginningWord(b)
+	p.jumpBeginningWord(b)
 }
 
-func (p *player) warpToSelectedLine(b *buffer) {
+func (p *player) jumpToSelectedLine(b *buffer) {
 	switch {
 	case p.inputNum < b.firstLine:
 		p.y = b.firstLine
