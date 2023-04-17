@@ -46,9 +46,6 @@ func getStage(stages []stage, level int) (stage, error) {
 	return stage{}, errors.New("File does not exist: " + stages[level].mapPath)
 }
 
-// Convert characters
-// Color characters
-// Save firstTargetY, lastTargetY and targetScore
 func (s *stage) plot(b *buffer, p *player) {
 	b.firstLine = 0
 	rightEnd := len(b.lines[0].text) + b.offset
