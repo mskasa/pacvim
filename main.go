@@ -64,18 +64,15 @@ func run() error {
 	if err := validateFiles(stages); err != nil {
 		return err
 	}
+
 	maxLevel := len(stages)
 
-	// Read command line arguments
 	level := flag.Int("level", 1, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
 	life := flag.Int("life", 3, "Remaining lives. (0-5)")
-
-	// Validate command line arguments
 	if err := validateArgs(level, life, maxLevel); err != nil {
 		return err
 	}
 
-	// Initialize termbox
 	if err := termbox.Init(); err != nil {
 		return err
 	}
@@ -84,7 +81,6 @@ func run() error {
 	}
 	defer termbox.Close()
 
-	// Display the start screen
 	if err := switchScene(sceneStart); err != nil {
 		return err
 	}
@@ -135,12 +131,10 @@ game:
 
 		eg := new(errgroup.Group)
 
-		// Starts a new goroutine that runs for player actions
 		eg.Go(func() error {
 			return p.action(b)
 		})
 
-		// Starts a new goroutine that runs for ghost control
 		eg.Go(func() error {
 			for gameState == continuing {
 				for _, e := range stage.enemies {
@@ -155,7 +149,6 @@ game:
 			return nil
 		})
 
-		// Synchronization(waiting for player action goroutine and ghost control goroutine to finish)
 		if err := eg.Wait(); err != nil {
 			return err
 		}
