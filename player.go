@@ -162,7 +162,7 @@ func (p *player) judgeMoveResult() {
 	}
 }
 
-// 次の単語の先頭に移動
+// w: Move cursor to the beginning of the next word
 func (p *player) moveBeginningNextWord() bool {
 	spaceFlg := false
 	for {
@@ -180,7 +180,7 @@ func (p *player) moveBeginningNextWord() bool {
 	}
 }
 
-// b:現在の単語もしくは前の単語の先頭に移動
+// b: Move cursor to the beginning of the previous word
 func (p *player) moveBeginningPrevWord() bool {
 	for isCharSpace(p.x-1, p.y) || isCharEnemy(p.x-1, p.y) {
 		if !p.moveOneSquare(-1, 0) {
@@ -195,7 +195,7 @@ func (p *player) moveBeginningPrevWord() bool {
 	return true
 }
 
-// e:現在の単語もしくは次の単語の最後の文字に移動
+// e: Move cursor to the end of the current word
 func (p *player) moveLastWord() bool {
 	for isCharSpace(p.x+1, p.y) || isCharEnemy(p.x+1, p.y) {
 		if !p.moveOneSquare(1, 0) {
@@ -210,7 +210,7 @@ func (p *player) moveLastWord() bool {
 	return true
 }
 
-// 0:行頭にワープ
+// 0: Move cursor to the beginning of the current line
 func (p *player) jumpBeginningLine() {
 	x := 0
 	for {
@@ -228,7 +228,7 @@ func (p *player) jumpBeginningLine() {
 	p.x = x
 }
 
-// $:行末にワープ
+// $: Move cursor to the end of the current line
 func (p *player) jumpEndLine() {
 	x, _ := termbox.Size()
 	for {
@@ -246,7 +246,7 @@ func (p *player) jumpEndLine() {
 	p.x = x
 }
 
-// ^:行頭の単語の先頭にワープ
+// ^: Move cursor to the beginning of the first word on the current line
 func (p *player) jumpBeginningWord(b *buffer) {
 	p.jumpBeginningLine()
 	width := len(b.lines[p.y].text) + b.offset
@@ -263,7 +263,7 @@ func (p *player) jumpBeginningWord(b *buffer) {
 	}
 }
 
-// gg:最初の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
+// gg: Move cursor to the beginning of the first word on the first line
 func (p *player) jumpBeginningFirstWordFirstLine(b *buffer) {
 	if p.inputNum == 0 {
 		p.y = b.firstLine
@@ -273,7 +273,7 @@ func (p *player) jumpBeginningFirstWordFirstLine(b *buffer) {
 	p.jumpBeginningWord(b)
 }
 
-// G:最後の行の行頭の単語の先頭にワープ（入力数値があれば、その行が対象）
+// G: Move cursor to the beginning of the first word on the last line
 func (p *player) jumpBeginningFirstWordLastLine(b *buffer) {
 	if p.inputNum == 0 {
 		p.y = b.endLine
@@ -283,6 +283,7 @@ func (p *player) jumpBeginningFirstWordLastLine(b *buffer) {
 	p.jumpBeginningWord(b)
 }
 
+// gg or G: Move cursor to the beginning of the first word on the selected line
 func (p *player) jumpToSelectedLine(b *buffer) {
 	switch {
 	case p.inputNum < b.firstLine:
