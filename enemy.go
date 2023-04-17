@@ -46,83 +46,6 @@ type underRune struct {
 	color termbox.Attribute
 }
 
-type iEnemyBuilder interface {
-	position(int, int) iEnemyBuilder
-	displayFormat(rune, string) iEnemyBuilder
-	speed(int) iEnemyBuilder
-	strategize(strategy) iEnemyBuilder
-	movable(func(int, int) bool) iEnemyBuilder
-	defaultHunter() iEnemyBuilder
-	defaultGhost() iEnemyBuilder
-	build() iEnemy
-}
-type enemyBuilder struct {
-	x            int
-	y            int
-	char         rune
-	color        termbox.Attribute
-	waitingTime  int
-	oneActionInN int
-	canMove      func(int, int) bool
-	strategy     strategy
-}
-
-func (eb *enemyBuilder) position(x int, y int) iEnemyBuilder {
-	eb.x = x
-	eb.y = y
-	return eb
-}
-func (eb *enemyBuilder) displayFormat(r rune, s string) iEnemyBuilder {
-	eb.char = r
-	switch s {
-	case "RED":
-		eb.color = termbox.ColorRed
-	case "BLUE":
-		eb.color = termbox.ColorBlue
-	}
-	return eb
-}
-func (eb *enemyBuilder) speed(i int) iEnemyBuilder {
-	eb.waitingTime = i
-	eb.oneActionInN = i
-	return eb
-}
-func (eb *enemyBuilder) movable(fn func(int, int) bool) iEnemyBuilder {
-	eb.canMove = fn
-	return eb
-}
-func (eb *enemyBuilder) strategize(s strategy) iEnemyBuilder {
-	eb.strategy = s
-	return eb
-}
-func (eb *enemyBuilder) defaultHunter() iEnemyBuilder {
-	fn := func(x, y int) bool {
-		return !isCharWall(x, y) && !isCharEnemy(x, y)
-	}
-	return eb.displayFormat(chHunter, "RED").speed(1).movable(fn).strategize(&assault{})
-}
-func (eb *enemyBuilder) defaultGhost() iEnemyBuilder {
-	fn := func(x, y int) bool {
-		return !isCharBorder(x, y) && !isCharEnemy(x, y)
-	}
-	return eb.displayFormat(chGhost, "BLUE").speed(2).movable(fn).strategize(&assault{})
-}
-func newEnemyBuilder() iEnemyBuilder {
-	return &enemyBuilder{}
-}
-func (eb *enemyBuilder) build() iEnemy {
-	return &enemy{
-		x:            eb.x,
-		y:            eb.y,
-		char:         eb.char,
-		color:        eb.color,
-		waitingTime:  eb.waitingTime,
-		oneActionInN: eb.oneActionInN,
-		canMove:      eb.canMove,
-		strategy:     eb.strategy,
-	}
-}
-
 func (e *enemy) getPosition() (x, y int) {
 	return e.x, e.y
 }
@@ -197,5 +120,85 @@ func (s *tricky) eval(p *player, x, y int) float64 {
 		return 0
 	} else {
 		return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
+	}
+}
+
+type iEnemyBuilder interface {
+	position(int, int) iEnemyBuilder
+	displayFormat(rune, string) iEnemyBuilder
+	speed(int) iEnemyBuilder
+	strategize(strategy) iEnemyBuilder
+	movable(func(int, int) bool) iEnemyBuilder
+	defaultHunter() iEnemyBuilder
+	defaultGhost() iEnemyBuilder
+	build() iEnemy
+}
+type enemyBuilder struct {
+	x            int
+	y            int
+	char         rune
+	color        termbox.Attribute
+	waitingTime  int
+	oneActionInN int
+	canMove      func(int, int) bool
+	strategy     strategy
+}
+
+func (eb *enemyBuilder) position(x int, y int) iEnemyBuilder {
+	eb.x = x
+	eb.y = y
+	return eb
+}
+func (eb *enemyBuilder) displayFormat(r rune, s string) iEnemyBuilder {
+	eb.char = r
+	switch s {
+	case "RED":
+		eb.color = termbox.ColorRed
+	case "BLUE":
+		eb.color = termbox.ColorBlue
+	}
+	return eb
+}
+func (eb *enemyBuilder) speed(i int) iEnemyBuilder {
+	eb.waitingTime = i
+	eb.oneActionInN = i
+	return eb
+}
+func (eb *enemyBuilder) movable(fn func(int, int) bool) iEnemyBuilder {
+	eb.canMove = fn
+	return eb
+}
+func (eb *enemyBuilder) strategize(s strategy) iEnemyBuilder {
+	eb.strategy = s
+	return eb
+}
+
+func (eb *enemyBuilder) defaultHunter() iEnemyBuilder {
+	fn := func(x, y int) bool {
+		return !isCharWall(x, y) && !isCharEnemy(x, y)
+	}
+	return eb.displayFormat(chHunter, "RED").speed(1).movable(fn).strategize(&assault{})
+}
+func (eb *enemyBuilder) defaultGhost() iEnemyBuilder {
+	fn := func(x, y int) bool {
+		return !isCharBorder(x, y) && !isCharEnemy(x, y)
+	}
+	return eb.displayFormat(chGhost, "BLUE").speed(2).movable(fn).strategize(&assault{})
+}
+
+func newEnemyBuilder() iEnemyBuilder {
+	return &enemyBuilder{}
+}
+
+func (eb *enemyBuilder) build() iEnemy {
+	return &enemy{
+		x:            eb.x,
+		y:            eb.y,
+		char:         eb.char,
+		color:        eb.color,
+		waitingTime:  eb.waitingTime,
+		oneActionInN: eb.oneActionInN,
+		canMove:      eb.canMove,
+		strategy:     eb.strategy,
 	}
 }
