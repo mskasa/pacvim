@@ -20,6 +20,7 @@ func (p *player) action(b *buffer) error {
 			if p.inputG == 'g' {
 				if ev.Ch == 'g' {
 					// Regex: *gg
+					// Move cursor to the beginning of the first word on the first line
 					p.warpWord(p.warpBeginningFirstWordFirstLine, b)
 				}
 				// Regex: *g.
@@ -31,41 +32,42 @@ func (p *player) action(b *buffer) error {
 				} else if v, ok := p.isInputNum(ev.Ch); ok {
 					p.inputNum, _ = strconv.Atoi(strconv.Itoa(p.inputNum) + v)
 				} else {
+					// Move cursor
 					switch ev.Ch {
-					// 上に移動
+					// to upward direction by one line
 					case 'k':
 						p.moveCross(0, -1)
-					// 下に移動
+					// to downward direction by one line
 					case 'j':
 						p.moveCross(0, 1)
-					// 左に移動
+					// to left by one position
 					case 'h':
 						p.moveCross(-1, 0)
-					// 右に移動
+					// to right by one position
 					case 'l':
 						p.moveCross(1, 0)
-					// 次の単語の先頭に移動
+					// to the beginning of the next word
 					case 'w':
 						p.moveWordByWord(p.moveBeginningNextWord)
-					// 現在の単語もしくは前の単語の先頭に移動
+					// to the beginning of the previous word
 					case 'b':
 						p.moveWordByWord(p.moveBeginningPrevWord)
-					// 単語の最後の文字に移動
+					// to the end of the current word
 					case 'e':
 						p.moveWordByWord(p.moveLastWord)
-					// 行頭にワープ
+					// to the beginning of the current line
 					case '0':
 						p.warpLine(p.warpBeginningLine)
-					// 行末にワープ
+					// to the end of the current line
 					case '$':
 						p.warpLine(p.warpEndLine)
-					// 行頭の単語の先頭にワープ
+					// to the beginning of the first word on the current line
 					case '^':
 						p.warpWord(p.warpBeginningWord, b)
-					// 最後の行の行頭の単語の先頭にワープ
+					// to the beginning of the first word on the last line
 					case 'G':
 						p.warpWord(p.warpBeginningFirstWordLastLine, b)
-					// ゲームをやめる
+					// quit
 					case 'q':
 						gameState = quit
 					}
@@ -92,7 +94,7 @@ func (p *player) isInputNum(r rune) (string, bool) {
 	return s, false
 }
 
-// 移動（十字）
+// Move (cross)
 func (p *player) moveCross(xDirection, yDirection int) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
@@ -105,7 +107,7 @@ func (p *player) moveCross(xDirection, yDirection int) {
 	}
 }
 
-// 移動（１マス）
+// Move (1 square)
 func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 	x := p.x + xDirection
 	y := p.y + yDirection
@@ -119,7 +121,7 @@ func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 	return true
 }
 
-// 移動（単語単位）
+// Move (by word)
 func (p *player) moveWordByWord(fn func() bool) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
@@ -285,7 +287,7 @@ func (p *player) warpToSelectedLine(b *buffer) {
 	}
 }
 
-// ターゲットの色を変更（白→緑）
+// Change target color (white → green)
 func (p *player) turnGreen() {
 	winWidth, _ := termbox.Size()
 	cell := termbox.CellBuffer()[(winWidth*p.y)+p.x]
@@ -293,7 +295,6 @@ func (p *player) turnGreen() {
 		termbox.SetCell(p.x, p.y, cell.Ch, termbox.ColorGreen, termbox.ColorBlack)
 		score++
 		if score == targetScore {
-			// 目標スコアに達した場合、ステージクリア
 			gameState = win
 		}
 	}
