@@ -81,13 +81,13 @@ func (s *stage) plot(b *buffer, p *player) {
 				h := s.hunterBuilder.build()
 				h.setPosition(x, y)
 				char, color := h.getDisplayFormat()
-				termbox.SetCell(x, y, char, color, termbox.ColorBlack)
+				termbox.SetCell(x, y, char, color, color)
 				s.enemies = append(s.enemies, h)
 			} else if isCharGhost(x, y) {
 				g := s.ghostBuilder.build()
 				g.setPosition(x, y)
 				char, color := g.getDisplayFormat()
-				termbox.SetCell(x, y, char, color, termbox.ColorBlack)
+				termbox.SetCell(x, y, char, color, color)
 				s.enemies = append(s.enemies, g)
 			}
 		}

@@ -42,8 +42,9 @@ type assault struct{}
 type tricky struct{}
 
 type underRune struct {
-	char  rune
-	color termbox.Attribute
+	char    rune
+	fgColor termbox.Attribute
+	bgColor termbox.Attribute
 }
 
 func (e *enemy) getPosition() (x, y int) {
@@ -84,14 +85,15 @@ func (e *enemy) move(x, y int) {
 	if e.waitingTime <= 0 && e.canMove(x, y) {
 		winWidth, _ := termbox.Size()
 		// Set the original character in the original cell
-		termbox.SetCell(e.x, e.y, e.underRune.char, e.underRune.color, termbox.ColorBlack)
+		termbox.SetCell(e.x, e.y, e.underRune.char, e.underRune.fgColor, e.underRune.bgColor)
 		// Retains destination cell information
 		// Because it is necessary to set the original character at the next move
 		cell := termbox.CellBuffer()[(winWidth*y)+x]
 		e.setPosition(x, y)
 		e.underRune.char = cell.Ch
-		e.underRune.color = cell.Fg
-		termbox.SetCell(x, y, e.char, e.color, termbox.ColorBlack)
+		e.underRune.fgColor = cell.Fg
+		e.underRune.bgColor = cell.Bg
+		termbox.SetCell(x, y, e.char, e.color, e.color)
 		e.waitingTime = e.oneActionInN
 	}
 }
@@ -139,14 +141,15 @@ type iEnemyBuilder interface {
 	build() iEnemy
 }
 type enemyBuilder struct {
-	x            int
-	y            int
-	char         rune
-	color        termbox.Attribute
-	waitingTime  int
-	oneActionInN int
-	canMove      func(int, int) bool
-	strategy     strategy
+	x                int
+	y                int
+	char             rune
+	color            termbox.Attribute
+	underRuneBgColor termbox.Attribute
+	waitingTime      int
+	oneActionInN     int
+	canMove          func(int, int) bool
+	strategy         strategy
 }
 
 func (eb *enemyBuilder) position(x int, y int) iEnemyBuilder {
@@ -159,8 +162,8 @@ func (eb *enemyBuilder) displayFormat(r rune, s string) iEnemyBuilder {
 	switch s {
 	case "RED":
 		eb.color = termbox.ColorRed
-	case "BLUE":
-		eb.color = termbox.ColorBlue
+	case "CYAN":
+		eb.color = termbox.ColorCyan
 	}
 	return eb
 }
@@ -188,7 +191,7 @@ func (eb *enemyBuilder) defaultGhost() iEnemyBuilder {
 	fn := func(x, y int) bool {
 		return !isCharBorder(x, y) && !isCharEnemy(x, y)
 	}
-	return eb.displayFormat(chGhost, "BLUE").speed(2).movable(fn).strategize(&assault{})
+	return eb.displayFormat(chGhost, "CYAN").speed(2).movable(fn).strategize(&assault{})
 }
 
 func newEnemyBuilder() iEnemyBuilder {
@@ -205,5 +208,6 @@ func (eb *enemyBuilder) build() iEnemy {
 		oneActionInN: eb.oneActionInN,
 		canMove:      eb.canMove,
 		strategy:     eb.strategy,
+		underRune:    underRune{bgColor: termbox.ColorBlack},
 	}
 }
