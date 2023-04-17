@@ -114,13 +114,18 @@ func (s *assault) eval(p *player, x, y int) float64 {
 	return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 }
 func (s *tricky) eval(p *player, x, y int) float64 {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-	if rand.Intn(4) == 0 {
-		// Ignore 1 out of 5 times
-		return 0
+	if random(0, 5) == 0 {
+		return float64(random(0, 30))
 	} else {
 		return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 	}
+}
+
+// Return a value between min and max
+// e.g. random(0, 3) returns 0,1,2,3
+func random(min, max int) int {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	return rand.Intn(max-min+1) + min
 }
 
 type iEnemyBuilder interface {
