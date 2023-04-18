@@ -104,7 +104,7 @@ game:
 		p := new(player)
 
 		stage.plot(b, p)
-		p.plotScore(&stage)
+		p.plotScore(stage)
 		stage.plotSubInfo(*life)
 
 		if err = termbox.Flush(); err != nil {
@@ -127,7 +127,7 @@ game:
 		eg := new(errgroup.Group)
 
 		eg.Go(func() error {
-			p.action(&stage)
+			p.action(stage)
 			return nil
 		})
 

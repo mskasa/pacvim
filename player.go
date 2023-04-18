@@ -15,7 +15,7 @@ type player struct {
 	targetScore int
 }
 
-func (p *player) action(stage *stage) error {
+func (p *player) action(stage stage) error {
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
@@ -141,7 +141,7 @@ func (p *player) jumpLine(fn func()) {
 }
 
 // Jump (to beginning of word)
-func (p *player) jumpWord(fn func(*stage), stage *stage) {
+func (p *player) jumpWord(fn func(stage), stage stage) {
 	fn(stage)
 	p.judgeMoveResult()
 }
@@ -249,7 +249,7 @@ func (p *player) jumpEndLine() {
 }
 
 // ^: Move cursor to the beginning of the first word on the current line
-func (p *player) jumpBeginningWord(stage *stage) {
+func (p *player) jumpBeginningWord(stage stage) {
 	p.jumpBeginningLine()
 	x := p.x
 	for {
@@ -265,38 +265,55 @@ func (p *player) jumpBeginningWord(stage *stage) {
 }
 
 // gg: Move cursor to the beginning of the first word on the first line
-func (p *player) jumpBeginningFirstWordFirstLine(stage *stage) {
+func (p *player) jumpBeginningFirstWordFirstLine(stage stage) {
+	var y int
 	if p.inputNum == 0 {
-		p.y = stage.firstLine
+		y = stage.firstLine
 	} else {
-		p.jumpToSelectedLine(stage)
+		y = p.selectLine(stage)
 	}
-	p.jumpBeginningWord(stage)
+	if canMove(stage, y) {
+		p.y = y
+		p.jumpBeginningWord(stage)
+	}
 }
 
 // G: Move cursor to the beginning of the first word on the last line
-func (p *player) jumpBeginningFirstWordLastLine(stage *stage) {
+func (p *player) jumpBeginningFirstWordLastLine(stage stage) {
+	var y int
 	if p.inputNum == 0 {
-		p.y = stage.endLine
+		y = stage.endLine
 	} else {
-		p.jumpToSelectedLine(stage)
+		y = p.selectLine(stage)
 	}
-	p.jumpBeginningWord(stage)
+	if canMove(stage, y) {
+		p.y = y
+		p.jumpBeginningWord(stage)
+	}
 }
 
-// gg or G: Move cursor to the beginning of the first word on the selected line
-func (p *player) jumpToSelectedLine(stage *stage) {
+func (p *player) selectLine(stage stage) int {
 	switch {
-	case p.inputNum < stage.firstLine:
-		p.y = stage.firstLine
+	case p.inputNum <= stage.firstLine:
+		return stage.firstLine
 	case p.inputNum > stage.endLine:
-		p.y = stage.endLine
+		return stage.endLine
 	default:
-		p.y = p.inputNum - 1
+		return p.inputNum - 1
 	}
 }
+func canMove(stage stage, y int) bool {
+	x := getOffset(stage.height)
+	for x < stage.width {
+		if !isCharWall(x, y) && !isCharEnemy(x, y) {
+			return true
+		}
+		x++
+	}
+	return false
+}
 
-func (p *player) plotScore(stage *stage) {
+func (p *player) plotScore(stage stage) {
 	position := stage.height
 	text := []rune("score: " + strconv.Itoa(p.score) + "/" + strconv.Itoa(p.targetScore))
 	for x, r := range text {
