@@ -39,6 +39,62 @@ func initStages() []stage {
 			ghostBuilder:  defaultGhostBuilder,
 			gameSpeed:     1000 * time.Millisecond,
 		},
+		{
+			level:         3,
+			mapPath:       "files/stage/map03.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     1000 * time.Millisecond,
+		},
+		{
+			level:         4,
+			mapPath:       "files/stage/map04.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     1000 * time.Millisecond,
+		},
+		{
+			level:         5,
+			mapPath:       "files/stage/map05.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     1000 * time.Millisecond,
+		},
+		{
+			level:         6,
+			mapPath:       "files/stage/map06.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     750 * time.Millisecond,
+		},
+		{
+			level:         7,
+			mapPath:       "files/stage/map07.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder.speed(1).strategize(&tricky{}),
+			gameSpeed:     750 * time.Millisecond,
+		},
+		{
+			level:         8,
+			mapPath:       "files/stage/map08.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     750 * time.Millisecond,
+		},
+		{
+			level:         9,
+			mapPath:       "files/stage/map09.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     500 * time.Millisecond,
+		},
+		{
+			level:         10,
+			mapPath:       "files/stage/map10.txt",
+			hunterBuilder: defaultHunterBuilder,
+			ghostBuilder:  defaultGhostBuilder,
+			gameSpeed:     500 * time.Millisecond,
+		},
 	}
 }
 

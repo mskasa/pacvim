@@ -1,15 +1,15 @@
-#############################
-# X   X  ooooX Xoooo  X   X #
-#oXo  XoooooX   XoooooX  oXo#
-# o  XXoooo       ooooXX  o #
-#oooo ooo           ooo oooo#
-#Xo ooo     XXXXX     ooo oo#
-#ooXo   o XX ooo XX o   oXoo#
-#XXXX    XoooooooooX    XXXX#
-#ooXo   o XX ooo XX o   oXoo#
-#Xo ooo     XXXXX     ooo oX#
-#oooo ooo           ooo oooo#
-# o  XXoooo       ooooXX  o #
-#oXo  X ooooX   Xoooo X  oXo#
-# X   X  ooooX Xoooo  X   X #
-#############################
++++++++++++++++++++++++++++++
++ X   X  ooooX Xoooo  X   X +
++oXoH XoooooX   XoooooX HoXo+
++ o  XXoooo   H   ooooXX  o +
++oooo ooo           ooo oooo+
++Xo ooo     XXXXX     ooo oo+
++ooXo   o XX ooo XX o   oXoo+
++XXXX H  Xooo P oooX  H XXXX+
++ooXo   o XX ooo XX o   oXoo+
++Xo ooo     XXXXX     ooo oX+
++oooo ooo           ooo oooo+
++ o  XXoooo   H   ooooXX  o +
++oXoH X ooooX   Xoooo X HoXo+
++ X   X  ooooX Xoooo  X   X +
++++++++++++++++++++++++++++++
