@@ -127,7 +127,9 @@ game:
 		eg := new(errgroup.Group)
 
 		eg.Go(func() error {
-			p.action(stage)
+			if err := p.action(stage); err != nil {
+				return err
+			}
 			return nil
 		})
 
