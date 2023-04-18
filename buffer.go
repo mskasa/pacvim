@@ -11,10 +11,8 @@ import (
 )
 
 type buffer struct {
-	lines     []*line
-	offset    int
-	firstLine int
-	endLine   int
+	lines  []*line
+	offset int
 }
 
 type window struct {
@@ -35,29 +33,6 @@ func createBuffer(reader io.Reader) *buffer {
 		b.lines = append(b.lines, l)
 	}
 	return b
-}
-
-func (b *buffer) plotScore() {
-	position := len(b.lines)
-	s := []rune("score: " + strconv.Itoa(score) + "/" + strconv.Itoa(targetScore))
-	for x, r := range s {
-		termbox.SetCell(x, position, r, termbox.ColorGreen, termbox.ColorBlack)
-	}
-}
-
-func (b *buffer) plotSubInfo(level int, life int) {
-	textMap := map[int]string{
-		0: "Level: " + strconv.Itoa(level),
-		1: "Life : " + strconv.Itoa(life),
-		2: "PRESS ENTER TO PLAY!",
-		3: "q TO EXIT!"}
-	position := len(b.lines) + 1
-	for i := 0; i < len(textMap); i++ {
-		for x, r := range []rune(textMap[i]) {
-			termbox.SetCell(x, position, r, termbox.ColorWhite, termbox.ColorBlack)
-		}
-		position++
-	}
 }
 
 func createWindow(b *buffer) *window {

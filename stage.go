@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"strconv"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
@@ -14,6 +15,10 @@ type stage struct {
 	ghostBuilder  iEnemyBuilder
 	enemies       []iEnemy
 	gameSpeed     time.Duration
+	width         int
+	height        int
+	firstLine     int
+	endLine       int
 }
 
 func initStages() []stage {
@@ -47,18 +52,18 @@ func getStage(stages []stage, level int) (stage, error) {
 }
 
 func (s *stage) plot(b *buffer, p *player) {
-	b.firstLine = 0
-	rightEnd := len(b.lines[0].text) + b.offset
-	lowerEnd := len(b.lines)
-	for y := 0; y < lowerEnd; y++ {
-		for x := b.offset; x < rightEnd; x++ {
+	s.firstLine = 0
+	s.width = len(b.lines[0].text) + b.offset
+	s.height = len(b.lines)
+	for y := 0; y < s.height; y++ {
+		for x := b.offset; x < s.width; x++ {
 			if isCharTarget(x, y) || isCharSpace(x, y) {
-				if b.firstLine == 0 {
-					b.firstLine = y
+				if s.firstLine == 0 {
+					s.firstLine = y
 				}
-				b.endLine = y
+				s.endLine = y
 				if isCharTarget(x, y) {
-					targetScore++
+					p.targetScore++
 				}
 			} else if isCharPlayer(x, y) {
 				p.x = x
@@ -91,5 +96,20 @@ func (s *stage) plot(b *buffer, p *player) {
 				s.enemies = append(s.enemies, g)
 			}
 		}
+	}
+}
+
+func (s *stage) plotSubInfo(life int) {
+	textMap := map[int]string{
+		0: "Level: " + strconv.Itoa(s.level),
+		1: "Life : " + strconv.Itoa(life),
+		2: "PRESS ENTER TO PLAY!",
+		3: "q TO EXIT!"}
+	position := s.height + 1
+	for i := 0; i < len(textMap); i++ {
+		for x, r := range []rune(textMap[i]) {
+			termbox.SetCell(x, position, r, termbox.ColorWhite, termbox.ColorBlack)
+		}
+		position++
 	}
 }

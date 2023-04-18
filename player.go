@@ -7,13 +7,15 @@ import (
 )
 
 type player struct {
-	x        int
-	y        int
-	inputNum int
-	inputG   rune
+	x           int
+	y           int
+	inputNum    int
+	inputG      rune
+	score       int
+	targetScore int
 }
 
-func (p *player) action(b *buffer) error {
+func (p *player) action(stage *stage) error {
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
@@ -21,7 +23,7 @@ func (p *player) action(b *buffer) error {
 				if ev.Ch == 'g' {
 					// Regex: *gg
 					// Move cursor to the beginning of the first word on the first line
-					p.jumpWord(p.jumpBeginningFirstWordFirstLine, b)
+					p.jumpWord(p.jumpBeginningFirstWordFirstLine, stage)
 				}
 				// Regex: *g.
 				p.inputNum = 0
@@ -63,10 +65,10 @@ func (p *player) action(b *buffer) error {
 						p.jumpLine(p.jumpEndLine)
 					// to the beginning of the first word on the current line
 					case '^':
-						p.jumpWord(p.jumpBeginningWord, b)
+						p.jumpWord(p.jumpBeginningWord, stage)
 					// to the beginning of the first word on the last line
 					case 'G':
-						p.jumpWord(p.jumpBeginningFirstWordLastLine, b)
+						p.jumpWord(p.jumpBeginningFirstWordLastLine, stage)
 					// quit
 					case 'q':
 						gameState = quit
@@ -77,7 +79,7 @@ func (p *player) action(b *buffer) error {
 			}
 		}
 		termbox.SetCursor(p.x, p.y)
-		b.plotScore()
+		p.plotScore(stage)
 		if err := termbox.Flush(); err != nil {
 			return err
 		}
@@ -139,8 +141,8 @@ func (p *player) jumpLine(fn func()) {
 }
 
 // Jump (to beginning of word)
-func (p *player) jumpWord(fn func(*buffer), b *buffer) {
-	fn(b)
+func (p *player) jumpWord(fn func(*stage), stage *stage) {
+	fn(stage)
 	p.judgeMoveResult()
 }
 
@@ -154,8 +156,8 @@ func (p *player) judgeMoveResult() {
 		cell := termbox.CellBuffer()[(winWidth*p.y)+p.x]
 		if cell.Ch == chTarget && cell.Fg == termbox.ColorWhite {
 			termbox.SetCell(p.x, p.y, cell.Ch, termbox.ColorGreen, termbox.ColorBlack)
-			score++
-			if score == targetScore {
+			p.score++
+			if p.score == p.targetScore {
 				gameState = win
 			}
 		}
@@ -247,12 +249,11 @@ func (p *player) jumpEndLine() {
 }
 
 // ^: Move cursor to the beginning of the first word on the current line
-func (p *player) jumpBeginningWord(b *buffer) {
+func (p *player) jumpBeginningWord(stage *stage) {
 	p.jumpBeginningLine()
-	width := len(b.lines[p.y].text) + b.offset
 	x := p.x
 	for {
-		if x > width {
+		if x > stage.width {
 			return
 		}
 		if isCharTarget(x, p.y) || isCharPoison(x, p.y) {
@@ -264,33 +265,41 @@ func (p *player) jumpBeginningWord(b *buffer) {
 }
 
 // gg: Move cursor to the beginning of the first word on the first line
-func (p *player) jumpBeginningFirstWordFirstLine(b *buffer) {
+func (p *player) jumpBeginningFirstWordFirstLine(stage *stage) {
 	if p.inputNum == 0 {
-		p.y = b.firstLine
+		p.y = stage.firstLine
 	} else {
-		p.jumpToSelectedLine(b)
+		p.jumpToSelectedLine(stage)
 	}
-	p.jumpBeginningWord(b)
+	p.jumpBeginningWord(stage)
 }
 
 // G: Move cursor to the beginning of the first word on the last line
-func (p *player) jumpBeginningFirstWordLastLine(b *buffer) {
+func (p *player) jumpBeginningFirstWordLastLine(stage *stage) {
 	if p.inputNum == 0 {
-		p.y = b.endLine
+		p.y = stage.endLine
 	} else {
-		p.jumpToSelectedLine(b)
+		p.jumpToSelectedLine(stage)
 	}
-	p.jumpBeginningWord(b)
+	p.jumpBeginningWord(stage)
 }
 
 // gg or G: Move cursor to the beginning of the first word on the selected line
-func (p *player) jumpToSelectedLine(b *buffer) {
+func (p *player) jumpToSelectedLine(stage *stage) {
 	switch {
-	case p.inputNum < b.firstLine:
-		p.y = b.firstLine
-	case p.inputNum > b.endLine:
-		p.y = b.endLine
+	case p.inputNum < stage.firstLine:
+		p.y = stage.firstLine
+	case p.inputNum > stage.endLine:
+		p.y = stage.endLine
 	default:
 		p.y = p.inputNum - 1
+	}
+}
+
+func (p *player) plotScore(stage *stage) {
+	position := stage.height
+	text := []rune("score: " + strconv.Itoa(p.score) + "/" + strconv.Itoa(p.targetScore))
+	for x, r := range text {
+		termbox.SetCell(x, position, r, termbox.ColorGreen, termbox.ColorBlack)
 	}
 }

@@ -44,9 +44,7 @@ const (
 )
 
 var (
-	gameState   = 0
-	targetScore = 0
-	score       = 0
+	gameState = 0
 
 	//go:embed files
 	static embed.FS
@@ -102,14 +100,12 @@ game:
 		}
 
 		gameState = pose
-		score = 0
-		targetScore = 0
 
 		p := new(player)
 
 		stage.plot(b, p)
-		b.plotScore()
-		b.plotSubInfo(*level, *life)
+		p.plotScore(&stage)
+		stage.plotSubInfo(*life)
 
 		if err = termbox.Flush(); err != nil {
 			return err
@@ -131,7 +127,8 @@ game:
 		eg := new(errgroup.Group)
 
 		eg.Go(func() error {
-			return p.action(b)
+			p.action(&stage)
+			return nil
 		})
 
 		eg.Go(func() error {
