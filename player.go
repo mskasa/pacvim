@@ -95,23 +95,23 @@ func (p *player) isInputNum(r rune) (string, bool) {
 	return s, false
 }
 
-func (p *player) moveCross(xDirection, yDirection int) {
+func (p *player) moveCross(x, y int) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
-			if !p.moveOneSquare(xDirection, yDirection) {
+			if !p.moveOneSquare(x, y) {
 				break
 			}
 		}
 	} else {
-		p.moveOneSquare(xDirection, yDirection)
+		p.moveOneSquare(x, y)
 	}
 }
-func (p *player) moveOneSquare(xDirection, yDirection int) bool {
-	x := p.x + xDirection
-	y := p.y + yDirection
-	if !isCharWall(x, y) {
-		p.x = x
-		p.y = y
+func (p *player) moveOneSquare(x, y int) bool {
+	tmpX := p.x + x
+	tmpY := p.y + y
+	if !isCharWall(tmpX, tmpY) {
+		p.x = tmpX
+		p.y = tmpY
 	} else {
 		return false
 	}
