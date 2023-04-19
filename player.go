@@ -261,7 +261,7 @@ func (p *player) toFirstLine(stage stage) {
 	if p.inputNum == 0 {
 		y = stage.firstLine
 	} else {
-		y = p.selectLine(stage)
+		y = p.toSelectLine(stage)
 	}
 	if canMove(stage, y) {
 		p.y = y
@@ -275,7 +275,7 @@ func (p *player) toLastLine(stage stage) {
 	if p.inputNum == 0 {
 		y = stage.endLine
 	} else {
-		y = p.selectLine(stage)
+		y = p.toSelectLine(stage)
 	}
 	if canMove(stage, y) {
 		p.y = y
@@ -283,7 +283,7 @@ func (p *player) toLastLine(stage stage) {
 	}
 }
 
-func (p *player) selectLine(stage stage) int {
+func (p *player) toSelectLine(stage stage) int {
 	switch {
 	case p.inputNum <= stage.firstLine:
 		return stage.firstLine
