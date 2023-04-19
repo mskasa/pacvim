@@ -136,8 +136,8 @@ func (p *player) jumpOnCurrentLine(fn func()) {
 	p.judgeMoveResult()
 }
 
-func (p *player) jumpAcrossLine(fn func(stage), stage stage) {
-	fn(stage)
+func (p *player) jumpAcrossLine(fn func(stage), s stage) {
+	fn(s)
 	p.judgeMoveResult()
 }
 
@@ -256,46 +256,46 @@ func (p *player) toBeginningOfFirstWord() {
 }
 
 // gg: Move cursor to the beginning of the first word on the first line
-func (p *player) toFirstLine(stage stage) {
+func (p *player) toFirstLine(s stage) {
 	var y int
 	if p.inputNum == 0 {
-		y = stage.firstLine
+		y = s.firstLine
 	} else {
-		y = p.toSelectLine(stage)
+		y = p.toSelectLine(s)
 	}
-	if canMove(stage, y) {
+	if canMove(s, y) {
 		p.y = y
 		p.toBeginningOfFirstWord()
 	}
 }
 
 // G: Move cursor to the beginning of the first word on the last line
-func (p *player) toLastLine(stage stage) {
+func (p *player) toLastLine(s stage) {
 	var y int
 	if p.inputNum == 0 {
-		y = stage.endLine
+		y = s.endLine
 	} else {
-		y = p.toSelectLine(stage)
+		y = p.toSelectLine(s)
 	}
-	if canMove(stage, y) {
+	if canMove(s, y) {
 		p.y = y
 		p.toBeginningOfFirstWord()
 	}
 }
 
-func (p *player) toSelectLine(stage stage) int {
+func (p *player) toSelectLine(s stage) int {
 	switch {
 	case p.inputNum < 1:
-		return stage.firstLine
-	case p.inputNum > stage.height:
-		return stage.endLine
+		return s.firstLine
+	case p.inputNum > s.height:
+		return s.endLine
 	default:
 		return p.inputNum - 1
 	}
 }
-func canMove(stage stage, y int) bool {
-	x := getOffset(stage.height)
-	for x < stage.width {
+func canMove(s stage, y int) bool {
+	x := getOffset(s.height)
+	for x < s.width {
 		if !isCharWall(x, y) && !isCharEnemy(x, y) {
 			return true
 		}
@@ -304,8 +304,8 @@ func canMove(stage stage, y int) bool {
 	return false
 }
 
-func (p *player) plotScore(stage stage) {
-	position := stage.height
+func (p *player) plotScore(s stage) {
+	position := s.height
 	text := []rune("score: " + strconv.Itoa(p.score) + "/" + strconv.Itoa(p.targetScore))
 	for x, r := range text {
 		termbox.SetCell(x, position, r, termbox.ColorGreen, termbox.ColorBlack)
