@@ -42,9 +42,9 @@ func initStages() []stage {
 		{
 			level:         3,
 			mapPath:       "files/stage/map03.txt",
-			hunterBuilder: defaultHunterBuilder,
+			hunterBuilder: defaultHunterBuilder.strategize(&tricky{}),
 			ghostBuilder:  defaultGhostBuilder,
-			gameSpeed:     1000 * time.Millisecond,
+			gameSpeed:     750 * time.Millisecond,
 		},
 		{
 			level:         4,
