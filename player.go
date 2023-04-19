@@ -90,13 +90,11 @@ func (p *player) isInputNum(r rune) (string, bool) {
 	s := string(r)
 	i, err := strconv.Atoi(s)
 	if err == nil && (i != 0 || (i == 0 && p.inputNum != 0)) {
-		// 数値変換成功かつ入力数値が「0」でない場合
 		return s, true
 	}
 	return s, false
 }
 
-// Move (cross)
 func (p *player) moveCross(xDirection, yDirection int) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
@@ -121,7 +119,6 @@ func (p *player) moveOneSquare(xDirection, yDirection int) bool {
 	return true
 }
 
-// Move (by word)
 func (p *player) moveByWord(fn func() bool) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
@@ -134,19 +131,16 @@ func (p *player) moveByWord(fn func() bool) {
 	}
 }
 
-// Jump (to beginning/end of line)
 func (p *player) jumpOnCurrentLine(fn func()) {
 	fn()
 	p.judgeMoveResult()
 }
 
-// Jump (to beginning of word)
 func (p *player) jumpAcrossLine(fn func(stage), stage stage) {
 	fn(stage)
 	p.judgeMoveResult()
 }
 
-// Judge the movement result
 func (p *player) judgeMoveResult() {
 	if isCharEnemy(p.x, p.y) || isCharPoison(p.x, p.y) {
 		gameState = lose
