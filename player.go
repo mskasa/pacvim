@@ -23,7 +23,7 @@ func (p *player) action(stage stage) error {
 				if ev.Ch == 'g' {
 					// Regex: *gg
 					// Move cursor to the beginning of the first word on the first line
-					p.jumpWord(p.jumpBeginningFirstWordFirstLine, stage)
+					p.jumpAcrossLine(p.toFirstLine, stage)
 				}
 				// Regex: *g.
 				p.inputNum = 0
@@ -50,25 +50,25 @@ func (p *player) action(stage stage) error {
 						p.moveCross(1, 0)
 					// to the beginning of the next word
 					case 'w':
-						p.moveByWord(p.moveBeginningNextWord)
+						p.moveByWord(p.toBeginningOfNextWord)
 					// to the beginning of the previous word
 					case 'b':
-						p.moveByWord(p.moveBeginningPrevWord)
+						p.moveByWord(p.toBeginningPrevWord)
 					// to the end of the current word
 					case 'e':
-						p.moveByWord(p.moveLastWord)
+						p.moveByWord(p.toEndOfCurrentWord)
 					// to the beginning of the current line
 					case '0':
-						p.jumpLine(p.jumpBeginningLine)
+						p.jumpOnCurrentLine(p.toLeftEdge)
 					// to the end of the current line
 					case '$':
-						p.jumpLine(p.jumpEndLine)
+						p.jumpOnCurrentLine(p.toRightEdge)
 					// to the beginning of the first word on the current line
 					case '^':
-						p.jumpWord(p.jumpBeginningWord, stage)
+						p.jumpOnCurrentLine(p.toBeginningOfFirstWord)
 					// to the beginning of the first word on the last line
 					case 'G':
-						p.jumpWord(p.jumpBeginningFirstWordLastLine, stage)
+						p.jumpAcrossLine(p.toLastLine, stage)
 					// quit
 					case 'q':
 						gameState = quit
@@ -135,13 +135,13 @@ func (p *player) moveByWord(fn func() bool) {
 }
 
 // Jump (to beginning/end of line)
-func (p *player) jumpLine(fn func()) {
+func (p *player) jumpOnCurrentLine(fn func()) {
 	fn()
 	p.judgeMoveResult()
 }
 
 // Jump (to beginning of word)
-func (p *player) jumpWord(fn func(stage), stage stage) {
+func (p *player) jumpAcrossLine(fn func(stage), stage stage) {
 	fn(stage)
 	p.judgeMoveResult()
 }
@@ -165,7 +165,7 @@ func (p *player) judgeMoveResult() {
 }
 
 // w: Move cursor to the beginning of the next word
-func (p *player) moveBeginningNextWord() bool {
+func (p *player) toBeginningOfNextWord() bool {
 	spaceFlg := false
 	for {
 		if isCharSpace(p.x, p.y) || isCharEnemy(p.x, p.y) {
@@ -183,7 +183,7 @@ func (p *player) moveBeginningNextWord() bool {
 }
 
 // b: Move cursor to the beginning of the previous word
-func (p *player) moveBeginningPrevWord() bool {
+func (p *player) toBeginningPrevWord() bool {
 	for isCharSpace(p.x-1, p.y) || isCharEnemy(p.x-1, p.y) {
 		if !p.moveOneSquare(-1, 0) {
 			break
@@ -198,7 +198,7 @@ func (p *player) moveBeginningPrevWord() bool {
 }
 
 // e: Move cursor to the end of the current word
-func (p *player) moveLastWord() bool {
+func (p *player) toEndOfCurrentWord() bool {
 	for isCharSpace(p.x+1, p.y) || isCharEnemy(p.x+1, p.y) {
 		if !p.moveOneSquare(1, 0) {
 			break
@@ -213,7 +213,7 @@ func (p *player) moveLastWord() bool {
 }
 
 // 0: Move cursor to the beginning of the current line
-func (p *player) jumpBeginningLine() {
+func (p *player) toLeftEdge() {
 	x := 0
 	for {
 		x++
@@ -231,7 +231,7 @@ func (p *player) jumpBeginningLine() {
 }
 
 // $: Move cursor to the end of the current line
-func (p *player) jumpEndLine() {
+func (p *player) toRightEdge() {
 	x, _ := termbox.Size()
 	for {
 		x--
@@ -249,13 +249,10 @@ func (p *player) jumpEndLine() {
 }
 
 // ^: Move cursor to the beginning of the first word on the current line
-func (p *player) jumpBeginningWord(stage stage) {
-	p.jumpBeginningLine()
+func (p *player) toBeginningOfFirstWord() {
+	p.toLeftEdge()
 	x := p.x
 	for {
-		if x > stage.width {
-			return
-		}
 		if isCharTarget(x, p.y) || isCharPoison(x, p.y) {
 			p.x = x
 			break
@@ -265,7 +262,7 @@ func (p *player) jumpBeginningWord(stage stage) {
 }
 
 // gg: Move cursor to the beginning of the first word on the first line
-func (p *player) jumpBeginningFirstWordFirstLine(stage stage) {
+func (p *player) toFirstLine(stage stage) {
 	var y int
 	if p.inputNum == 0 {
 		y = stage.firstLine
@@ -274,12 +271,12 @@ func (p *player) jumpBeginningFirstWordFirstLine(stage stage) {
 	}
 	if canMove(stage, y) {
 		p.y = y
-		p.jumpBeginningWord(stage)
+		p.toBeginningOfFirstWord()
 	}
 }
 
 // G: Move cursor to the beginning of the first word on the last line
-func (p *player) jumpBeginningFirstWordLastLine(stage stage) {
+func (p *player) toLastLine(stage stage) {
 	var y int
 	if p.inputNum == 0 {
 		y = stage.endLine
@@ -288,7 +285,7 @@ func (p *player) jumpBeginningFirstWordLastLine(stage stage) {
 	}
 	if canMove(stage, y) {
 		p.y = y
-		p.jumpBeginningWord(stage)
+		p.toBeginningOfFirstWord()
 	}
 }
 
