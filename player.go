@@ -285,9 +285,9 @@ func (p *player) toLastLine(stage stage) {
 
 func (p *player) toSelectLine(stage stage) int {
 	switch {
-	case p.inputNum <= stage.firstLine:
+	case p.inputNum < 1:
 		return stage.firstLine
-	case p.inputNum > stage.endLine:
+	case p.inputNum > stage.height:
 		return stage.endLine
 	default:
 		return p.inputNum - 1
