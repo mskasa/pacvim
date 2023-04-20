@@ -257,40 +257,39 @@ func (p *player) toBeginningOfFirstWord() {
 
 // gg: Move cursor to the beginning of the first word on the first line
 func (p *player) toFirstLine(s stage) {
-	var y int
 	if p.inputNum == 0 {
-		y = s.firstLine
+		for y := 1; y < s.height; y++ {
+			if canMove(s, y) {
+				p.y = y
+				p.toBeginningOfFirstWord()
+				break
+			}
+		}
 	} else {
-		y = p.toSelectLine(s)
-	}
-	if canMove(s, y) {
-		p.y = y
-		p.toBeginningOfFirstWord()
+		y := p.inputNum - 1
+		if canMove(s, y) {
+			p.y = y
+			p.toBeginningOfFirstWord()
+		}
 	}
 }
 
 // G: Move cursor to the beginning of the first word on the last line
 func (p *player) toLastLine(s stage) {
-	var y int
 	if p.inputNum == 0 {
-		y = s.endLine
+		for y := s.height - 1; y > 0; y-- {
+			if canMove(s, y) {
+				p.y = y
+				p.toBeginningOfFirstWord()
+				break
+			}
+		}
 	} else {
-		y = p.toSelectLine(s)
-	}
-	if canMove(s, y) {
-		p.y = y
-		p.toBeginningOfFirstWord()
-	}
-}
-
-func (p *player) toSelectLine(s stage) int {
-	switch {
-	case p.inputNum < 1:
-		return s.firstLine
-	case p.inputNum > s.height:
-		return s.endLine
-	default:
-		return p.inputNum - 1
+		y := p.inputNum - 1
+		if canMove(s, y) {
+			p.y = y
+			p.toBeginningOfFirstWord()
+		}
 	}
 }
 func canMove(s stage, y int) bool {

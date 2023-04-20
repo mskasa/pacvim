@@ -17,8 +17,6 @@ type stage struct {
 	gameSpeed     time.Duration
 	width         int
 	height        int
-	firstLine     int
-	endLine       int
 }
 
 func initStages() []stage {
@@ -101,19 +99,13 @@ func getStage(stages []stage, level int) (stage, error) {
 }
 
 func (s *stage) plot(b *buffer, p *player) {
-	s.firstLine = 0
+
 	s.width = len(b.lines[0].text) + b.offset
 	s.height = len(b.lines)
 	for y := 0; y < s.height; y++ {
 		for x := b.offset; x < s.width; x++ {
-			if isCharTarget(x, y) || isCharSpace(x, y) {
-				if s.firstLine == 0 {
-					s.firstLine = y
-				}
-				s.endLine = y
-				if isCharTarget(x, y) {
-					p.targetScore++
-				}
+			if isCharTarget(x, y) {
+				p.targetScore++
 			} else if isCharPlayer(x, y) {
 				p.x = x
 				p.y = y
