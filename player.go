@@ -19,63 +19,58 @@ func (p *player) action(stage stage) error {
 	for gameState == continuing {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			if p.inputG == 'g' {
-				if ev.Ch == 'g' {
-					// Regex: *gg
-					// Move cursor to the beginning of the first word on the first line
-					p.jumpAcrossLine(p.toFirstLine, stage)
+			if v, ok := p.isInputNum(ev.Ch); ok {
+				p.inputNum, _ = strconv.Atoi(strconv.Itoa(p.inputNum) + v)
+			} else {
+				switch ev.Ch {
+				// quit
+				case 'q':
+					gameState = quit
+				// Move cursor
+				// to upward direction by one line
+				case 'k':
+					p.moveCross(0, -1)
+				// to downward direction by one line
+				case 'j':
+					p.moveCross(0, 1)
+				// to left by one position
+				case 'h':
+					p.moveCross(-1, 0)
+				// to right by one position
+				case 'l':
+					p.moveCross(1, 0)
+				// to the beginning of the next word
+				case 'w':
+					p.moveByWord(p.toBeginningOfNextWord)
+				// to the beginning of the previous word
+				case 'b':
+					p.moveByWord(p.toBeginningPrevWord)
+				// to the end of the current word
+				case 'e':
+					p.moveByWord(p.toEndOfCurrentWord)
+				// to the beginning of the current line
+				case '0':
+					p.jumpOnCurrentLine(p.toLeftEdge)
+				// to the end of the current line
+				case '$':
+					p.jumpOnCurrentLine(p.toRightEdge)
+				// to the beginning of the first word on the current line
+				case '^':
+					p.jumpOnCurrentLine(p.toBeginningOfFirstWord)
+				// to the beginning of the first word on the last line
+				case 'G':
+					p.jumpAcrossLine(p.toLastLine, stage)
+				case 'g':
+					if p.inputG == 'g' {
+						// to the beginning of the first word on the first line
+						p.jumpAcrossLine(p.toFirstLine, stage)
+					} else {
+						p.inputG = 'g'
+						continue
+					}
 				}
-				// Regex: *g.
 				p.inputNum = 0
 				p.inputG = 0
-			} else {
-				if ev.Ch == 'g' {
-					p.inputG = 'g'
-				} else if v, ok := p.isInputNum(ev.Ch); ok {
-					p.inputNum, _ = strconv.Atoi(strconv.Itoa(p.inputNum) + v)
-				} else {
-					// Move cursor
-					switch ev.Ch {
-					// to upward direction by one line
-					case 'k':
-						p.moveCross(0, -1)
-					// to downward direction by one line
-					case 'j':
-						p.moveCross(0, 1)
-					// to left by one position
-					case 'h':
-						p.moveCross(-1, 0)
-					// to right by one position
-					case 'l':
-						p.moveCross(1, 0)
-					// to the beginning of the next word
-					case 'w':
-						p.moveByWord(p.toBeginningOfNextWord)
-					// to the beginning of the previous word
-					case 'b':
-						p.moveByWord(p.toBeginningPrevWord)
-					// to the end of the current word
-					case 'e':
-						p.moveByWord(p.toEndOfCurrentWord)
-					// to the beginning of the current line
-					case '0':
-						p.jumpOnCurrentLine(p.toLeftEdge)
-					// to the end of the current line
-					case '$':
-						p.jumpOnCurrentLine(p.toRightEdge)
-					// to the beginning of the first word on the current line
-					case '^':
-						p.jumpOnCurrentLine(p.toBeginningOfFirstWord)
-					// to the beginning of the first word on the last line
-					case 'G':
-						p.jumpAcrossLine(p.toLastLine, stage)
-					// quit
-					case 'q':
-						gameState = quit
-					}
-					p.inputNum = 0
-					p.inputG = 0
-				}
 			}
 		}
 		termbox.SetCursor(p.x, p.y)
