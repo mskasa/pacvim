@@ -57,13 +57,21 @@ func (p *player) action(stage stage) error {
 				// to the beginning of the first word on the current line
 				case '^':
 					p.jumpOnCurrentLine(p.toBeginningOfFirstWord)
-				// to the beginning of the first word on the last line
 				case 'G':
-					p.jumpAcrossLine(p.toLastLine, stage)
+					if p.inputNum == 0 {
+						// to the beginning of the first word on the last line
+						p.jumpAcrossLine(p.toLastLine, stage)
+					} else {
+						p.jumpAcrossLine(p.toSelectedLine, stage)
+					}
 				case 'g':
 					if p.inputG == 'g' {
-						// to the beginning of the first word on the first line
-						p.jumpAcrossLine(p.toFirstLine, stage)
+						if p.inputNum == 0 {
+							// to the beginning of the first word on the first line
+							p.jumpAcrossLine(p.toFirstLine, stage)
+						} else {
+							p.jumpAcrossLine(p.toSelectedLine, stage)
+						}
 					} else {
 						p.inputG = 'g'
 						continue
@@ -252,41 +260,35 @@ func (p *player) toBeginningOfFirstWord() {
 
 // gg: Move cursor to the beginning of the first word on the first line
 func (p *player) toFirstLine(s stage) {
-	if p.inputNum == 0 {
-		for y := 1; y < s.height; y++ {
-			if canMove(s, y) {
-				p.y = y
-				p.toBeginningOfFirstWord()
-				break
-			}
-		}
-	} else {
-		y := p.inputNum - 1
-		if y > 0 && y < s.height && canMove(s, y) {
+	for y := 1; y < s.height; y++ {
+		if canMove(s, y) {
 			p.y = y
 			p.toBeginningOfFirstWord()
+			break
 		}
 	}
 }
 
 // G: Move cursor to the beginning of the first word on the last line
 func (p *player) toLastLine(s stage) {
-	if p.inputNum == 0 {
-		for y := s.height - 1; y > 0; y-- {
-			if canMove(s, y) {
-				p.y = y
-				p.toBeginningOfFirstWord()
-				break
-			}
-		}
-	} else {
-		y := p.inputNum - 1
-		if y > 0 && y < s.height && canMove(s, y) {
+	for y := s.height - 1; y > 0; y-- {
+		if canMove(s, y) {
 			p.y = y
 			p.toBeginningOfFirstWord()
+			break
 		}
 	}
 }
+
+// Ngg or NG: Move cursor to the beginning of the first word on the selected line
+func (p *player) toSelectedLine(s stage) {
+	y := p.inputNum - 1
+	if y > 0 && y < s.height && canMove(s, y) {
+		p.y = y
+		p.toBeginningOfFirstWord()
+	}
+}
+
 func canMove(s stage, y int) bool {
 	x := getOffset(s.height)
 	for x < s.width {
