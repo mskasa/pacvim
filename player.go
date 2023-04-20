@@ -10,7 +10,7 @@ type player struct {
 	x           int
 	y           int
 	inputNum    int
-	inputG      rune
+	inputG      bool
 	score       int
 	targetScore int
 }
@@ -62,23 +62,25 @@ func (p *player) action(stage stage) error {
 						// to the beginning of the first word on the last line
 						p.jumpAcrossLine(p.toLastLine, stage)
 					} else {
+						// to the beginning of the first word on the selected line
 						p.jumpAcrossLine(p.toSelectedLine, stage)
 					}
 				case 'g':
-					if p.inputG == 'g' {
+					if p.inputG {
 						if p.inputNum == 0 {
 							// to the beginning of the first word on the first line
 							p.jumpAcrossLine(p.toFirstLine, stage)
 						} else {
+							// to the beginning of the first word on the selected line
 							p.jumpAcrossLine(p.toSelectedLine, stage)
 						}
 					} else {
-						p.inputG = 'g'
+						p.inputG = true
 						continue
 					}
 				}
 				p.inputNum = 0
-				p.inputG = 0
+				p.inputG = false
 			}
 		}
 		termbox.SetCursor(p.x, p.y)
