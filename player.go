@@ -251,7 +251,7 @@ func (p *player) toRightEdge() {
 func (p *player) toBeginningOfFirstWord() {
 	p.toLeftEdge()
 	x := p.x
-	for {
+	for !isCharBorder(x, p.y) {
 		if isCharTarget(x, p.y) || isCharPoison(x, p.y) {
 			p.x = x
 			break
