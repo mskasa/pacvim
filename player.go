@@ -262,7 +262,7 @@ func (p *player) toFirstLine(s stage) {
 		}
 	} else {
 		y := p.inputNum - 1
-		if canMove(s, y) {
+		if y > 0 && y < s.height && canMove(s, y) {
 			p.y = y
 			p.toBeginningOfFirstWord()
 		}
@@ -281,7 +281,7 @@ func (p *player) toLastLine(s stage) {
 		}
 	} else {
 		y := p.inputNum - 1
-		if canMove(s, y) {
+		if y > 0 && y < s.height && canMove(s, y) {
 			p.y = y
 			p.toBeginningOfFirstWord()
 		}
