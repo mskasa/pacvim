@@ -22,77 +22,70 @@ type stage struct {
 }
 
 func initStages() []stage {
-	defaultHunterBuilder := newEnemyBuilder().defaultHunter()
-	defaultGhostBuilder := newEnemyBuilder().defaultGhost()
 	return []stage{
 		{
 			level:         1,
 			mapPath:       "files/stage/map01.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
 			gameSpeed:     1250 * time.Millisecond,
 		},
 		{
 			level:         2,
 			mapPath:       "files/stage/map02.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			ghostBuilder:  newEnemyBuilder().defaultGhost(),
 			gameSpeed:     1000 * time.Millisecond,
 		},
 		{
 			level:         3,
 			mapPath:       "files/stage/map03.txt",
-			hunterBuilder: defaultHunterBuilder.strategize(&tricky{}),
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter().strategize(&tricky{}),
 			gameSpeed:     750 * time.Millisecond,
 		},
 		{
 			level:         4,
 			mapPath:       "files/stage/map04.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
-			gameSpeed:     1000 * time.Millisecond,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			gameSpeed:     750 * time.Millisecond,
 		},
 		{
 			level:         5,
 			mapPath:       "files/stage/map05.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			ghostBuilder:  newEnemyBuilder().defaultGhost(),
 			gameSpeed:     1000 * time.Millisecond,
 		},
 		{
 			level:         6,
 			mapPath:       "files/stage/map06.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			ghostBuilder:  newEnemyBuilder().defaultGhost(),
 			gameSpeed:     750 * time.Millisecond,
 		},
 		{
 			level:         7,
 			mapPath:       "files/stage/map07.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder.speed(1).strategize(&tricky{}),
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			ghostBuilder:  newEnemyBuilder().defaultGhost().speed(1).strategize(&tricky{}),
 			gameSpeed:     750 * time.Millisecond,
 		},
 		{
 			level:         8,
 			mapPath:       "files/stage/map08.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			ghostBuilder:  newEnemyBuilder().defaultGhost(),
 			gameSpeed:     750 * time.Millisecond,
 		},
 		{
 			level:         9,
 			mapPath:       "files/stage/map09.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
 			gameSpeed:     500 * time.Millisecond,
 		},
 		{
 			level:         10,
 			mapPath:       "files/stage/map10.txt",
-			hunterBuilder: defaultHunterBuilder,
-			ghostBuilder:  defaultGhostBuilder,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
 			gameSpeed:     500 * time.Millisecond,
 		},
 	}
