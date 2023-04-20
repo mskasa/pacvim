@@ -95,9 +95,6 @@ func switchScene(fileName string) error {
 
 	b := createBuffer(bytes.NewReader(f))
 	w := createWindow(b)
-	if err != nil {
-		return err
-	}
 
 	if err = termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
 		return err
