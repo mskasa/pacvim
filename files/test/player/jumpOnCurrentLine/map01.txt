@@ -1,6 +1,7 @@
 +++++++++++++++++++++++++++++
 + o! ooo ooo     ooo ooo !o +
-+oo! oooHooo  P  oooHooo !oo+
-+!!! ooo ooo     ooo ooo !!!+
++oo! oooHooo     oooHooo !oo+
++!!! ooo ooo  P  ooo ooo !!!+
 +Ho! ooo ooo     ooo ooo !oH+
++Xo! ooo ooo     ooo ooo !oX+
 +++++++++++++++++++++++++++++

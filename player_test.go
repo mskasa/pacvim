@@ -38,6 +38,12 @@ func TestJumpOnCurrentLine(t *testing.T) {
 			toLeftEdgeX:  3,
 			toRightEdgeX: 29,
 		},
+		"poison": {
+			initX:        16,
+			initY:        5,
+			toLeftEdgeX:  3,
+			toRightEdgeX: 29,
+		},
 	}
 
 	if err := termbox.Init(); err != nil {
