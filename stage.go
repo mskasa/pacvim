@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"strconv"
 	"time"
@@ -98,6 +99,28 @@ func getStage(stages []stage, level int) (stage, error) {
 	return stage{}, errors.New("File does not exist: " + stages[level].mapPath)
 }
 
+func (s *stage) init(p *player, life int) error {
+	f, err := static.ReadFile(s.mapPath)
+	if err != nil {
+		return err
+	}
+
+	b := createBuffer(bytes.NewReader(f))
+	w := createWindow(b)
+	if err = w.show(b); err != nil {
+		return err
+	}
+
+	s.plot(b, p)
+	p.plotScore(*s)
+	s.plotSubInfo(life)
+
+	if err = termbox.Flush(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *stage) plot(b *buffer, p *player) {
 
 	s.width = len(b.lines[0].text) + b.offset
@@ -140,7 +163,7 @@ func (s *stage) plot(b *buffer, p *player) {
 	}
 }
 
-func (s *stage) plotSubInfo(life int) {
+func (s stage) plotSubInfo(life int) {
 	textMap := map[int]string{
 		0: "Level: " + strconv.Itoa(s.level),
 		1: "Life : " + strconv.Itoa(life),

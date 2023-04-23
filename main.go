@@ -88,41 +88,12 @@ game:
 		if err != nil {
 			return err
 		}
-		f, err := static.ReadFile(stage.mapPath)
-		if err != nil {
-			return err
-		}
-
-		b := createBuffer(bytes.NewReader(f))
-		w := createWindow(b)
-		if err = w.show(b); err != nil {
-			return err
-		}
-
-		gameState = pose
-
 		p := new(player)
-
-		stage.plot(b, p)
-		p.plotScore(stage)
-		stage.plotSubInfo(*life)
-
-		if err = termbox.Flush(); err != nil {
+		if err = stage.init(p, *life); err != nil {
 			return err
 		}
 
-		// stand-by
-		for {
-			ev := termbox.PollEvent()
-			if ev.Key == termbox.KeyEnter {
-				gameState = continuing
-				break
-			}
-			if ev.Ch == 'q' {
-				gameState = quit
-				break
-			}
-		}
+		standBy()
 
 		eg := new(errgroup.Group)
 
@@ -180,6 +151,21 @@ game:
 	}
 
 	return nil
+}
+
+func standBy() {
+	gameState = pose
+	for {
+		ev := termbox.PollEvent()
+		if ev.Key == termbox.KeyEnter {
+			gameState = continuing
+			break
+		}
+		if ev.Ch == 'q' {
+			gameState = quit
+			break
+		}
+	}
 }
 
 func validateArgs(level *int, life *int, maxLevel int) error {
