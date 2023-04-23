@@ -200,8 +200,10 @@ var (
 )
 
 const (
-	stageMapMimeType = "text/plain; charset=utf-8"
-	maxFileSize      = 1024
+	stageMapMimeType  = "text/plain; charset=utf-8"
+	maxFileSize       = 1024
+	maxStageMapWidth  = 50
+	maxStageMapHeight = 20
 )
 
 func validateFiles(stages []stage) error {
@@ -255,10 +257,23 @@ func validateFileSize(filePath string) (err error) {
 }
 
 func validateStageMap(filePath string) error {
-	var err error
-	b, err := static.ReadFile(filePath)
+	lines, err := validateStageMapSize(filePath)
 	if err != nil {
 		return err
+	}
+	if err := validateStageMapShape(filePath, lines); err != nil {
+		return err
+	}
+	if err := validateStageMapBorder(filePath, lines); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateStageMapSize(filePath string) ([]string, error) {
+	b, err := static.ReadFile(filePath)
+	if err != nil {
+		return nil, err
 	}
 	f := bytes.NewReader(b)
 	scanner := bufio.NewScanner(f)
@@ -266,61 +281,53 @@ func validateStageMap(filePath string) error {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-	height := len(lines)
-	if height < 10 || height > 20 {
-		err = errors.New(filePath + "; Make the stage map 10 to 20 lines;")
-		return fmt.Errorf("%w: %+v", stageMapValidationError, err)
+	if len(lines[0]) > maxStageMapWidth {
+		err = errors.New(filePath + "; Please keep the stage within 50 columns;")
+		return nil, fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
+	if len(lines) > maxStageMapHeight {
+		err = errors.New(filePath + "; Please keep the stage within 20 lines;")
+		return nil, fmt.Errorf("%w: %+v", stageMapValidationError, err)
+	}
+	return lines, nil
+}
+
+func validateStageMapShape(filePath string, lines []string) error {
 	width := len(lines[0])
-	if width < 20 || width > 50 {
-		err = errors.New(filePath + "; Make the stage map 20 to 50 columns;")
+	lineNo := 1
+	errLineNo := []string{}
+	for _, line := range lines {
+		if len(line) != width {
+			errLineNo = append(errLineNo, strconv.Itoa(lineNo))
+		}
+		lineNo++
+	}
+	if len(errLineNo) > 0 {
+		err := errors.New(filePath + "; Make the width of the stage map uniform (line " + strings.Join(errLineNo, ",") + ");")
 		return fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
-	i := 1
-	var errNoBorder1 []string
-	var errNoBorder2 []string
-	countPlayer := 0
-	countEnemy := 0
-	countTarget := 0
+	return nil
+}
+
+func validateStageMapBorder(filePath string, lines []string) error {
+	width := len(lines[0])
+	height := len(lines)
+	lineNo := 1
+	errLineNo := []string{}
 	for _, s := range lines {
-		if len(s) != width {
-			errNoBorder1 = append(errNoBorder1, strconv.Itoa(i))
-		}
-		if i == 1 || i == height {
+		if lineNo == 1 || lineNo == height {
 			if s != strings.Repeat(string(chBorder), width) {
-				errNoBorder2 = append(errNoBorder2, strconv.Itoa(i))
+				errLineNo = append(errLineNo, strconv.Itoa(lineNo))
 			}
 		} else {
 			if !strings.HasPrefix(s, string(chBorder)) || !strings.HasSuffix(s, string(chBorder)) {
-				errNoBorder2 = append(errNoBorder2, strconv.Itoa(i))
+				errLineNo = append(errLineNo, strconv.Itoa(lineNo))
 			}
-			countPlayer += strings.Count(s, string(chPlayer))
-			if countPlayer > 1 {
-				err = multierr.Append(err, errors.New(filePath+"; Please set only one P;"))
-				return fmt.Errorf("%w: %+v", stageMapValidationError, err)
-			}
-			countEnemy += strings.Count(s, string(chHunter))
-			countEnemy += strings.Count(s, string(chGhost))
-			countTarget += strings.Count(s, string(chTarget))
 		}
-		i++
+		lineNo++
 	}
-	if len(errNoBorder1) > 0 {
-		err = multierr.Append(err, errors.New(filePath+"; Make the width of the stage map uniform (line "+strings.Join(errNoBorder1, ",")+");"))
-	}
-	if len(errNoBorder2) > 0 {
-		err = multierr.Append(err, errors.New(filePath+"; Create a boundary for the stage map with '+' (line "+strings.Join(errNoBorder2, ",")+");"))
-	}
-	if countPlayer == 0 {
-		err = multierr.Append(err, errors.New(filePath+"; Please set one P;"))
-	}
-	if countEnemy == 0 {
-		err = multierr.Append(err, errors.New(filePath+"; Please set one or more enemies;"))
-	}
-	if countTarget == 0 {
-		err = multierr.Append(err, errors.New(filePath+"; Please set one or more targets;"))
-	}
-	if err != nil {
+	if len(errLineNo) > 0 {
+		err := errors.New(filePath + "; Create a boundary for the stage map with '+' (line " + strings.Join(errLineNo, ",") + ");")
 		return fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
 	return nil

@@ -73,36 +73,19 @@ func Test_validateStageMap(t *testing.T) {
 		},
 		"error/map03": {
 			mapPath:  "files/test/validateStageMap/map03.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map03.txt; Make the stage map 20 to 50 columns;",
+			expected: "Stage Map Validation Error: files/test/validateStageMap/map03.txt; Please keep the stage within 50 columns;",
 		},
 		"error/map04": {
 			mapPath:  "files/test/validateStageMap/map04.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map04.txt; Make the stage map 10 to 20 lines;",
+			expected: "Stage Map Validation Error: files/test/validateStageMap/map04.txt; Please keep the stage within 20 lines;",
 		},
 		"error/map05": {
 			mapPath:  "files/test/validateStageMap/map05.txt",
-			expected: "files/test/validateStageMap/map05.txt: Make the stage map 20 to 50 columns: Stage Map Validation Error",
+			expected: "Stage Map Validation Error: files/test/validateStageMap/map05.txt; Create a boundary for the stage map with '+' (line 1,15);",
 		},
 		"error/map06": {
 			mapPath:  "files/test/validateStageMap/map06.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map06.txt; Make the stage map 10 to 20 lines;",
-		},
-		"error/map07": {
-			mapPath: "files/test/validateStageMap/map07.txt",
-			expected: "Stage Map Validation Error: the following errors occurred:\n" +
-				" -  files/test/validateStageMap/map07.txt; Make the width of the stage map uniform (line 6,8,10);\n" +
-				" -  files/test/validateStageMap/map07.txt; Create a boundary for the stage map with '+' (line 1,8,10,15);",
-		},
-		"error/map08": {
-			mapPath: "files/test/validateStageMap/map08.txt",
-			expected: "Stage Map Validation Error: the following errors occurred:\n" +
-				" -  files/test/validateStageMap/map08.txt; Please set one P;\n" +
-				" -  files/test/validateStageMap/map08.txt; Please set one or more enemies;\n" +
-				" -  files/test/validateStageMap/map08.txt; Please set one or more targets;",
-		},
-		"error/map09": {
-			mapPath:  "files/test/validateStageMap/map09.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map09.txt; Please set only one P;",
+			expected: "Stage Map Validation Error: files/test/validateStageMap/map06.txt; Make the width of the stage map uniform (line 5,10);",
 		},
 	}
 	for name, tt := range cases {
