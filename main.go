@@ -11,11 +11,9 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	termbox "github.com/nsf/termbox-go"
 	"go.uber.org/multierr"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -36,11 +34,10 @@ const (
 	chObstacle2 = '|'
 	chObstacle3 = '!'
 
-	sceneStart    = "files/scene/start.txt"
-	sceneYouwin   = "files/scene/youwin.txt"
-	sceneYoulose  = "files/scene/youlose.txt"
-	sceneCongrats = "files/scene/congrats.txt"
-	sceneGoodbye  = "files/scene/goodbye.txt"
+	sceneStart   = "files/scene/start.txt"
+	sceneYouwin  = "files/scene/youwin.txt"
+	sceneYoulose = "files/scene/youlose.txt"
+	sceneGoodbye = "files/scene/goodbye.txt"
 )
 
 var (
@@ -62,12 +59,15 @@ func run() error {
 		return err
 	}
 
-	maxLevel := len(stages)
+	level := flag.Int("level", stages[0].level, "Level at the start of the game.")
+	life := flag.Int("life", 2, "Remaining lives.")
+	flag.Parse()
 
-	level := flag.Int("level", 1, "Level at the start of the game. (1-"+strconv.Itoa(maxLevel)+")")
-	life := flag.Int("life", 3, "Remaining lives. (0-5)")
-	if err := validateArgs(level, life, maxLevel); err != nil {
-		return err
+	for i, stage := range stages {
+		if *level == stage.level {
+			stages = stages[i:]
+			break
+		}
 	}
 
 	if err := termbox.Init(); err != nil {
@@ -82,77 +82,30 @@ func run() error {
 		return err
 	}
 
-game:
-	for {
-		stage, err := getStage(stages, *level)
-		if err != nil {
-			return err
-		}
+	i := 0
+	for i < len(stages) && *life >= 0 && gameState != quit {
 		p := new(player)
-		if err = stage.init(p, *life); err != nil {
+		if err := stages[i].init(p, *life); err != nil {
 			return err
 		}
 
 		standBy()
 
-		eg := new(errgroup.Group)
-
-		eg.Go(func() error {
-			if err := p.action(stage); err != nil {
-				return err
-			}
-			return nil
-		})
-
-		eg.Go(func() error {
-			for gameState == continuing {
-				for _, e := range stage.enemies {
-					e.move(e.think(p))
-					e.hasCaptured(p)
-				}
-				if err = termbox.Flush(); err != nil {
-					return err
-				}
-				time.Sleep(stage.gameSpeed)
-			}
-			return nil
-		})
-
-		if err := eg.Wait(); err != nil {
+		if err := stages[i].start(p); err != nil {
 			return err
 		}
 
-		switch gameState {
-		case win:
-			if err := switchScene(sceneYouwin); err != nil {
-				return err
-			}
-			*level++
-			if *level > maxLevel {
-				if err = switchScene(sceneCongrats); err != nil {
-					return err
-				}
-				break game
-			}
-		case lose:
-			if err = switchScene(sceneYoulose); err != nil {
-				return err
-			}
-			*life--
-			if *life < 0 {
-				break game
-			}
-		case quit:
-			break game
+		if err := winOrLose(&i, life); err != nil {
+			return err
 		}
 	}
+
 	if err := switchScene(sceneGoodbye); err != nil {
 		return err
 	}
 
 	return nil
 }
-
 func standBy() {
 	gameState = pose
 	for {
@@ -167,14 +120,18 @@ func standBy() {
 		}
 	}
 }
-
-func validateArgs(level *int, life *int, maxLevel int) error {
-	flag.Parse()
-	if *level > maxLevel || *level < 1 {
-		return errors.New("Validation Error: level must be (1-" + strconv.Itoa(maxLevel) + ").")
-	}
-	if *life > 5 || *life < 0 {
-		return errors.New("Validation Error: life must be (0-5).")
+func winOrLose(i *int, life *int) error {
+	switch gameState {
+	case win:
+		if err := switchScene(sceneYouwin); err != nil {
+			return err
+		}
+		*i++
+	case lose:
+		if err := switchScene(sceneYoulose); err != nil {
+			return err
+		}
+		*life--
 	}
 	return nil
 }

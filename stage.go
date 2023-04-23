@@ -2,11 +2,11 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"strconv"
 	"time"
 
 	termbox "github.com/nsf/termbox-go"
+	"golang.org/x/sync/errgroup"
 )
 
 type stage struct {
@@ -90,15 +90,6 @@ func initStages() []stage {
 	}
 }
 
-func getStage(stages []stage, level int) (stage, error) {
-	for _, stage := range stages {
-		if level == stage.level {
-			return stage, nil
-		}
-	}
-	return stage{}, errors.New("File does not exist: " + stages[level].mapPath)
-}
-
 func (s *stage) init(p *player, life int) error {
 	f, err := static.ReadFile(s.mapPath)
 	if err != nil {
@@ -122,7 +113,7 @@ func (s *stage) init(p *player, life int) error {
 }
 
 func (s *stage) plot(b *buffer, p *player) {
-
+	s.enemies = nil
 	s.width = len(b.lines[0].text) + b.offset
 	s.height = len(b.lines)
 	for y := 0; y < s.height; y++ {
@@ -176,4 +167,36 @@ func (s stage) plotSubInfo(life int) {
 		}
 		position++
 	}
+}
+
+func (s stage) start(p *player) error {
+	eg := new(errgroup.Group)
+
+	eg.Go(func() error {
+		for gameState == continuing {
+			if err := p.control(s); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
+	eg.Go(func() error {
+		for gameState == continuing {
+			for _, e := range s.enemies {
+				e.move(e.think(p))
+				e.hasCaptured(p)
+			}
+			if err := termbox.Flush(); err != nil {
+				return err
+			}
+			time.Sleep(s.gameSpeed)
+		}
+		return nil
+	})
+
+	if err := eg.Wait(); err != nil {
+		return err
+	}
+	return nil
 }

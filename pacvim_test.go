@@ -232,7 +232,6 @@ func Test_switchScene(t *testing.T) {
 		sceneStart,
 		sceneYouwin,
 		sceneYoulose,
-		sceneCongrats,
 		sceneGoodbye,
 	}
 	for _, s := range scenes {

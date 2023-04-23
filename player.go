@@ -15,78 +15,19 @@ type player struct {
 	targetScore int
 }
 
-func (p *player) action(stage stage) error {
-	for gameState == continuing {
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			if v, ok := p.isInputNum(ev.Ch); ok {
-				p.inputNum, _ = strconv.Atoi(strconv.Itoa(p.inputNum) + v)
-			} else {
-				switch ev.Ch {
-				// quit
-				case 'q':
-					gameState = quit
-				// Move cursor
-				// to upward direction by one line
-				case 'k':
-					p.moveCross(0, -1)
-				// to downward direction by one line
-				case 'j':
-					p.moveCross(0, 1)
-				// to left by one position
-				case 'h':
-					p.moveCross(-1, 0)
-				// to right by one position
-				case 'l':
-					p.moveCross(1, 0)
-				// to the beginning of the next word
-				case 'w':
-					p.moveByWord(p.toBeginningOfNextWord)
-				// to the beginning of the previous word
-				case 'b':
-					p.moveByWord(p.toBeginningPrevWord)
-				// to the end of the current word
-				case 'e':
-					p.moveByWord(p.toEndOfCurrentWord)
-				// to the beginning of the current line
-				case '0':
-					p.jumpOnCurrentLine(p.toLeftEdge)
-				// to the end of the current line
-				case '$':
-					p.jumpOnCurrentLine(p.toRightEdge)
-				// to the beginning of the first word on the current line
-				case '^':
-					p.jumpOnCurrentLine(p.toBeginningOfFirstWord)
-				case 'G':
-					if p.inputNum == 0 {
-						// to the beginning of the first word on the last line
-						p.jumpAcrossLine(p.toLastLine, stage)
-					} else {
-						// to the beginning of the first word on the selected line
-						p.jumpAcrossLine(p.toSelectedLine, stage)
-					}
-				case 'g':
-					if p.inputG {
-						if p.inputNum == 0 {
-							// to the beginning of the first word on the first line
-							p.jumpAcrossLine(p.toFirstLine, stage)
-						} else {
-							// to the beginning of the first word on the selected line
-							p.jumpAcrossLine(p.toSelectedLine, stage)
-						}
-					} else {
-						p.inputG = true
-						continue
-					}
-				}
-				p.inputNum = 0
-				p.inputG = false
+func (p *player) control(s stage) error {
+	switch ev := termbox.PollEvent(); ev.Type {
+	case termbox.EventKey:
+		if v, ok := p.isInputNum(ev.Ch); ok {
+			p.inputNum, _ = strconv.Atoi(strconv.Itoa(p.inputNum) + v)
+			p.inputG = false
+		} else {
+			p.action(ev.Ch, s)
+			termbox.SetCursor(p.x, p.y)
+			p.plotScore(s)
+			if err := termbox.Flush(); err != nil {
+				return err
 			}
-		}
-		termbox.SetCursor(p.x, p.y)
-		p.plotScore(stage)
-		if err := termbox.Flush(); err != nil {
-			return err
 		}
 	}
 	return nil
@@ -100,6 +41,51 @@ func (p *player) isInputNum(r rune) (string, bool) {
 	return s, false
 }
 
+func (p *player) action(ch rune, s stage) {
+	// Move cursor
+	switch ch {
+	// to upward direction by one line
+	case 'k':
+		p.moveCross(0, -1)
+	// to downward direction by one line
+	case 'j':
+		p.moveCross(0, 1)
+	// to left by one position
+	case 'h':
+		p.moveCross(-1, 0)
+	// to right by one position
+	case 'l':
+		p.moveCross(1, 0)
+	// to the beginning of the next word
+	case 'w':
+		p.moveByWord(p.toBeginningOfNextWord)
+	// to the beginning of the previous word
+	case 'b':
+		p.moveByWord(p.toBeginningPrevWord)
+	// to the end of the current word
+	case 'e':
+		p.moveByWord(p.toEndOfCurrentWord)
+	// to the beginning of the current line
+	case '0':
+		p.jumpOnCurrentLine(p.toLeftEdge)
+	// to the end of the current line
+	case '$':
+		p.jumpOnCurrentLine(p.toRightEdge)
+	// to the beginning of the first word on the current line
+	case '^':
+		p.jumpOnCurrentLine(p.toBeginningOfFirstWord)
+	// to the beginning of the first word on the first line
+	case 'g':
+		p.jumpAcrossLine(p.toFirstLine, s, ch)
+	// to the beginning of the first word on the last line
+	case 'G':
+		p.jumpAcrossLine(p.toLastLine, s, ch)
+	// quit
+	case 'q':
+		gameState = quit
+	}
+}
+
 func (p *player) moveCross(x, y int) {
 	if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
@@ -110,6 +96,8 @@ func (p *player) moveCross(x, y int) {
 	} else {
 		p.moveOneSquare(x, y)
 	}
+	p.inputNum = 0
+	p.inputG = false
 }
 func (p *player) moveOneSquare(x, y int) bool {
 	tmpX := p.x + x
@@ -134,16 +122,32 @@ func (p *player) moveByWord(fn func() bool) {
 	} else {
 		fn()
 	}
+	p.inputNum = 0
+	p.inputG = false
 }
 
 func (p *player) jumpOnCurrentLine(fn func()) {
 	fn()
 	p.judgeMoveResult()
+	p.inputNum = 0
+	p.inputG = false
 }
 
-func (p *player) jumpAcrossLine(fn func(stage), s stage) {
-	fn(s)
-	p.judgeMoveResult()
+func (p *player) jumpAcrossLine(fn func(stage), s stage, ch rune) {
+	if ch == 'g' && !p.inputG {
+		p.inputG = true
+	} else if ch == 'G' || (ch == 'g' && p.inputG) {
+		if p.inputNum == 0 {
+			// to the beginning of the first word on the first or last line
+			fn(s)
+		} else {
+			// to the beginning of the first word on the selected line
+			p.toSelectedLine(s)
+		}
+		p.judgeMoveResult()
+		p.inputNum = 0
+		p.inputG = false
+	}
 }
 
 func (p *player) judgeMoveResult() {
