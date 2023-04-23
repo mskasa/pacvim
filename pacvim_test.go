@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_validateMimeType(t *testing.T) {
+func TestValidateMimeType(t *testing.T) {
 	cases := map[string]struct {
 		mapPath  string
 		expected string
@@ -33,7 +33,7 @@ func Test_validateMimeType(t *testing.T) {
 	}
 }
 
-func Test_validateFileSize(t *testing.T) {
+func TestValidateFileSize(t *testing.T) {
 	cases := map[string]struct {
 		mapPath  string
 		expected string
@@ -58,7 +58,7 @@ func Test_validateFileSize(t *testing.T) {
 	}
 }
 
-func Test_validateStageMap(t *testing.T) {
+func TestValidateStageMap(t *testing.T) {
 	cases := map[string]struct {
 		mapPath  string
 		expected string
