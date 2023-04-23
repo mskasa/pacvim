@@ -183,14 +183,9 @@ func (s stage) start(p *player) error {
 
 	eg.Go(func() error {
 		for gameState == continuing {
-			for _, e := range s.enemies {
-				e.move(e.think(p))
-				e.hasCaptured(p)
-			}
-			if err := termbox.Flush(); err != nil {
+			if err := control(s, p); err != nil {
 				return err
 			}
-			time.Sleep(s.gameSpeed)
 		}
 		return nil
 	})

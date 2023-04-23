@@ -59,6 +59,18 @@ func (e *enemy) getDisplayFormat() (rune, termbox.Attribute) {
 	return e.char, e.color
 }
 
+func control(s stage, p *player) error {
+	for _, e := range s.enemies {
+		e.move(e.think(p))
+		e.hasCaptured(p)
+	}
+	if err := termbox.Flush(); err != nil {
+		return err
+	}
+	time.Sleep(s.gameSpeed)
+	return nil
+}
+
 func (e *enemy) think(p *player) (int, int) {
 	x, y := e.getPosition()
 	// Calculate the evaluation value for movement
