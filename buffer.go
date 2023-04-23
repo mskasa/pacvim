@@ -110,7 +110,7 @@ func switchScene(fileName string) error {
 		return err
 	}
 	time.Sleep(750 * time.Millisecond)
-	return err
+	return nil
 }
 
 func isCharBorder(x, y int) bool {
