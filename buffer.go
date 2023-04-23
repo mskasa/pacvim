@@ -47,7 +47,9 @@ func createWindow(b *buffer) *window {
 }
 
 func (w *window) show(b *buffer) error {
-	err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
+	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
+		return err
+	}
 	maxDigit := getDigit(len(b.lines))
 	b.offset = getOffset(len(b.lines))
 	for y, l := range w.lines {
@@ -57,7 +59,7 @@ func (w *window) show(b *buffer) error {
 			termbox.SetCell(x, y, r, termbox.ColorWhite, termbox.ColorBlack)
 		}
 	}
-	return err
+	return nil
 }
 func makeLineNum(num int, maxDigit int, maxOffset int) []rune {
 	lineNum := make([]rune, maxOffset)
