@@ -3,8 +3,6 @@ package main
 import (
 	"reflect"
 	"testing"
-
-	termbox "github.com/nsf/termbox-go"
 )
 
 func TestGetDigit(t *testing.T) {
@@ -66,13 +64,6 @@ func TestSwitchScene(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}
-	if err := termbox.Init(); err != nil {
-		t.Error(err)
-	}
-	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
-		t.Error(err)
-	}
-	defer termbox.Close()
 	scenes := []string{
 		sceneStart,
 		sceneYouwin,
