@@ -172,6 +172,62 @@ func TestJumpOnCurrentLine(t *testing.T) {
 	}
 }
 
+func TestJudgeMoveResult(t *testing.T) {
+	initX := 9
+	initY := 4
+	cases := map[string]struct {
+		x                 int
+		y                 int
+		expectedGameState int
+	}{
+		"left": {
+			x:                 -1,
+			y:                 0,
+			expectedGameState: lose,
+		},
+		"right": {
+			x:                 1,
+			y:                 0,
+			expectedGameState: lose,
+		},
+		"up": {
+			x:                 0,
+			y:                 -1,
+			expectedGameState: lose,
+		},
+		"down": {
+			x:                 0,
+			y:                 1,
+			expectedGameState: win,
+		},
+	}
+	if err := termbox.Init(); err != nil {
+		t.Error(err)
+	}
+	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
+		t.Error(err)
+	}
+	defer termbox.Close()
+
+	p, err := playerActionTestInit("files/test/player/judgeMoveResult/map01.txt")
+	if err != nil {
+		t.Error()
+	}
+
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			p.x = initX
+			p.y = initY
+			gameState = continuing
+			p.moveCross(tt.x, tt.y)
+			if gameState != tt.expectedGameState {
+				t.Error("expected:", tt.expectedGameState, "result:", gameState)
+			}
+		})
+	}
+}
+
 func playerActionTestInit(mapPath string) (*player, error) {
 	stage := stage{
 		mapPath:       mapPath,
