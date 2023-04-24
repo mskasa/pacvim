@@ -143,7 +143,6 @@ func random(min, max int) int {
 }
 
 type iEnemyBuilder interface {
-	position(int, int) iEnemyBuilder
 	displayFormat(rune, string) iEnemyBuilder
 	speed(int) iEnemyBuilder
 	strategize(strategy) iEnemyBuilder
@@ -164,11 +163,6 @@ type enemyBuilder struct {
 	strategy         strategy
 }
 
-func (eb *enemyBuilder) position(x int, y int) iEnemyBuilder {
-	eb.x = x
-	eb.y = y
-	return eb
-}
 func (eb *enemyBuilder) displayFormat(r rune, s string) iEnemyBuilder {
 	eb.char = r
 	switch s {
