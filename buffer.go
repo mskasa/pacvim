@@ -148,8 +148,3 @@ func isChar(x, y int, r rune) bool {
 	cell := termbox.CellBuffer()[(winWidth*y)+x]
 	return r == cell.Ch
 }
-func isColorWhite(x, y int) bool {
-	winWidth, _ := termbox.Size()
-	cell := termbox.CellBuffer()[(winWidth*y)+x]
-	return cell.Fg == termbox.ColorWhite
-}
