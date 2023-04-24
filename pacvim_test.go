@@ -149,6 +149,13 @@ func TestValidateFiles(t *testing.T) {
 	}
 }
 
+func TestValidateActualFiles(t *testing.T) {
+	stages := initStages()
+	if err := validateFiles(stages); err != nil {
+		t.Error()
+	}
+}
+
 func TestWinOrLose(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
