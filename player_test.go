@@ -81,15 +81,8 @@ func TestMoveCross(t *testing.T) {
 			inputNum:  6,
 		},
 	}
-	if err := termbox.Init(); err != nil {
-		t.Error(err)
-	}
-	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
-		t.Error(err)
-	}
-	defer termbox.Close()
 
-	p, err := playerActionTestInit("files/test/player/moveCross/map01.txt")
+	p, err := playerActionTestInit(t, "files/test/player/moveCross/map01.txt")
 	if err != nil {
 		t.Error()
 	}
@@ -142,15 +135,7 @@ func TestJumpOnCurrentLine(t *testing.T) {
 		},
 	}
 
-	if err := termbox.Init(); err != nil {
-		t.Error(err)
-	}
-	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
-		t.Error(err)
-	}
-	defer termbox.Close()
-
-	p, err := playerActionTestInit("files/test/player/jumpOnCurrentLine/map01.txt")
+	p, err := playerActionTestInit(t, "files/test/player/jumpOnCurrentLine/map01.txt")
 	if err != nil {
 		t.Error()
 	}
@@ -201,15 +186,8 @@ func TestJudgeMoveResult(t *testing.T) {
 			expectedGameState: win,
 		},
 	}
-	if err := termbox.Init(); err != nil {
-		t.Error(err)
-	}
-	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
-		t.Error(err)
-	}
-	defer termbox.Close()
 
-	p, err := playerActionTestInit("files/test/player/judgeMoveResult/map01.txt")
+	p, err := playerActionTestInit(t, "files/test/player/judgeMoveResult/map01.txt")
 	if err != nil {
 		t.Error()
 	}
@@ -228,7 +206,16 @@ func TestJudgeMoveResult(t *testing.T) {
 	}
 }
 
-func playerActionTestInit(mapPath string) (*player, error) {
+func playerActionTestInit(t *testing.T, mapPath string) (*player, error) {
+	if err := termbox.Init(); err != nil {
+		t.Error(err)
+	}
+	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
+		t.Error(err)
+	}
+	t.Cleanup(func() {
+		termbox.Close()
+	})
 	stage := stage{
 		mapPath:       mapPath,
 		hunterBuilder: newEnemyBuilder().defaultHunter(),
