@@ -156,6 +156,50 @@ func TestValidateActualFiles(t *testing.T) {
 	}
 }
 
+func TestSplitStages(t *testing.T) {
+	cases := map[string]struct {
+		level         int
+		expectedLevel int
+		stages        []stage
+	}{
+		"head": {
+			level:         1,
+			expectedLevel: 1,
+			stages: []stage{
+				{level: 1},
+				{level: 2},
+			},
+		},
+		"middle": {
+			level:         2,
+			expectedLevel: 2,
+			stages: []stage{
+				{level: 1},
+				{level: 2},
+				{level: 3},
+			},
+		},
+		"default": {
+			level:         3,
+			expectedLevel: 1,
+			stages: []stage{
+				{level: 1},
+				{level: 2},
+			},
+		},
+	}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			stages := splitStages(tt.stages, &tt.level)
+			if stages[0].level != tt.expectedLevel {
+				t.Error()
+			}
+		})
+	}
+}
+
 func TestWinOrLose(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")

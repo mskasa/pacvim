@@ -63,12 +63,7 @@ func run() error {
 	life := flag.Int("life", 2, "Remaining lives.")
 	flag.Parse()
 
-	for i, stage := range stages {
-		if *level == stage.level {
-			stages = stages[i:]
-			break
-		}
-	}
+	stages = splitStages(stages, level)
 
 	if err := termbox.Init(); err != nil {
 		return err
@@ -106,6 +101,16 @@ func run() error {
 
 	return nil
 }
+
+func splitStages(stages []stage, level *int) []stage {
+	for i, stage := range stages {
+		if *level == stage.level {
+			return stages[i:]
+		}
+	}
+	return stages
+}
+
 func standBy() {
 	gameState = pose
 	for {
@@ -120,6 +125,7 @@ func standBy() {
 		}
 	}
 }
+
 func winOrLose(i *int, life *int) error {
 	switch gameState {
 	case win:
