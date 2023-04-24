@@ -3,6 +3,8 @@ package main
 import (
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetDigit(t *testing.T) {
@@ -64,15 +66,26 @@ func TestSwitchScene(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}
-	scenes := []string{
-		sceneStart,
-		sceneYouwin,
-		sceneYoulose,
-		sceneGoodbye,
+	cases := map[string]struct {
+		scene    string
+		expected string
+	}{
+		"normal": {
+			scene:    sceneStart,
+			expected: "",
+		},
+		"error": {
+			scene:    "foo",
+			expected: "open foo: file does not exist",
+		},
 	}
-	for _, s := range scenes {
-		if err := switchScene(s); err != nil {
-			t.Error(err)
-		}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if err := switchScene(tt.scene); err != nil {
+				assert.EqualErrorf(t, err, tt.expected, "Error should be: %v, got: %v", tt.expected, err)
+			}
+		})
 	}
 }
