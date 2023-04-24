@@ -19,6 +19,10 @@ func TestValidateMimeType(t *testing.T) {
 			mapPath:  "files/test/validateMimeType/map02.txt",
 			expected: "MIME Type Validation Error: files/test/validateMimeType/map02.txt; Invalid mime type: application/octet-stream;",
 		},
+		"error/map03": {
+			mapPath:  "files/test/validateMimeType/map03.txt",
+			expected: "open files/test/validateMimeType/map03.txt: file does not exist",
+		},
 	}
 	for name, tt := range cases {
 		tt := tt
@@ -43,6 +47,10 @@ func TestValidateFileSize(t *testing.T) {
 		"error/map02": {
 			mapPath:  "files/test/validateFileSize/map02.txt",
 			expected: "File Size Validation Error: files/test/validateFileSize/map02.txt; File size exceeded: 1049 (Max file size is 1024);",
+		},
+		"error/map03": {
+			mapPath:  "files/test/validateFileSize/map03.txt",
+			expected: "open files/test/validateFileSize/map03.txt: file does not exist",
 		},
 	}
 	for name, tt := range cases {
@@ -84,6 +92,14 @@ func TestValidateStageMap(t *testing.T) {
 		"error/map06": {
 			mapPath:  "files/test/validateStageMap/map06.txt",
 			expected: "Stage Map Validation Error: files/test/validateStageMap/map06.txt; Make the width of the stage map uniform (line 5,10);",
+		},
+		"error/map07": {
+			mapPath:  "files/test/validateStageMap/map07.txt",
+			expected: "Stage Map Validation Error: files/test/validateStageMap/map07.txt; Create a boundary for the stage map with '+' (line 5,10);",
+		},
+		"error/map08": {
+			mapPath:  "files/test/validateStageMap/map08.txt",
+			expected: "open files/test/validateStageMap/map08.txt: file does not exist",
 		},
 	}
 	for name, tt := range cases {
