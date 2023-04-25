@@ -8,8 +8,7 @@ import (
 )
 
 func TestMoveCross(t *testing.T) {
-	initX := 9
-	initY := 4
+	initX, initY := 9, 4
 	cases := map[string]struct {
 		x         int
 		y         int
@@ -158,8 +157,7 @@ func TestJumpOnCurrentLine(t *testing.T) {
 }
 
 func TestJudgeMoveResult(t *testing.T) {
-	initX := 9
-	initY := 4
+	initX, initY := 9, 4
 	cases := map[string]struct {
 		x                 int
 		y                 int
