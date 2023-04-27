@@ -89,8 +89,7 @@ func TestMoveCross(t *testing.T) {
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p.x = initX
-			p.y = initY
+			p.x, p.y = initX, initY
 			p.inputNum = tt.inputNum
 			p.moveCross(tt.x, tt.y)
 			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
@@ -142,8 +141,7 @@ func TestJumpOnCurrentLine(t *testing.T) {
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p.x = initX
-			p.y = tt.initY
+			p.x, p.y = initX, tt.initY
 			p.jumpOnCurrentLine(p.toLeftEdge)
 			if !(p.x == tt.toLeftEdgeX && p.y == tt.initY) {
 				t.Error("expected:", tt.toLeftEdgeX, tt.initY, "result:", p.x, p.y)
@@ -193,8 +191,7 @@ func TestJudgeMoveResult(t *testing.T) {
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p.x = initX
-			p.y = initY
+			p.x, p.y = initX, initY
 			gameState = continuing
 			p.moveCross(tt.x, tt.y)
 			if gameState != tt.expectedGameState {
@@ -205,6 +202,7 @@ func TestJudgeMoveResult(t *testing.T) {
 }
 
 func playerActionTestInit(t *testing.T, mapPath string) (*player, error) {
+	t.Helper()
 	if err := termbox.Init(); err != nil {
 		t.Error(err)
 	}
