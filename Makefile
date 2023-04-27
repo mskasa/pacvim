@@ -16,6 +16,10 @@ test: deps ## go test -short
 	go test -short
 .PHONY: test
 
+cover: ## create cover.html
+	go test -cover -coverprofile=cover.out
+	go tool cover -html=cover.out -o cover.html
+
 build: test ## Make a macOS executable binary
 	go build -o bin/mac/pacvim .
 .PHONY: build
