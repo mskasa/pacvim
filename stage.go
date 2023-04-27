@@ -121,8 +121,7 @@ func (s *stage) plot(b *buffer, p *player) {
 			if isCharTarget(x, y) {
 				p.targetScore++
 			} else if isCharPlayer(x, y) {
-				p.x = x
-				p.y = y
+				p.x, p.y = x, y
 				termbox.SetCell(p.x, p.y, chSpace, termbox.ColorWhite, termbox.ColorBlack)
 				termbox.SetCursor(p.x, p.y)
 			} else if isCharBorder(x, y) {

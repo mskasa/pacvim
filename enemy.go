@@ -51,8 +51,7 @@ func (e *enemy) getPosition() (x, y int) {
 	return e.x, e.y
 }
 func (e *enemy) setPosition(x, y int) {
-	e.x = x
-	e.y = y
+	e.x, e.y = x, y
 }
 
 func (e *enemy) getDisplayFormat() (rune, termbox.Attribute) {
