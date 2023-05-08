@@ -78,7 +78,8 @@ func run() error {
 	}
 
 	i := 0
-	for i < len(stages) && *life >= 0 && gameState != quit {
+game:
+	for i < len(stages) && *life >= 0 {
 		p := new(player)
 		if err := stages[i].init(p, *life); err != nil {
 			return err
@@ -90,8 +91,19 @@ func run() error {
 			return err
 		}
 
-		if err := winOrLose(&i, life); err != nil {
-			return err
+		switch gameState {
+		case win:
+			if err := switchScene(sceneYouwin); err != nil {
+				return err
+			}
+			i++
+		case lose:
+			if err := switchScene(sceneYoulose); err != nil {
+				return err
+			}
+			*life--
+		case quit:
+			break game
 		}
 	}
 
@@ -124,22 +136,6 @@ func standBy() {
 			break
 		}
 	}
-}
-
-func winOrLose(i *int, life *int) error {
-	switch gameState {
-	case win:
-		if err := switchScene(sceneYouwin); err != nil {
-			return err
-		}
-		*i++
-	case lose:
-		if err := switchScene(sceneYoulose); err != nil {
-			return err
-		}
-		*life--
-	}
-	return nil
 }
 
 var (
