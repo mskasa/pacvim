@@ -111,7 +111,7 @@ func (e *enemy) move(x, y int) {
 
 func (e *enemy) hasCaptured(p *player) {
 	if e.x == p.x && e.y == p.y {
-		gameState = lose
+		p.state = lose
 	}
 }
 

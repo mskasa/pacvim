@@ -31,9 +31,9 @@ func TestEnemyControl(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			gameState = continuing
+			p.state = continuing
 			count := 0
-			for gameState == continuing {
+			for p.state == continuing {
 				if err := control(stage, p); err != nil {
 					t.Error(err)
 				}
@@ -76,9 +76,9 @@ func TestEnemyMove(t *testing.T) {
 				t.Error(err)
 			}
 			e := stage.enemies[0]
-			gameState = continuing
+			p.state = continuing
 			count := 0
-			for gameState == continuing {
+			for p.state == continuing {
 				e.move(e.think(p))
 				e.hasCaptured(p)
 				count++

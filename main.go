@@ -40,12 +40,8 @@ const (
 	sceneGoodbye = "files/scene/goodbye.txt"
 )
 
-var (
-	gameState = 0
-
-	//go:embed files
-	static embed.FS
-)
+//go:embed files
+var static embed.FS
 
 func main() {
 	if err := run(); err != nil {
@@ -85,13 +81,13 @@ game:
 			return err
 		}
 
-		standBy()
+		standBy(p)
 
 		if err := stages[i].start(p); err != nil {
 			return err
 		}
 
-		switch gameState {
+		switch p.state {
 		case win:
 			if err := switchScene(sceneYouwin); err != nil {
 				return err
@@ -123,16 +119,16 @@ func splitStages(stages []stage, level *int) []stage {
 	return stages
 }
 
-func standBy() {
-	gameState = pose
+func standBy(p *player) {
+	p.state = pose
 	for {
 		ev := termbox.PollEvent()
 		if ev.Key == termbox.KeyEnter {
-			gameState = continuing
+			p.state = continuing
 			break
 		}
 		if ev.Ch == 'q' {
-			gameState = quit
+			p.state = quit
 			break
 		}
 	}

@@ -13,6 +13,7 @@ type player struct {
 	inputG      bool
 	score       int
 	targetScore int
+	state       int
 }
 
 func (p *player) control(s stage) error {
@@ -82,7 +83,7 @@ func (p *player) action(ch rune, s stage) {
 		p.jumpAcrossLine(p.toLastLine, s, ch)
 	// quit
 	case 'q':
-		gameState = quit
+		p.state = quit
 	}
 }
 
@@ -152,7 +153,7 @@ func (p *player) jumpAcrossLine(fn func(stage), s stage, ch rune) {
 
 func (p *player) judgeMoveResult() {
 	if isCharEnemy(p.x, p.y) || isCharPoison(p.x, p.y) {
-		gameState = lose
+		p.state = lose
 	} else {
 		// Change target color (white → green)
 		winWidth, _ := termbox.Size()
@@ -161,7 +162,7 @@ func (p *player) judgeMoveResult() {
 			termbox.SetCell(p.x, p.y, cell.Ch, termbox.ColorGreen, termbox.ColorBlack)
 			p.score++
 			if p.score == p.targetScore {
-				gameState = win
+				p.state = win
 			}
 		}
 	}

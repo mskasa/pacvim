@@ -256,29 +256,29 @@ func TestJumpAcrossLine(t *testing.T) {
 func TestJudgeMoveResult(t *testing.T) {
 	initX, initY := 9, 4
 	cases := map[string]struct {
-		x                 int
-		y                 int
-		expectedGameState int
+		x             int
+		y             int
+		expectedState int
 	}{
 		"left": {
-			x:                 -1,
-			y:                 0,
-			expectedGameState: lose,
+			x:             -1,
+			y:             0,
+			expectedState: lose,
 		},
 		"right": {
-			x:                 1,
-			y:                 0,
-			expectedGameState: lose,
+			x:             1,
+			y:             0,
+			expectedState: lose,
 		},
 		"up": {
-			x:                 0,
-			y:                 -1,
-			expectedGameState: lose,
+			x:             0,
+			y:             -1,
+			expectedState: lose,
 		},
 		"down": {
-			x:                 0,
-			y:                 1,
-			expectedGameState: win,
+			x:             0,
+			y:             1,
+			expectedState: win,
 		},
 	}
 
@@ -291,10 +291,10 @@ func TestJudgeMoveResult(t *testing.T) {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
 			p.x, p.y = initX, initY
-			gameState = continuing
+			p.state = continuing
 			p.moveCross(tt.x, tt.y)
-			if gameState != tt.expectedGameState {
-				t.Error("expected:", tt.expectedGameState, "result:", gameState)
+			if p.state != tt.expectedState {
+				t.Error("expected:", tt.expectedState, "result:", p.state)
 			}
 		})
 	}

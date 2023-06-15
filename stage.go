@@ -172,7 +172,7 @@ func (s stage) start(p *player) error {
 	eg := new(errgroup.Group)
 
 	eg.Go(func() error {
-		for gameState == continuing {
+		for p.state == continuing {
 			if err := p.control(s); err != nil {
 				return err
 			}
@@ -181,7 +181,7 @@ func (s stage) start(p *player) error {
 	})
 
 	eg.Go(func() error {
-		for gameState == continuing {
+		for p.state == continuing {
 			if err := control(s, p); err != nil {
 				return err
 			}
