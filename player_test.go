@@ -81,7 +81,7 @@ func TestMoveCross(t *testing.T) {
 		},
 	}
 
-	p, err := playerActionTestInit(t, "files/test/player/moveCross/map01.txt")
+	p, _, err := playerActionTestInit(t, "files/test/player/moveCross/map01.txt")
 	if err != nil {
 		t.Error()
 	}
@@ -133,7 +133,7 @@ func TestJumpOnCurrentLine(t *testing.T) {
 		},
 	}
 
-	p, err := playerActionTestInit(t, "files/test/player/jumpOnCurrentLine/map01.txt")
+	p, _, err := playerActionTestInit(t, "files/test/player/jumpOnCurrentLine/map01.txt")
 	if err != nil {
 		t.Error()
 	}
@@ -149,6 +149,105 @@ func TestJumpOnCurrentLine(t *testing.T) {
 			p.jumpOnCurrentLine(p.toRightEdge)
 			if !(p.x == tt.toRightEdgeX && p.y == tt.initY) {
 				t.Error("expected:", tt.toRightEdgeX, tt.initY, "result:", p.x, p.y)
+			}
+		})
+	}
+}
+
+func TestJumpAcrossLine(t *testing.T) {
+	cases := map[string]struct {
+		expectedX int
+		expectedY int
+		inputNum  int
+		inputChar rune
+		inputG    bool
+		mapPath   string
+	}{
+		"gg with target": {
+			expectedX: 29,
+			expectedY: 1,
+			inputNum:  0,
+			inputChar: 'g',
+			inputG:    true,
+			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+		},
+		"gg no target": {
+			expectedX: 3,
+			expectedY: 1,
+			inputNum:  0,
+			inputChar: 'g',
+			inputG:    true,
+			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+		},
+		"Ngg with target": {
+			expectedX: 29,
+			expectedY: 1,
+			inputNum:  2,
+			inputChar: 'g',
+			inputG:    true,
+			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+		},
+		"Ngg no target": {
+			expectedX: 3,
+			expectedY: 3,
+			inputNum:  4,
+			inputChar: 'g',
+			inputG:    true,
+			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+		},
+		"G with target": {
+			expectedX: 29,
+			expectedY: 5,
+			inputNum:  0,
+			inputChar: 'G',
+			inputG:    false,
+			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+		},
+		"G no target": {
+			expectedX: 3,
+			expectedY: 5,
+			inputNum:  0,
+			inputChar: 'G',
+			inputG:    false,
+			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+		},
+		"NG with target": {
+			expectedX: 29,
+			expectedY: 1,
+			inputNum:  2,
+			inputChar: 'G',
+			inputG:    false,
+			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+		},
+		"NG no target": {
+			expectedX: 3,
+			expectedY: 3,
+			inputNum:  4,
+			inputChar: 'G',
+			inputG:    false,
+			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+		},
+	}
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			p, stage, err := playerActionTestInit(t, tt.mapPath)
+			if err != nil {
+				t.Error(err)
+			}
+			p.inputG = tt.inputG
+			p.inputNum = tt.inputNum
+			switch tt.inputChar {
+			case 'g':
+				p.jumpAcrossLine(p.toFirstLine, stage, tt.inputChar)
+			case 'G':
+				p.jumpAcrossLine(p.toLastLine, stage, tt.inputChar)
+			}
+			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
+				t.Error("expected:", tt.expectedX, tt.expectedY, "result:", p.x, p.y)
+			}
+			if !(p.inputG == false || p.inputNum != 0) {
+				t.Error(err)
 			}
 		})
 	}
@@ -183,7 +282,7 @@ func TestJudgeMoveResult(t *testing.T) {
 		},
 	}
 
-	p, err := playerActionTestInit(t, "files/test/player/judgeMoveResult/map01.txt")
+	p, _, err := playerActionTestInit(t, "files/test/player/judgeMoveResult/map01.txt")
 	if err != nil {
 		t.Error()
 	}
@@ -201,7 +300,7 @@ func TestJudgeMoveResult(t *testing.T) {
 	}
 }
 
-func playerActionTestInit(t *testing.T, mapPath string) (*player, error) {
+func playerActionTestInit(t *testing.T, mapPath string) (*player, stage, error) {
 	t.Helper()
 	if err := termbox.Init(); err != nil {
 		t.Error(err)
@@ -212,23 +311,23 @@ func playerActionTestInit(t *testing.T, mapPath string) (*player, error) {
 	t.Cleanup(func() {
 		termbox.Close()
 	})
-	stage := stage{
+	s := stage{
 		mapPath:       mapPath,
 		hunterBuilder: newEnemyBuilder().defaultHunter(),
 		ghostBuilder:  newEnemyBuilder().defaultGhost(),
 	}
-	f, err := static.ReadFile(stage.mapPath)
+	f, err := static.ReadFile(s.mapPath)
 	if err != nil {
-		return nil, err
+		return nil, s, err
 	}
 	b := createBuffer(bytes.NewReader(f))
 	w := createWindow(b)
 	if err = w.show(b); err != nil {
-		return nil, err
+		return nil, s, err
 	}
 	p := new(player)
-	stage.plot(b, p)
-	return p, nil
+	s.plot(b, p)
+	return p, s, nil
 }
 
 func TestIsInputNum(t *testing.T) {
