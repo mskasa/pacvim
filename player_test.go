@@ -99,6 +99,222 @@ func TestMoveCross(t *testing.T) {
 	}
 }
 
+func TestMoveByWord(t *testing.T) {
+	cases := map[string]struct {
+		initX         int
+		initY         int
+		expectedX     int
+		expectedY     int
+		expectedState int
+		inputNum      int
+		inputChar     rune
+		mapPath       string
+	}{
+		// Check if coordinates are as expected.
+		"w: from blank": {
+			initX:         16,
+			initY:         1,
+			expectedX:     18,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'w',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"w: from word": {
+			initX:         20,
+			initY:         1,
+			expectedX:     23,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'w',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"b: from blank": {
+			initX:         16,
+			initY:         1,
+			expectedX:     11,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'b',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"b: from middle of word": {
+			initX:         13,
+			initY:         1,
+			expectedX:     11,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'b',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"b: from beginning of word": {
+			initX:         11,
+			initY:         1,
+			expectedX:     7,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'b',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"e: from blank": {
+			initX:         16,
+			initY:         1,
+			expectedX:     21,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'e',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"e: from middle of word": {
+			initX:         19,
+			initY:         1,
+			expectedX:     21,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'e',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"e: from end of word": {
+			initX:         21,
+			initY:         1,
+			expectedX:     25,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      0,
+			inputChar:     'e',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		// Check if the player crosses the boundary.
+		"w: to the boundary": {
+			initX:         16,
+			initY:         1,
+			expectedX:     29,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      4,
+			inputChar:     'w',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"b: to the boundary": {
+			initX:         16,
+			initY:         1,
+			expectedX:     3,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      4,
+			inputChar:     'b',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"e: to the boundary": {
+			initX:         16,
+			initY:         1,
+			expectedX:     29,
+			expectedY:     1,
+			expectedState: continuing,
+			inputNum:      4,
+			inputChar:     'e',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		// Check that poison is a string.
+		"w: beyond the poison": {
+			initX:         3,
+			initY:         2,
+			expectedX:     18,
+			expectedY:     2,
+			expectedState: lose,
+			inputNum:      2,
+			inputChar:     'w',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"b: beyond the poison": {
+			initX:         16,
+			initY:         2,
+			expectedX:     4,
+			expectedY:     2,
+			expectedState: lose,
+			inputNum:      0,
+			inputChar:     'b',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"e: beyond the poison": {
+			initX:         3,
+			initY:         2,
+			expectedX:     6,
+			expectedY:     2,
+			expectedState: lose,
+			inputNum:      0,
+			inputChar:     'e',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		// Check that an enemy is not a string.
+		"w: beyond the enemy": {
+			initX:         16,
+			initY:         2,
+			expectedX:     20,
+			expectedY:     2,
+			expectedState: lose,
+			inputNum:      2,
+			inputChar:     'w',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"b: beyond the enemy": {
+			initX:         29,
+			initY:         2,
+			expectedX:     18,
+			expectedY:     2,
+			expectedState: lose,
+			inputNum:      2,
+			inputChar:     'b',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+		"e: beyond the enemy": {
+			initX:         16,
+			initY:         2,
+			expectedX:     20,
+			expectedY:     2,
+			expectedState: lose,
+			inputNum:      2,
+			inputChar:     'e',
+			mapPath:       "files/test/player/moveByWord/map01.txt",
+		},
+	}
+
+	for name, tt := range cases {
+		tt := tt
+		t.Run(name, func(t *testing.T) {
+			p, _, err := playerActionTestInit(t, tt.mapPath)
+			if err != nil {
+				t.Error(err)
+			}
+			p.x, p.y = tt.initX, tt.initY
+			p.inputNum = tt.inputNum
+			p.state = continuing
+			switch tt.inputChar {
+			case 'w':
+				p.moveByWord(p.toBeginningOfNextWord)
+			case 'b':
+				p.moveByWord(p.toBeginningPrevWord)
+			case 'e':
+				p.moveByWord(p.toEndOfCurrentWord)
+			}
+			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
+				t.Error("expected:", tt.expectedX, tt.expectedY, "result:", p.x, p.y)
+			}
+			if p.state != tt.expectedState {
+				t.Error("expected:", tt.expectedState, "result:", p.state)
+			}
+		})
+	}
+}
+
+// TODO
 func TestJumpOnCurrentLine(t *testing.T) {
 	initX := 16
 	cases := map[string]struct {
