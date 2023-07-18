@@ -84,11 +84,16 @@ func (p *player) action(ch rune, s stage) {
 	// quit
 	case 'q':
 		p.state = quit
+	default:
+		p.initInput()
 	}
 }
 
 func (p *player) moveCross(x, y int) {
-	if p.inputNum != 0 {
+	if p.inputNum != 0 && p.inputG {
+		p.initInput()
+		p.moveOneSquare(x, y)
+	} else if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
 			if !p.moveOneSquare(x, y) {
 				break
@@ -97,8 +102,7 @@ func (p *player) moveCross(x, y int) {
 	} else {
 		p.moveOneSquare(x, y)
 	}
-	p.inputNum = 0
-	p.inputG = false
+	p.initInput()
 }
 func (p *player) moveOneSquare(x, y int) bool {
 	tmpX := p.x + x
@@ -114,7 +118,10 @@ func (p *player) moveOneSquare(x, y int) bool {
 }
 
 func (p *player) moveByWord(fn func() bool) {
-	if p.inputNum != 0 {
+	if p.inputNum != 0 && p.inputG {
+		p.initInput()
+		fn()
+	} else if p.inputNum != 0 {
 		for i := 0; i < p.inputNum; i++ {
 			if !fn() {
 				break
@@ -123,15 +130,13 @@ func (p *player) moveByWord(fn func() bool) {
 	} else {
 		fn()
 	}
-	p.inputNum = 0
-	p.inputG = false
+	p.initInput()
 }
 
 func (p *player) jumpOnCurrentLine(fn func()) {
 	fn()
 	p.judgeMoveResult()
-	p.inputNum = 0
-	p.inputG = false
+	p.initInput()
 }
 
 func (p *player) jumpAcrossLine(fn func(stage), s stage, ch rune) {
@@ -146,8 +151,7 @@ func (p *player) jumpAcrossLine(fn func(stage), s stage, ch rune) {
 			p.toSelectedLine(s)
 		}
 		p.judgeMoveResult()
-		p.inputNum = 0
-		p.inputG = false
+		p.initInput()
 	}
 }
 
@@ -166,6 +170,11 @@ func (p *player) judgeMoveResult() {
 			}
 		}
 	}
+}
+
+func (p *player) initInput() {
+	p.inputNum = 0
+	p.inputG = false
 }
 
 // w: Move cursor to the beginning of the next word

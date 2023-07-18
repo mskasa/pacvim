@@ -372,76 +372,104 @@ func TestJumpOnCurrentLine(t *testing.T) {
 
 func TestJumpAcrossLine(t *testing.T) {
 	cases := map[string]struct {
-		expectedX int
-		expectedY int
-		inputNum  int
-		inputChar rune
-		inputG    bool
-		mapPath   string
+		expectedX        int
+		expectedY        int
+		expectedInputG   bool
+		expectedInputNum int
+		inputG           bool
+		inputNum         int
+		inputChar        rune
+		mapPath          string
 	}{
 		"gg with target": {
-			expectedX: 29,
-			expectedY: 1,
-			inputNum:  0,
-			inputChar: 'g',
-			inputG:    true,
-			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+			expectedX:        29,
+			expectedY:        1,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           true,
+			inputNum:         0,
+			inputChar:        'g',
+			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
 		},
 		"gg no target": {
-			expectedX: 3,
-			expectedY: 1,
-			inputNum:  0,
-			inputChar: 'g',
-			inputG:    true,
-			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+			expectedX:        3,
+			expectedY:        1,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           true,
+			inputNum:         0,
+			inputChar:        'g',
+			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
+		},
+		"Ng": {
+			expectedX:        16,
+			expectedY:        3,
+			expectedInputG:   true,
+			expectedInputNum: 3,
+			inputG:           false,
+			inputNum:         3,
+			inputChar:        'g',
+			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
 		},
 		"Ngg with target": {
-			expectedX: 29,
-			expectedY: 1,
-			inputNum:  2,
-			inputChar: 'g',
-			inputG:    true,
-			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+			expectedX:        29,
+			expectedY:        1,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           true,
+			inputNum:         2,
+			inputChar:        'g',
+			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
 		},
 		"Ngg no target": {
-			expectedX: 3,
-			expectedY: 3,
-			inputNum:  4,
-			inputChar: 'g',
-			inputG:    true,
-			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+			expectedX:        3,
+			expectedY:        3,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           true,
+			inputNum:         4,
+			inputChar:        'g',
+			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
 		},
 		"G with target": {
-			expectedX: 29,
-			expectedY: 5,
-			inputNum:  0,
-			inputChar: 'G',
-			inputG:    false,
-			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+			expectedX:        29,
+			expectedY:        5,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           false,
+			inputNum:         0,
+			inputChar:        'G',
+			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
 		},
 		"G no target": {
-			expectedX: 3,
-			expectedY: 5,
-			inputNum:  0,
-			inputChar: 'G',
-			inputG:    false,
-			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+			expectedX:        3,
+			expectedY:        5,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           false,
+			inputNum:         0,
+			inputChar:        'G',
+			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
 		},
 		"NG with target": {
-			expectedX: 29,
-			expectedY: 1,
-			inputNum:  2,
-			inputChar: 'G',
-			inputG:    false,
-			mapPath:   "files/test/player/jumpAcrossLine/map01.txt",
+			expectedX:        29,
+			expectedY:        1,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           false,
+			inputNum:         2,
+			inputChar:        'G',
+			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
 		},
 		"NG no target": {
-			expectedX: 3,
-			expectedY: 3,
-			inputNum:  4,
-			inputChar: 'G',
-			inputG:    false,
-			mapPath:   "files/test/player/jumpAcrossLine/map02.txt",
+			expectedX:        3,
+			expectedY:        3,
+			expectedInputG:   false,
+			expectedInputNum: 0,
+			inputG:           false,
+			inputNum:         4,
+			inputChar:        'G',
+			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
 		},
 	}
 	for name, tt := range cases {
@@ -462,7 +490,7 @@ func TestJumpAcrossLine(t *testing.T) {
 			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
 				t.Error("expected:", tt.expectedX, tt.expectedY, "result:", p.x, p.y)
 			}
-			if !(p.inputG == false || p.inputNum != 0) {
+			if !(p.inputG == tt.expectedInputG || p.inputNum != tt.expectedInputNum) {
 				t.Error(err)
 			}
 		})
