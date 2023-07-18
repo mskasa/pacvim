@@ -93,7 +93,7 @@ func TestMoveCross(t *testing.T) {
 			p.inputNum = tt.inputNum
 			p.moveCross(tt.x, tt.y)
 			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
-				t.Error("expected:", tt.expectedX, tt.expectedY, "result:", p.x, p.y)
+				t.Errorf("expected %d %d but %d %d", tt.expectedX, tt.expectedY, p.x, p.y)
 			}
 		})
 	}
@@ -305,10 +305,10 @@ func TestMoveByWord(t *testing.T) {
 				p.moveByWord(p.toEndOfCurrentWord)
 			}
 			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
-				t.Error("expected:", tt.expectedX, tt.expectedY, "result:", p.x, p.y)
+				t.Errorf("expected %d %d but %d %d", tt.expectedX, tt.expectedY, p.x, p.y)
 			}
 			if p.state != tt.expectedState {
-				t.Error("expected:", tt.expectedState, "result:", p.state)
+				t.Errorf("expected %d but %d", tt.expectedState, p.state)
 			}
 		})
 	}
@@ -360,11 +360,11 @@ func TestJumpOnCurrentLine(t *testing.T) {
 			p.x, p.y = initX, tt.initY
 			p.jumpOnCurrentLine(p.toLeftEdge)
 			if !(p.x == tt.toLeftEdgeX && p.y == tt.initY) {
-				t.Error("expected:", tt.toLeftEdgeX, tt.initY, "result:", p.x, p.y)
+				t.Errorf("expected %d %d but %d %d", tt.toLeftEdgeX, tt.initY, p.x, p.y)
 			}
 			p.jumpOnCurrentLine(p.toRightEdge)
 			if !(p.x == tt.toRightEdgeX && p.y == tt.initY) {
-				t.Error("expected:", tt.toRightEdgeX, tt.initY, "result:", p.x, p.y)
+				t.Errorf("expected %d %d but %d %d", tt.toRightEdgeX, tt.initY, p.x, p.y)
 			}
 		})
 	}
@@ -488,10 +488,10 @@ func TestJumpAcrossLine(t *testing.T) {
 				p.jumpAcrossLine(p.toLastLine, stage, tt.inputChar)
 			}
 			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
-				t.Error("expected:", tt.expectedX, tt.expectedY, "result:", p.x, p.y)
+				t.Errorf("expected %d %d but %d %d", tt.expectedX, tt.expectedY, p.x, p.y)
 			}
 			if !(p.inputG == tt.expectedInputG || p.inputNum != tt.expectedInputNum) {
-				t.Error(err)
+				t.Errorf("expected %t %d but %t %d", tt.expectedInputG, tt.expectedInputNum, p.inputG, p.inputNum)
 			}
 		})
 	}
@@ -538,7 +538,7 @@ func TestJudgeMoveResult(t *testing.T) {
 			p.state = continuing
 			p.moveCross(tt.x, tt.y)
 			if p.state != tt.expectedState {
-				t.Error("expected:", tt.expectedState, "result:", p.state)
+				t.Errorf("expected %d but %d", tt.expectedState, p.state)
 			}
 		})
 	}
@@ -631,7 +631,7 @@ func TestIsInputNum(t *testing.T) {
 			t.Parallel()
 			s, b := tt.player.isInputNum(tt.arg)
 			if s != tt.expected.s || b != tt.expected.b {
-				t.Error("expected:", tt.expected.s, tt.expected.b, "result:", s, b)
+				t.Errorf("expected %s %t but %s %t", tt.expected.s, tt.expected.b, s, b)
 			}
 		})
 	}
