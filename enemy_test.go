@@ -15,8 +15,8 @@ func TestEnemyControl(t *testing.T) {
 		expectedMoves int
 		mapFileName   string
 	}{
-		"hunter_with_obstacle": {newEnemyBuilder().defaultHunter(), 5, "hunter_with_obstacle.txt"},
-		"ghost_with_obstacle":  {newEnemyBuilder().defaultGhost(), 6, "ghost_with_obstacle.txt"},
+		"hunter with obstacle": {newEnemyBuilder().defaultHunter(), 5, "hunter_with_obstacle.txt"},
+		"ghost with obstacle":  {newEnemyBuilder().defaultGhost(), 6, "ghost_with_obstacle.txt"},
 		"tricky":               {newEnemyBuilder().defaultHunter().strategize(&tricky{}), 5, "hunter_with_obstacle.txt"},
 	}
 	for name, tt := range cases {
@@ -48,8 +48,8 @@ func TestEnemiesOverlap(t *testing.T) {
 		expectedMoves int
 		mapFileName   string
 	}{
-		"hunter_with_enemies": {newEnemyBuilder().defaultHunter(), 5, "hunter_with_enemies.txt"},
-		"ghost_with_enemies":  {newEnemyBuilder().defaultGhost(), 10, "ghost_with_enemies.txt"},
+		"hunter with enemies": {newEnemyBuilder().defaultHunter(), 5, "hunter_with_enemies.txt"},
+		"ghost with enemies":  {newEnemyBuilder().defaultGhost(), 10, "ghost_with_enemies.txt"},
 	}
 	for name, tt := range cases {
 		tt := tt
