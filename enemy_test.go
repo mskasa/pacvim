@@ -40,7 +40,7 @@ func TestEnemyControl(t *testing.T) {
 				count++
 			}
 			if count != tt.expectedMoves {
-				t.Error("expected:", tt.expectedMoves, "result:", count)
+				t.Errorf("expected %d but %d", tt.expectedMoves, count)
 			}
 		})
 	}
@@ -84,7 +84,7 @@ func TestEnemyMove(t *testing.T) {
 				count++
 			}
 			if count != tt.expectedMoves && name != "tricky" {
-				t.Error("expected:", tt.expectedMoves, "result:", count)
+				t.Errorf("expected %d but %d", tt.expectedMoves, count)
 			}
 		})
 	}
@@ -129,36 +129,30 @@ func TestEnemyThink(t *testing.T) {
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			t.Parallel()
 			p.x, p.y = tt.playerX, tt.playerY
 			x, y := stage.enemies[0].think(p)
 			if x != tt.expectedX || y != tt.expectedY {
-				t.Error("expected:", tt.expectedX, tt.expectedY, "result:", x, y)
+				t.Errorf("expected %d %d but %d %d", tt.expectedX, tt.expectedY, x, y)
 			}
 		})
 	}
 }
 
 func TestRandom(t *testing.T) {
-	min := 1
-	max := 5
-	m := map[int]int{
-		1: 1,
-		2: 2,
-		3: 3,
-		4: 4,
-		5: 5,
+	const min, max = 1, 5
+	expected := make(map[int]int, max)
+	for i := min; i <= max; i++ {
+		expected[i] = i
 	}
-	result := make(map[int]int, len(m))
-	for len(m) == 0 {
+	result := make(map[int]int, max)
+	for len(expected) > 0 {
 		key := random(min, max)
-		if v, ok := m[key]; ok {
+		if v, ok := expected[key]; ok {
 			result[key] = v
-			delete(m, key)
-		} else {
-			if _, ok := result[key]; !ok {
-				t.Error()
-			}
+			delete(expected, key)
+		} else if _, ok := result[key]; !ok {
+			t.Errorf("%d is not the expected value", key)
+			break
 		}
 	}
 }
