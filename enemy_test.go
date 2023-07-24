@@ -7,27 +7,22 @@ import (
 	termbox "github.com/nsf/termbox-go"
 )
 
+const enemyTestMapPath = "files/test/enemy/"
+
 func TestEnemyControl(t *testing.T) {
 	cases := map[string]struct {
-		mapPath       string
-		expectedMoves int
 		enemyBuilder  iEnemyBuilder
+		expectedMoves int
+		mapFileName   string
 	}{
-		"hunter_with_obstacle": {
-			mapPath:       "files/test/enemy/control/hunter_with_obstacle.txt",
-			expectedMoves: 5,
-			enemyBuilder:  newEnemyBuilder().defaultHunter(),
-		},
-		"ghost_with_obstacle": {
-			mapPath:       "files/test/enemy/control/ghost_with_obstacle.txt",
-			expectedMoves: 6,
-			enemyBuilder:  newEnemyBuilder().defaultGhost(),
-		},
+		"hunter_with_obstacle": {newEnemyBuilder().defaultHunter(), 5, "hunter_with_obstacle.txt"},
+		"ghost_with_obstacle":  {newEnemyBuilder().defaultGhost(), 6, "ghost_with_obstacle.txt"},
+		"tricky":               {newEnemyBuilder().defaultHunter().strategize(&tricky{}), 5, "hunter_with_obstacle.txt"},
 	}
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p, stage, err := enemyActionTestInit(t, tt.mapPath, tt.enemyBuilder)
+			p, stage, err := enemyActionTestInit(t, enemyTestMapPath+tt.mapFileName, tt.enemyBuilder)
 			if err != nil {
 				t.Error(err)
 			}
@@ -39,39 +34,27 @@ func TestEnemyControl(t *testing.T) {
 				}
 				count++
 			}
-			if count != tt.expectedMoves {
+			if name != "tricky" && count != tt.expectedMoves {
 				t.Errorf("expected %d but %d", tt.expectedMoves, count)
 			}
 		})
 	}
 }
 
-func TestEnemyMove(t *testing.T) {
+// Test enemies do not overlap each other.
+func TestEnemiesOverlap(t *testing.T) {
 	cases := map[string]struct {
-		mapPath       string
-		expectedMoves int
 		enemyBuilder  iEnemyBuilder
+		expectedMoves int
+		mapFileName   string
 	}{
-		"hunter_with_other_enemies": {
-			mapPath:       "files/test/enemy/move/hunter_with_other_enemies.txt",
-			expectedMoves: 5,
-			enemyBuilder:  newEnemyBuilder().defaultHunter(),
-		},
-		"ghost_with_other_enemies": {
-			mapPath:       "files/test/enemy/move/ghost_with_other_enemies.txt",
-			expectedMoves: 10,
-			enemyBuilder:  newEnemyBuilder().defaultGhost(),
-		},
-		"tricky": {
-			mapPath:       "files/test/enemy/move/tricky.txt",
-			expectedMoves: 5,
-			enemyBuilder:  newEnemyBuilder().defaultHunter().strategize(&tricky{}),
-		},
+		"hunter_with_enemies": {newEnemyBuilder().defaultHunter(), 5, "hunter_with_enemies.txt"},
+		"ghost_with_enemies":  {newEnemyBuilder().defaultGhost(), 10, "ghost_with_enemies.txt"},
 	}
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p, stage, err := enemyActionTestInit(t, tt.mapPath, tt.enemyBuilder)
+			p, stage, err := enemyActionTestInit(t, enemyTestMapPath+tt.mapFileName, tt.enemyBuilder)
 			if err != nil {
 				t.Error(err)
 			}
@@ -83,7 +66,7 @@ func TestEnemyMove(t *testing.T) {
 				e.hasCaptured(p)
 				count++
 			}
-			if count != tt.expectedMoves && name != "tricky" {
+			if count != tt.expectedMoves {
 				t.Errorf("expected %d but %d", tt.expectedMoves, count)
 			}
 		})
@@ -97,32 +80,12 @@ func TestEnemyThink(t *testing.T) {
 		expectedX int
 		expectedY int
 	}{
-		"up": {
-			playerX:   5,
-			playerY:   1,
-			expectedX: 5,
-			expectedY: 2,
-		},
-		"down": {
-			playerX:   5,
-			playerY:   5,
-			expectedX: 5,
-			expectedY: 4,
-		},
-		"left": {
-			playerX:   3,
-			playerY:   3,
-			expectedX: 4,
-			expectedY: 3,
-		},
-		"right": {
-			playerX:   7,
-			playerY:   3,
-			expectedX: 6,
-			expectedY: 3,
-		},
+		"up":    {5, 1, 5, 2},
+		"down":  {5, 5, 5, 4},
+		"left":  {3, 3, 4, 3},
+		"right": {7, 3, 6, 3},
 	}
-	p, stage, err := enemyActionTestInit(t, "files/test/enemy/think/think.txt", newEnemyBuilder().defaultHunter())
+	p, stage, err := enemyActionTestInit(t, enemyTestMapPath+"hunter.txt", newEnemyBuilder().defaultHunter())
 	if err != nil {
 		t.Error()
 	}
