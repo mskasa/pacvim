@@ -7,93 +7,54 @@ import (
 	termbox "github.com/nsf/termbox-go"
 )
 
+const playerTestMapPath = "files/test/player/"
+
 func TestMoveCross(t *testing.T) {
-	initX, initY := 9, 4
+	const initX, initY = 7, 5
 	cases := map[string]struct {
+		inputNum  int
+		inputG    bool
 		x         int
 		y         int
 		expectedX int
 		expectedY int
-		inputNum  int
 	}{
-		"left": {
-			x:         -1,
-			y:         0,
-			expectedX: initX - 1,
-			expectedY: initY,
-			inputNum:  0,
-		},
-		"left with number": {
-			x:         -1,
-			y:         0,
-			expectedX: initX - 3,
-			expectedY: initY,
-			inputNum:  3,
-		},
-		"right": {
-			x:         1,
-			y:         0,
-			expectedX: initX + 1,
-			expectedY: initY,
-			inputNum:  0,
-		},
-		"right with number": {
-			x:         1,
-			y:         0,
-			expectedX: initX + 3,
-			expectedY: initY,
-			inputNum:  3,
-		},
-		"up": {
-			x:         0,
-			y:         -1,
-			expectedX: initX,
-			expectedY: initY - 1,
-			inputNum:  0,
-		},
-		"up with number": {
-			x:         0,
-			y:         -1,
-			expectedX: initX,
-			expectedY: initY - 2,
-			inputNum:  2,
-		},
-		"down": {
-			x:         0,
-			y:         1,
-			expectedX: initX,
-			expectedY: initY + 1,
-			inputNum:  0,
-		},
-		"down with number": {
-			x:         0,
-			y:         1,
-			expectedX: initX,
-			expectedY: initY + 2,
-			inputNum:  2,
-		},
-		"right with obstacle": {
-			x:         1,
-			y:         0,
-			expectedX: initX + 4,
-			expectedY: initY,
-			inputNum:  6,
-		},
+		"left":                    {0, false, -1, 0, initX - 1, initY},
+		"left with input number":  {2, false, -1, 0, initX - 2, initY},
+		"left to the obstacle":    {6, false, -1, 0, initX - 4, initY},
+		"right":                   {0, false, 1, 0, initX + 1, initY},
+		"right with input number": {2, false, 1, 0, initX + 2, initY},
+		"right to the obstacle":   {6, false, 1, 0, initX + 4, initY},
+		"up":                      {0, false, 0, -1, initX, initY - 1},
+		"up with input number":    {2, false, 0, -1, initX, initY - 2},
+		"up to the obstacle":      {6, false, 0, -1, initX, initY - 2},
+		"down":                    {0, false, 0, 1, initX, initY + 1},
+		"down with input number":  {2, false, 0, 1, initX, initY + 2},
+		"down to the obstacle":    {6, false, 0, 1, initX, initY + 2},
+		// Check the input value is processed after inputNum and inputG are reset.
+		"with input number and G": {2, true, -1, 0, initX - 1, initY},
 	}
-
-	p, _, err := playerActionTestInit(t, "files/test/player/moveCross/map01.txt")
-	if err != nil {
-		t.Error()
-	}
-
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p.x, p.y = initX, initY
-			p.inputNum = tt.inputNum
+			p := &player{
+				x:        initX,
+				y:        initY,
+				inputNum: tt.inputNum,
+				inputG:   tt.inputG,
+			}
+			_, offset, err := playerActionTestInit(t, playerTestMapPath+"move_cross.txt", p)
+			if err != nil {
+				t.Error(err)
+			}
+			p.x += offset
+			tt.expectedX += offset
 			p.moveCross(tt.x, tt.y)
 			if !(p.x == tt.expectedX && p.y == tt.expectedY) {
 				t.Errorf("expected %d %d but %d %d", tt.expectedX, tt.expectedY, p.x, p.y)
+			}
+			if !(p.inputNum == 0 && p.inputG == false) {
+				t.Errorf("expected %d %t but %d %t", 0, false, p.inputNum, p.inputG)
 			}
 		})
 	}
@@ -101,201 +62,60 @@ func TestMoveCross(t *testing.T) {
 
 func TestMoveByWord(t *testing.T) {
 	cases := map[string]struct {
+		inputNum      int
+		inputChar     rune
+		inputG        bool
 		initX         int
 		initY         int
 		expectedX     int
 		expectedY     int
 		expectedState int
-		inputNum      int
-		inputChar     rune
-		mapPath       string
 	}{
 		// Check if coordinates are as expected.
-		"w: from blank": {
-			initX:         16,
-			initY:         1,
-			expectedX:     18,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'w',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"w: from word": {
-			initX:         20,
-			initY:         1,
-			expectedX:     23,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'w',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"b: from blank": {
-			initX:         16,
-			initY:         1,
-			expectedX:     11,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'b',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"b: from middle of word": {
-			initX:         13,
-			initY:         1,
-			expectedX:     11,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'b',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"b: from beginning of word": {
-			initX:         11,
-			initY:         1,
-			expectedX:     7,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'b',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"e: from blank": {
-			initX:         16,
-			initY:         1,
-			expectedX:     21,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'e',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"e: from middle of word": {
-			initX:         19,
-			initY:         1,
-			expectedX:     21,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'e',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"e: from end of word": {
-			initX:         21,
-			initY:         1,
-			expectedX:     25,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      0,
-			inputChar:     'e',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		// Check if the player crosses the boundary.
-		"w: to the boundary": {
-			initX:         16,
-			initY:         1,
-			expectedX:     29,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      4,
-			inputChar:     'w',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"b: to the boundary": {
-			initX:         16,
-			initY:         1,
-			expectedX:     3,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      4,
-			inputChar:     'b',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"e: to the boundary": {
-			initX:         16,
-			initY:         1,
-			expectedX:     29,
-			expectedY:     1,
-			expectedState: continuing,
-			inputNum:      4,
-			inputChar:     'e',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		// Check that poison is a string.
-		"w: beyond the poison": {
-			initX:         3,
-			initY:         2,
-			expectedX:     18,
-			expectedY:     2,
-			expectedState: lose,
-			inputNum:      2,
-			inputChar:     'w',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"b: beyond the poison": {
-			initX:         16,
-			initY:         2,
-			expectedX:     4,
-			expectedY:     2,
-			expectedState: lose,
-			inputNum:      0,
-			inputChar:     'b',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"e: beyond the poison": {
-			initX:         3,
-			initY:         2,
-			expectedX:     6,
-			expectedY:     2,
-			expectedState: lose,
-			inputNum:      0,
-			inputChar:     'e',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		// Check that an enemy is not a string.
-		"w: beyond the enemy": {
-			initX:         16,
-			initY:         2,
-			expectedX:     20,
-			expectedY:     2,
-			expectedState: lose,
-			inputNum:      2,
-			inputChar:     'w',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"b: beyond the enemy": {
-			initX:         29,
-			initY:         2,
-			expectedX:     18,
-			expectedY:     2,
-			expectedState: lose,
-			inputNum:      2,
-			inputChar:     'b',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
-		"e: beyond the enemy": {
-			initX:         16,
-			initY:         2,
-			expectedX:     20,
-			expectedY:     2,
-			expectedState: lose,
-			inputNum:      2,
-			inputChar:     'e',
-			mapPath:       "files/test/player/moveByWord/map01.txt",
-		},
+		"w: from blank":             {0, 'w', false, 14, 1, 16, 1, continuing},
+		"w: from word":              {0, 'w', false, 18, 1, 21, 1, continuing},
+		"b: from blank":             {0, 'b', false, 14, 1, 9, 1, continuing},
+		"b: from middle of word":    {0, 'b', false, 11, 1, 9, 1, continuing},
+		"b: from beginning of word": {0, 'b', false, 9, 1, 5, 1, continuing},
+		"e: from blank":             {0, 'e', false, 14, 1, 19, 1, continuing},
+		"e: from middle of word":    {0, 'e', false, 17, 1, 19, 1, continuing},
+		"e: from end of word":       {0, 'e', false, 19, 1, 23, 1, continuing},
+		// Check the player doesn't cross the obstacle.
+		"w: to the obstacle": {0, 'w', false, 14, 4, 19, 4, continuing},
+		"b: to the obstacle": {0, 'b', false, 14, 4, 9, 4, continuing},
+		"e: to the obstacle": {0, 'e', false, 14, 4, 19, 4, continuing},
+		// Check the player doesn't cross the boundary.
+		"w: to the boundary": {4, 'w', false, 14, 1, 27, 1, continuing},
+		"b: to the boundary": {4, 'b', false, 14, 1, 1, 1, continuing},
+		"e: to the boundary": {4, 'e', false, 14, 1, 27, 1, continuing},
+		// Check poison is a string.
+		"w: beyond the poison": {2, 'w', false, 1, 2, 16, 2, lose},
+		"b: beyond the poison": {0, 'b', false, 14, 2, 2, 2, lose},
+		"e: beyond the poison": {0, 'e', false, 1, 2, 4, 2, lose},
+		// Check an enemy is not a string.
+		"w: beyond the enemy": {2, 'w', false, 14, 2, 18, 2, lose},
+		"b: beyond the enemy": {2, 'b', false, 27, 2, 16, 2, lose},
+		"e: beyond the enemy": {2, 'e', false, 14, 2, 18, 2, lose},
+		// Check the input value is processed after inputNum and inputG are reset.
+		"with input number and G": {4, 'w', true, 14, 1, 16, 1, continuing},
 	}
 
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p, _, err := playerActionTestInit(t, tt.mapPath)
+			p := &player{
+				x:        tt.initX,
+				y:        tt.initY,
+				inputNum: tt.inputNum,
+				inputG:   tt.inputG,
+				state:    continuing,
+			}
+			_, offset, err := playerActionTestInit(t, playerTestMapPath+"move_by_word.txt", p)
 			if err != nil {
 				t.Error(err)
 			}
-			p.x, p.y = tt.initX, tt.initY
-			p.inputNum = tt.inputNum
-			p.state = continuing
+			p.x += offset
+			tt.expectedX += offset
 			switch tt.inputChar {
 			case 'w':
 				p.moveByWord(p.toBeginningOfNextWord)
@@ -310,57 +130,47 @@ func TestMoveByWord(t *testing.T) {
 			if p.state != tt.expectedState {
 				t.Errorf("expected %d but %d", tt.expectedState, p.state)
 			}
+			if !(p.inputNum == 0 && p.inputG == false) {
+				t.Errorf("expected %d %t but %d %t", 0, false, p.inputNum, p.inputG)
+			}
 		})
 	}
 }
 
-// TODO
 func TestJumpOnCurrentLine(t *testing.T) {
-	initX := 16
+	const initX = 14
 	cases := map[string]struct {
 		initY        int
 		toLeftEdgeX  int
 		toRightEdgeX int
 	}{
-		"blank": {
-			initY:        1,
-			toLeftEdgeX:  3,
-			toRightEdgeX: 29,
-		},
-		"target": {
-			initY:        2,
-			toLeftEdgeX:  3,
-			toRightEdgeX: 29,
-		},
-		"obstacle": {
-			initY:        3,
-			toLeftEdgeX:  6,
-			toRightEdgeX: 26,
-		},
-		"enemy": {
-			initY:        4,
-			toLeftEdgeX:  3,
-			toRightEdgeX: 29,
-		},
-		"poison": {
-			initY:        5,
-			toLeftEdgeX:  3,
-			toRightEdgeX: 29,
-		},
-	}
-
-	p, _, err := playerActionTestInit(t, "files/test/player/jumpOnCurrentLine/map01.txt")
-	if err != nil {
-		t.Error()
+		"to the blank":    {1, 1, 27},
+		"to the target":   {2, 1, 27},
+		"to the obstacle": {3, 4, 24},
+		"to the enemy":    {4, 1, 27},
+		"to the poison":   {5, 1, 27},
 	}
 
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p.x, p.y = initX, tt.initY
+			p := &player{
+				x: initX,
+				y: tt.initY,
+			}
+			_, offset, err := playerActionTestInit(t, playerTestMapPath+"jump_on_current_line.txt", p)
+			if err != nil {
+				t.Error()
+			}
+			p.x += offset
+			tt.toLeftEdgeX += offset
+			tt.toRightEdgeX += offset
 			p.jumpOnCurrentLine(p.toLeftEdge)
 			if !(p.x == tt.toLeftEdgeX && p.y == tt.initY) {
 				t.Errorf("expected %d %d but %d %d", tt.toLeftEdgeX, tt.initY, p.x, p.y)
+			}
+			if !(p.inputNum == 0 && p.inputG == false) {
+				t.Errorf("expected %d %t but %d %t", 0, false, p.inputNum, p.inputG)
 			}
 			p.jumpOnCurrentLine(p.toRightEdge)
 			if !(p.x == tt.toRightEdgeX && p.y == tt.initY) {
@@ -371,116 +181,46 @@ func TestJumpOnCurrentLine(t *testing.T) {
 }
 
 func TestJumpAcrossLine(t *testing.T) {
+	const initX, initY = 14, 3
 	cases := map[string]struct {
+		inputNum         int
+		inputG           bool
+		inputChar        rune
+		expectedInputNum int
+		expectedInputG   bool
 		expectedX        int
 		expectedY        int
-		expectedInputG   bool
-		expectedInputNum int
-		inputG           bool
-		inputNum         int
-		inputChar        rune
-		mapPath          string
+		mapFileName      string
 	}{
-		"gg with target": {
-			expectedX:        29,
-			expectedY:        1,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           true,
-			inputNum:         0,
-			inputChar:        'g',
-			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
-		},
-		"gg no target": {
-			expectedX:        3,
-			expectedY:        1,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           true,
-			inputNum:         0,
-			inputChar:        'g',
-			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
-		},
-		"Ng": {
-			expectedX:        16,
-			expectedY:        3,
-			expectedInputG:   true,
-			expectedInputNum: 3,
-			inputG:           false,
-			inputNum:         3,
-			inputChar:        'g',
-			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
-		},
-		"Ngg with target": {
-			expectedX:        29,
-			expectedY:        1,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           true,
-			inputNum:         2,
-			inputChar:        'g',
-			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
-		},
-		"Ngg no target": {
-			expectedX:        3,
-			expectedY:        3,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           true,
-			inputNum:         4,
-			inputChar:        'g',
-			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
-		},
-		"G with target": {
-			expectedX:        29,
-			expectedY:        5,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           false,
-			inputNum:         0,
-			inputChar:        'G',
-			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
-		},
-		"G no target": {
-			expectedX:        3,
-			expectedY:        5,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           false,
-			inputNum:         0,
-			inputChar:        'G',
-			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
-		},
-		"NG with target": {
-			expectedX:        29,
-			expectedY:        1,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           false,
-			inputNum:         2,
-			inputChar:        'G',
-			mapPath:          "files/test/player/jumpAcrossLine/map01.txt",
-		},
-		"NG no target": {
-			expectedX:        3,
-			expectedY:        3,
-			expectedInputG:   false,
-			expectedInputNum: 0,
-			inputG:           false,
-			inputNum:         4,
-			inputChar:        'G',
-			mapPath:          "files/test/player/jumpAcrossLine/map02.txt",
-		},
+		"gg with target":  {0, true, 'g', 0, false, 27, 1, "jump_across_line.txt"},
+		"Ngg with target": {2, true, 'g', 0, false, 27, 1, "jump_across_line.txt"},
+		"G with target":   {0, false, 'G', 0, false, 27, 5, "jump_across_line.txt"},
+		"NG with target":  {2, false, 'G', 0, false, 27, 1, "jump_across_line.txt"},
+		// Check player behavior when there is no target in the target row.
+		"gg no target":  {0, true, 'g', 0, false, 1, 1, "jump_across_line_no_target.txt"},
+		"Ngg no target": {4, true, 'g', 0, false, 1, 3, "jump_across_line_no_target.txt"},
+		"G no target":   {0, false, 'G', 0, false, 1, 5, "jump_across_line_no_target.txt"},
+		"NG no target":  {4, false, 'G', 0, false, 1, 3, "jump_across_line_no_target.txt"},
+		// Check that inputs are saved.
+		"Ng": {3, false, 'g', 3, true, 14, 3, "jump_across_line.txt"},
+		// Check that inputs are reset.
+		"Ng*": {3, true, 'r', 0, false, 14, 3, "jump_across_line.txt"},
 	}
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p, stage, err := playerActionTestInit(t, tt.mapPath)
+			p := &player{
+				x:        initX,
+				y:        initY,
+				inputG:   tt.inputG,
+				inputNum: tt.inputNum,
+			}
+			stage, offset, err := playerActionTestInit(t, playerTestMapPath+tt.mapFileName, p)
 			if err != nil {
 				t.Error(err)
 			}
-			p.inputG = tt.inputG
-			p.inputNum = tt.inputNum
+			p.x += offset
+			tt.expectedX += offset
 			switch tt.inputChar {
 			case 'g':
 				p.jumpAcrossLine(p.toFirstLine, stage, tt.inputChar)
@@ -498,80 +238,37 @@ func TestJumpAcrossLine(t *testing.T) {
 }
 
 func TestJudgeMoveResult(t *testing.T) {
-	initX, initY := 9, 4
+	const initX, initY = 7, 4
 	cases := map[string]struct {
 		x             int
 		y             int
 		expectedState int
 	}{
-		"left": {
-			x:             -1,
-			y:             0,
-			expectedState: lose,
-		},
-		"right": {
-			x:             1,
-			y:             0,
-			expectedState: lose,
-		},
-		"up": {
-			x:             0,
-			y:             -1,
-			expectedState: lose,
-		},
-		"down": {
-			x:             0,
-			y:             1,
-			expectedState: win,
-		},
-	}
-
-	p, _, err := playerActionTestInit(t, "files/test/player/judgeMoveResult/map01.txt")
-	if err != nil {
-		t.Error()
+		"win":                  {-1, 0, win},
+		"lost to the enemy(H)": {1, 0, lose},
+		"lost to the enemy(G)": {0, -1, lose},
+		"lost by poison":       {0, 1, lose},
 	}
 
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p.x, p.y = initX, initY
-			p.state = continuing
+			p := &player{
+				x:     initX,
+				y:     initY,
+				state: continuing,
+			}
+			_, offset, err := playerActionTestInit(t, playerTestMapPath+"judge_move_result.txt", p)
+			if err != nil {
+				t.Error()
+			}
+			p.x += offset
 			p.moveCross(tt.x, tt.y)
 			if p.state != tt.expectedState {
 				t.Errorf("expected %d but %d", tt.expectedState, p.state)
 			}
 		})
 	}
-}
-
-func playerActionTestInit(t *testing.T, mapPath string) (*player, stage, error) {
-	t.Helper()
-	if err := termbox.Init(); err != nil {
-		t.Error(err)
-	}
-	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
-		t.Error(err)
-	}
-	t.Cleanup(func() {
-		termbox.Close()
-	})
-	s := stage{
-		mapPath:       mapPath,
-		hunterBuilder: newEnemyBuilder().defaultHunter(),
-		ghostBuilder:  newEnemyBuilder().defaultGhost(),
-	}
-	f, err := static.ReadFile(s.mapPath)
-	if err != nil {
-		return nil, s, err
-	}
-	b := createBuffer(bytes.NewReader(f))
-	w := createWindow(b)
-	if err = w.show(b); err != nil {
-		return nil, s, err
-	}
-	p := new(player)
-	s.plot(b, p)
-	return p, s, nil
 }
 
 func TestIsInputNum(t *testing.T) {
@@ -635,4 +332,33 @@ func TestIsInputNum(t *testing.T) {
 			}
 		})
 	}
+}
+
+func playerActionTestInit(t *testing.T, mapPath string, p *player) (stage, int, error) {
+	t.Helper()
+	if err := termbox.Init(); err != nil {
+		t.Error(err)
+	}
+	if err := termbox.Clear(termbox.ColorWhite, termbox.ColorBlack); err != nil {
+		t.Error(err)
+	}
+	t.Cleanup(func() {
+		termbox.Close()
+	})
+	s := stage{
+		mapPath:       mapPath,
+		hunterBuilder: newEnemyBuilder().defaultHunter(),
+		ghostBuilder:  newEnemyBuilder().defaultGhost(),
+	}
+	f, err := static.ReadFile(s.mapPath)
+	if err != nil {
+		return s, 0, err
+	}
+	b := createBuffer(bytes.NewReader(f))
+	w := createWindow(b)
+	if err = w.show(b); err != nil {
+		return s, b.offset, err
+	}
+	s.plot(b, p)
+	return s, b.offset, nil
 }

@@ -198,9 +198,7 @@ func (p *player) toBeginningOfNextWord() bool {
 // b: Move cursor to the beginning of the previous word
 func (p *player) toBeginningPrevWord() bool {
 	for isCharSpace(p.x-1, p.y) || isCharEnemy(p.x-1, p.y) {
-		if !p.moveOneSquare(-1, 0) {
-			break
-		}
+		p.moveOneSquare(-1, 0)
 	}
 	for !isCharSpace(p.x-1, p.y) && !isCharEnemy(p.x-1, p.y) {
 		if !p.moveOneSquare(-1, 0) {
@@ -213,9 +211,7 @@ func (p *player) toBeginningPrevWord() bool {
 // e: Move cursor to the end of the current word
 func (p *player) toEndOfCurrentWord() bool {
 	for isCharSpace(p.x+1, p.y) || isCharEnemy(p.x+1, p.y) {
-		if !p.moveOneSquare(1, 0) {
-			break
-		}
+		p.moveOneSquare(1, 0)
 	}
 	for !isCharSpace(p.x+1, p.y) && !isCharEnemy(p.x+1, p.y) {
 		if !p.moveOneSquare(1, 0) {

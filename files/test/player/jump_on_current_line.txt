@@ -1,7 +1,7 @@
 +++++++++++++++++++++++++++++
 + o! ooo ooo     ooo ooo !o +
 +oo! oooHooo     oooHooo !oo+
-+!!! ooo ooo  P  ooo ooo !!!+
++!!! ooo ooo     ooo ooo !!!+
 +Ho! ooo ooo     ooo ooo !oH+
 +Xo! ooo ooo     ooo ooo !oX+
 +++++++++++++++++++++++++++++
