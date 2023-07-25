@@ -87,7 +87,7 @@ func TestEnemyThink(t *testing.T) {
 	}
 	p, stage, err := enemyActionTestInit(t, enemyTestMapPath+"hunter.txt", newEnemyBuilder().defaultHunter())
 	if err != nil {
-		t.Error()
+		t.Error(err)
 	}
 	for name, tt := range cases {
 		tt := tt

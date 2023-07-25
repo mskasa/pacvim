@@ -62,7 +62,7 @@ func TestValidateFiles(t *testing.T) {
 func TestValidateActualFiles(t *testing.T) {
 	stages := initStages()
 	if err := validateFiles(stages); err != nil {
-		t.Error()
+		t.Error(err)
 	}
 }
 

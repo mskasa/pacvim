@@ -160,7 +160,7 @@ func TestJumpOnCurrentLine(t *testing.T) {
 			}
 			_, offset, err := playerActionTestInit(t, playerTestMapPath+"jump_on_current_line.txt", p)
 			if err != nil {
-				t.Error()
+				t.Error(err)
 			}
 			p.x += offset
 			tt.toLeftEdgeX += offset
@@ -260,7 +260,7 @@ func TestJudgeMoveResult(t *testing.T) {
 			}
 			_, offset, err := playerActionTestInit(t, playerTestMapPath+"judge_move_result.txt", p)
 			if err != nil {
-				t.Error()
+				t.Error(err)
 			}
 			p.x += offset
 			p.moveCross(tt.x, tt.y)
