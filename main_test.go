@@ -6,133 +6,43 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateMimeType(t *testing.T) {
-	cases := map[string]struct {
-		mapPath  string
-		expected string
-	}{
-		"normal/map01": {
-			mapPath:  "files/test/validateMimeType/map01.txt",
-			expected: "",
-		},
-		"error/map02": {
-			mapPath:  "files/test/validateMimeType/map02.txt",
-			expected: "MIME Type Validation Error: files/test/validateMimeType/map02.txt; Invalid mime type: application/octet-stream;",
-		},
-		"error/map03": {
-			mapPath:  "files/test/validateMimeType/map03.txt",
-			expected: "open files/test/validateMimeType/map03.txt: file does not exist",
-		},
-	}
-	for name, tt := range cases {
-		tt := tt
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			if result := validateMimeType(tt.mapPath); result != nil {
-				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)
-			}
-		})
-	}
-}
-
-func TestValidateFileSize(t *testing.T) {
-	cases := map[string]struct {
-		mapPath  string
-		expected string
-	}{
-		"normal/map01": {
-			mapPath:  "files/test/validateFileSize/map01.txt",
-			expected: "",
-		},
-		"error/map02": {
-			mapPath:  "files/test/validateFileSize/map02.txt",
-			expected: "File Size Validation Error: files/test/validateFileSize/map02.txt; File size exceeded: 1049 (Max file size is 1024);",
-		},
-		"error/map03": {
-			mapPath:  "files/test/validateFileSize/map03.txt",
-			expected: "open files/test/validateFileSize/map03.txt: file does not exist",
-		},
-	}
-	for name, tt := range cases {
-		tt := tt
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			if result := validateFileSize(tt.mapPath); result != nil {
-				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)
-			}
-		})
-	}
-}
-
-func TestValidateStageMap(t *testing.T) {
-	cases := map[string]struct {
-		mapPath  string
-		expected string
-	}{
-		"normal/map01": {
-			mapPath:  "files/test/validateStageMap/map01.txt",
-			expected: "",
-		},
-		"normal/map02": {
-			mapPath:  "files/test/validateStageMap/map02.txt",
-			expected: "",
-		},
-		"error/map03": {
-			mapPath:  "files/test/validateStageMap/map03.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map03.txt; Please keep the stage within 50 columns;",
-		},
-		"error/map04": {
-			mapPath:  "files/test/validateStageMap/map04.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map04.txt; Please keep the stage within 20 lines;",
-		},
-		"error/map05": {
-			mapPath:  "files/test/validateStageMap/map05.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map05.txt; Create a boundary for the stage map with '+' (line 1,15);",
-		},
-		"error/map06": {
-			mapPath:  "files/test/validateStageMap/map06.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map06.txt; Make the width of the stage map uniform (line 5,10);",
-		},
-		"error/map07": {
-			mapPath:  "files/test/validateStageMap/map07.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map07.txt; Create a boundary for the stage map with '+' (line 5,10);",
-		},
-		"error/map08": {
-			mapPath:  "files/test/validateStageMap/map08.txt",
-			expected: "open files/test/validateStageMap/map08.txt: file does not exist",
-		},
-	}
-	for name, tt := range cases {
-		tt := tt
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			if result := validateStageMap(tt.mapPath); result != nil {
-				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)
-			}
-		})
-	}
-}
-
 func TestValidateFiles(t *testing.T) {
+	const validateTestMapPath = "files/test/validate/"
 	cases := map[string]struct {
-		mapPath  string
-		expected string
+		mapFileName string
+		expected    string
 	}{
-		"normal": {
-			mapPath:  "files/test/validateMimeType/map01.txt",
-			expected: "",
+		"normal lower limit": {
+			"normal_lower_limit.txt",
+			"",
 		},
-		"error/validateMimeType": {
-			mapPath:  "files/test/validateMimeType/map02.txt",
-			expected: "MIME Type Validation Error: files/test/validateMimeType/map02.txt; Invalid mime type: application/octet-stream;",
+		"normal upper limit": {
+			"normal_upper_limit.txt",
+			"",
 		},
-		"error/validateFileSize": {
-			mapPath:  "files/test/validateFileSize/map02.txt",
-			expected: "File Size Validation Error: files/test/validateFileSize/map02.txt; File size exceeded: 1049 (Max file size is 1024);",
+		"error columns exceeded": {
+			"error_columns_exceeded.txt",
+			"Stage Map Validation Error: files/test/validate/error_columns_exceeded.txt; Please keep the stage within 50 columns;",
 		},
-		"error/validateStageMap": {
-			mapPath:  "files/test/validateStageMap/map05.txt",
-			expected: "Stage Map Validation Error: files/test/validateStageMap/map05.txt; Create a boundary for the stage map with '+' (line 1,15);",
+		"error lines exceeded": {
+			"error_lines_exceeded.txt",
+			"Stage Map Validation Error: files/test/validate/error_lines_exceeded.txt; Please keep the stage within 20 lines;",
+		},
+		"error no boundaries": {
+			"error_no_boundaries.txt",
+			"Stage Map Validation Error: files/test/validate/error_no_boundaries.txt; Create a boundary for the stage map with '+' (line 1,5,10,15);",
+		},
+		"error uneven length": {
+			"error_uneven_length.txt",
+			"Stage Map Validation Error: files/test/validate/error_uneven_length.txt; Make the width of the stage map uniform (line 5,10);",
+		},
+		"error invalid mime type": {
+			"error_invalid_mime_type.txt",
+			"MIME Type Validation Error: files/test/validate/error_invalid_mime_type.txt; Invalid mime type: application/octet-stream;",
+		},
+		"error file does not exist": {
+			"error_file_does_not_exist.txt",
+			"open files/test/validate/error_file_does_not_exist.txt: file does not exist",
 		},
 	}
 	for name, tt := range cases {
@@ -140,7 +50,7 @@ func TestValidateFiles(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			stages := []stage{
-				{mapPath: tt.mapPath},
+				{mapPath: validateTestMapPath + tt.mapFileName},
 			}
 			if result := validateFiles(stages); result != nil {
 				assert.EqualErrorf(t, result, tt.expected, "Error should be: %v, got: %v", tt.expected, result)

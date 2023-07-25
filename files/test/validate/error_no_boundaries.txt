@@ -1,4 +1,4 @@
-+++++++++++++++++++++++++++++
++++++++++++++++++++o+++++++++
 + oooo        o        oooo +
 + oooo       ooo       oooo +
 + ooooH    ooooooo     oooo +
@@ -12,4 +12,4 @@
 + oooo     ooooooo    Hoooo +
 + oooo       ooo       oooo +
 + oooo        o        oooo +
-+++++++++++++++++++++++++++++
++++++++++++++++++++ +++++++++

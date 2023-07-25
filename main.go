@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	termbox "github.com/nsf/termbox-go"
-	"go.uber.org/multierr"
 )
 
 const (
@@ -149,56 +148,31 @@ const (
 
 func validateFiles(stages []stage) error {
 	for _, s := range stages {
-		if err := validateMimeType(s.mapPath); err != nil {
+		b, err := static.ReadFile(s.mapPath)
+		if err != nil {
 			return err
 		}
-		if err := validateFileSize(s.mapPath); err != nil {
+		if err := validateMimeType(b, s.mapPath); err != nil {
 			return err
 		}
-		if err := validateStageMap(s.mapPath); err != nil {
+		if err := validateStageMap(b, s.mapPath); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func validateMimeType(filePath string) error {
-	b, err := static.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
+func validateMimeType(b []byte, filePath string) error {
 	mimeType := http.DetectContentType(b)
 	if mimeType != stageMapMimeType {
-		err = errors.New(filePath + "; Invalid mime type: " + mimeType + ";")
+		err := errors.New(filePath + "; Invalid mime type: " + mimeType + ";")
 		return fmt.Errorf("%w: %+v", mimeTypeValidationError, err)
 	}
 	return nil
 }
 
-func validateFileSize(filePath string) (err error) {
-	f, err := static.Open(filePath)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		err = multierr.Append(err, f.Close())
-	}()
-
-	fi, err := f.Stat()
-	if err != nil {
-		return err
-	}
-
-	if fi.Size() > maxFileSize {
-		err = errors.New(filePath + "; File size exceeded: " + strconv.Itoa(int(fi.Size())) + " (Max file size is " + strconv.Itoa(maxFileSize) + ");")
-		return fmt.Errorf("%w: %+v", fileSizeValidationError, err)
-	}
-	return nil
-}
-
-func validateStageMap(filePath string) error {
-	lines, err := validateStageMapSize(filePath)
+func validateStageMap(b []byte, filePath string) error {
+	lines, err := validateStageMapSize(b, filePath)
 	if err != nil {
 		return err
 	}
@@ -211,11 +185,7 @@ func validateStageMap(filePath string) error {
 	return nil
 }
 
-func validateStageMapSize(filePath string) ([]string, error) {
-	b, err := static.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
+func validateStageMapSize(b []byte, filePath string) ([]string, error) {
 	f := bytes.NewReader(b)
 	scanner := bufio.NewScanner(f)
 	lines := []string{}
@@ -223,11 +193,11 @@ func validateStageMapSize(filePath string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	if len(lines[0]) > maxStageMapWidth {
-		err = errors.New(filePath + "; Please keep the stage within 50 columns;")
+		err := errors.New(filePath + "; Please keep the stage within 50 columns;")
 		return nil, fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
 	if len(lines) > maxStageMapHeight {
-		err = errors.New(filePath + "; Please keep the stage within 20 lines;")
+		err := errors.New(filePath + "; Please keep the stage within 20 lines;")
 		return nil, fmt.Errorf("%w: %+v", stageMapValidationError, err)
 	}
 	return lines, nil
