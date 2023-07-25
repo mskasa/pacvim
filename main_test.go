@@ -104,7 +104,7 @@ func TestSplitStages(t *testing.T) {
 			t.Parallel()
 			stages := splitStages(tt.stages, &tt.level)
 			if stages[0].level != tt.expectedLevel {
-				t.Error()
+				t.Errorf("expected %d but %d", tt.expectedLevel, stages[0].level)
 			}
 		})
 	}
