@@ -72,12 +72,12 @@ func TestMoveByWord(t *testing.T) {
 		expectedState int
 	}{
 		// Check if coordinates are as expected.
-		"w: from blank":             {0, 'w', false, 14, 1, 16, 1, continuing},
+		"w: from space":             {0, 'w', false, 14, 1, 16, 1, continuing},
 		"w: from word":              {0, 'w', false, 18, 1, 21, 1, continuing},
-		"b: from blank":             {0, 'b', false, 14, 1, 9, 1, continuing},
+		"b: from space":             {0, 'b', false, 14, 1, 9, 1, continuing},
 		"b: from middle of word":    {0, 'b', false, 11, 1, 9, 1, continuing},
 		"b: from beginning of word": {0, 'b', false, 9, 1, 5, 1, continuing},
-		"e: from blank":             {0, 'e', false, 14, 1, 19, 1, continuing},
+		"e: from space":             {0, 'e', false, 14, 1, 19, 1, continuing},
 		"e: from middle of word":    {0, 'e', false, 17, 1, 19, 1, continuing},
 		"e: from end of word":       {0, 'e', false, 19, 1, 23, 1, continuing},
 		// Check the player doesn't cross the obstacle.
@@ -144,7 +144,7 @@ func TestJumpOnCurrentLine(t *testing.T) {
 		toLeftEdgeX  int
 		toRightEdgeX int
 	}{
-		"to the blank":    {1, 1, 27},
+		"to the space":    {1, 1, 27},
 		"to the target":   {2, 1, 27},
 		"to the obstacle": {3, 4, 24},
 		"to the enemy":    {4, 1, 27},
