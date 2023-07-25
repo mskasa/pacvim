@@ -155,7 +155,7 @@ func validateFiles(stages []stage) error {
 		if err := validateMimeType(b, s.mapPath); err != nil {
 			return err
 		}
-		if err := validateStageMap(b, s.mapPath); err != nil {
+		if err := validateStage(b, s.mapPath); err != nil {
 			return err
 		}
 	}
@@ -171,21 +171,21 @@ func validateMimeType(b []byte, filePath string) error {
 	return nil
 }
 
-func validateStageMap(b []byte, filePath string) error {
-	lines, err := validateStageMapSize(b, filePath)
+func validateStage(b []byte, filePath string) error {
+	lines, err := validateStageSize(b, filePath)
 	if err != nil {
 		return err
 	}
-	if err := validateStageMapShape(filePath, lines); err != nil {
+	if err := validateStageShape(filePath, lines); err != nil {
 		return err
 	}
-	if err := validateStageMapBoundary(filePath, lines); err != nil {
+	if err := validateStageBoundary(filePath, lines); err != nil {
 		return err
 	}
 	return nil
 }
 
-func validateStageMapSize(b []byte, filePath string) ([]string, error) {
+func validateStageSize(b []byte, filePath string) ([]string, error) {
 	f := bytes.NewReader(b)
 	scanner := bufio.NewScanner(f)
 	lines := []string{}
@@ -203,7 +203,7 @@ func validateStageMapSize(b []byte, filePath string) ([]string, error) {
 	return lines, nil
 }
 
-func validateStageMapShape(filePath string, lines []string) error {
+func validateStageShape(filePath string, lines []string) error {
 	width := len(lines[0])
 	lineNo := 1
 	errLineNo := []string{}
@@ -220,7 +220,7 @@ func validateStageMapShape(filePath string, lines []string) error {
 	return nil
 }
 
-func validateStageMapBoundary(filePath string, lines []string) error {
+func validateStageBoundary(filePath string, lines []string) error {
 	width := len(lines[0])
 	height := len(lines)
 	lineNo := 1
