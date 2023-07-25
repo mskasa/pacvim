@@ -145,7 +145,7 @@ func TestJumpOnCurrentLine(t *testing.T) {
 		toRightEdgeX int
 	}{
 		"to the space":    {1, 1, 27},
-		"to the target":   {2, 1, 27},
+		"to the apple":    {2, 1, 27},
 		"to the obstacle": {3, 4, 24},
 		"to the enemy":    {4, 1, 27},
 		"to the poison":   {5, 1, 27},
@@ -192,15 +192,15 @@ func TestJumpAcrossLine(t *testing.T) {
 		expectedY        int
 		mapFileName      string
 	}{
-		"gg with target":  {0, true, 'g', 0, false, 27, 1, "jump_across_line.txt"},
-		"Ngg with target": {2, true, 'g', 0, false, 27, 1, "jump_across_line.txt"},
-		"G with target":   {0, false, 'G', 0, false, 27, 5, "jump_across_line.txt"},
-		"NG with target":  {2, false, 'G', 0, false, 27, 1, "jump_across_line.txt"},
-		// Check player behavior when there is no target in the target row.
-		"gg no target":  {0, true, 'g', 0, false, 1, 1, "jump_across_line_no_target.txt"},
-		"Ngg no target": {4, true, 'g', 0, false, 1, 3, "jump_across_line_no_target.txt"},
-		"G no target":   {0, false, 'G', 0, false, 1, 5, "jump_across_line_no_target.txt"},
-		"NG no target":  {4, false, 'G', 0, false, 1, 3, "jump_across_line_no_target.txt"},
+		"gg":  {0, true, 'g', 0, false, 27, 1, "jump_across_line.txt"},
+		"Ngg": {2, true, 'g', 0, false, 27, 1, "jump_across_line.txt"},
+		"G":   {0, false, 'G', 0, false, 27, 5, "jump_across_line.txt"},
+		"NG":  {2, false, 'G', 0, false, 27, 1, "jump_across_line.txt"},
+		// Check player behavior when there is no apples in the target row.
+		"gg no apples":  {0, true, 'g', 0, false, 1, 1, "jump_across_line_no_apples.txt"},
+		"Ngg no apples": {4, true, 'g', 0, false, 1, 3, "jump_across_line_no_apples.txt"},
+		"G no apples":   {0, false, 'G', 0, false, 1, 5, "jump_across_line_no_apples.txt"},
+		"NG no apples":  {4, false, 'G', 0, false, 1, 3, "jump_across_line_no_apples.txt"},
 		// Check that inputs are saved.
 		"Ng": {3, false, 'g', 3, true, 14, 3, "jump_across_line.txt"},
 		// Check that inputs are reset.

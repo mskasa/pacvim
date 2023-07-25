@@ -162,7 +162,7 @@ func (p *player) judgeMoveResult() {
 		// Change target color (white → green)
 		winWidth, _ := termbox.Size()
 		cell := termbox.CellBuffer()[(winWidth*p.y)+p.x]
-		if cell.Ch == chTarget && cell.Fg == termbox.ColorWhite {
+		if cell.Ch == chApple && cell.Fg == termbox.ColorWhite {
 			termbox.SetCell(p.x, p.y, cell.Ch, termbox.ColorGreen, termbox.ColorBlack)
 			p.score++
 			if p.score == p.targetScore {
@@ -188,7 +188,7 @@ func (p *player) toBeginningOfNextWord() bool {
 			return false
 		}
 		if spaceFlg {
-			if isCharTarget(p.x, p.y) {
+			if isCharApple(p.x, p.y) {
 				return true
 			}
 		}
@@ -262,7 +262,7 @@ func (p *player) toBeginningOfFirstWord() {
 	p.toLeftEdge()
 	x := p.x
 	for !isCharBoundary(x, p.y) {
-		if isCharTarget(x, p.y) || isCharPoison(x, p.y) {
+		if isCharApple(x, p.y) || isCharPoison(x, p.y) {
 			p.x = x
 			break
 		}

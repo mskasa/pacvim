@@ -137,8 +137,8 @@ func isCharEnemy(x, y int) bool {
 func isCharSpace(x, y int) bool {
 	return isChar(x, y, chSpace)
 }
-func isCharTarget(x, y int) bool {
-	return isChar(x, y, chTarget)
+func isCharApple(x, y int) bool {
+	return isChar(x, y, chApple)
 }
 func isCharPoison(x, y int) bool {
 	return isChar(x, y, chPoison)

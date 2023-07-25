@@ -25,7 +25,7 @@ const (
 	chPlayer    = 'P'
 	chHunter    = 'H'
 	chGhost     = 'G'
-	chTarget    = 'o'
+	chApple     = 'o'
 	chSpace     = ' '
 	chPoison    = 'X'
 	chBoundary  = '+'

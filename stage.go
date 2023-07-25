@@ -118,7 +118,7 @@ func (s *stage) plot(b *buffer, p *player) {
 	s.height = len(b.lines)
 	for y := 0; y < s.height; y++ {
 		for x := b.offset; x < s.width; x++ {
-			if isCharTarget(x, y) {
+			if isCharApple(x, y) {
 				p.targetScore++
 			} else if isCharPlayer(x, y) {
 				p.x, p.y = x, y
