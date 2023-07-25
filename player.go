@@ -226,7 +226,7 @@ func (p *player) toLeftEdge() {
 	x := 0
 	for {
 		x++
-		if isCharBorder(x, p.y) {
+		if isCharBoundary(x, p.y) {
 			break
 		}
 	}
@@ -244,7 +244,7 @@ func (p *player) toRightEdge() {
 	x, _ := termbox.Size()
 	for {
 		x--
-		if isCharBorder(x, p.y) {
+		if isCharBoundary(x, p.y) {
 			break
 		}
 	}
@@ -261,7 +261,7 @@ func (p *player) toRightEdge() {
 func (p *player) toBeginningOfFirstWord() {
 	p.toLeftEdge()
 	x := p.x
-	for !isCharBorder(x, p.y) {
+	for !isCharBoundary(x, p.y) {
 		if isCharTarget(x, p.y) || isCharPoison(x, p.y) {
 			p.x = x
 			break

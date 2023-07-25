@@ -113,14 +113,14 @@ func switchScene(fileName string) error {
 	return nil
 }
 
-func isCharBorder(x, y int) bool {
-	return isChar(x, y, chBorder)
+func isCharBoundary(x, y int) bool {
+	return isChar(x, y, chBoundary)
 }
 func isCharObstacle(x, y int) bool {
 	return isChar(x, y, chObstacle1) || isChar(x, y, chObstacle2) || isChar(x, y, chObstacle3)
 }
 func isCharWall(x, y int) bool {
-	return isCharObstacle(x, y) || isCharBorder(x, y)
+	return isCharObstacle(x, y) || isCharBoundary(x, y)
 }
 func isCharPlayer(x, y int) bool {
 	return isChar(x, y, chPlayer)

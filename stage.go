@@ -124,8 +124,8 @@ func (s *stage) plot(b *buffer, p *player) {
 				p.x, p.y = x, y
 				termbox.SetCell(p.x, p.y, chSpace, termbox.ColorWhite, termbox.ColorBlack)
 				termbox.SetCursor(p.x, p.y)
-			} else if isCharBorder(x, y) {
-				termbox.SetCell(x, y, chBorder, termbox.ColorYellow, termbox.ColorBlack)
+			} else if isCharBoundary(x, y) {
+				termbox.SetCell(x, y, chBoundary, termbox.ColorYellow, termbox.ColorBlack)
 			} else if isCharObstacle(x, y) {
 				var r rune
 				if isCharObstacle(x-1, y) || isCharObstacle(x+1, y) {

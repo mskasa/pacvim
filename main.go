@@ -28,7 +28,7 @@ const (
 	chTarget    = 'o'
 	chSpace     = ' '
 	chPoison    = 'X'
-	chBorder    = '+'
+	chBoundary  = '+'
 	chObstacle1 = '-'
 	chObstacle2 = '|'
 	chObstacle3 = '!'
@@ -179,7 +179,7 @@ func validateStageMap(b []byte, filePath string) error {
 	if err := validateStageMapShape(filePath, lines); err != nil {
 		return err
 	}
-	if err := validateStageMapBorder(filePath, lines); err != nil {
+	if err := validateStageMapBoundary(filePath, lines); err != nil {
 		return err
 	}
 	return nil
@@ -220,18 +220,18 @@ func validateStageMapShape(filePath string, lines []string) error {
 	return nil
 }
 
-func validateStageMapBorder(filePath string, lines []string) error {
+func validateStageMapBoundary(filePath string, lines []string) error {
 	width := len(lines[0])
 	height := len(lines)
 	lineNo := 1
 	errLineNo := []string{}
 	for _, s := range lines {
 		if lineNo == 1 || lineNo == height {
-			if s != strings.Repeat(string(chBorder), width) {
+			if s != strings.Repeat(string(chBoundary), width) {
 				errLineNo = append(errLineNo, strconv.Itoa(lineNo))
 			}
 		} else {
-			if !strings.HasPrefix(s, string(chBorder)) || !strings.HasSuffix(s, string(chBorder)) {
+			if !strings.HasPrefix(s, string(chBoundary)) || !strings.HasSuffix(s, string(chBoundary)) {
 				errLineNo = append(errLineNo, strconv.Itoa(lineNo))
 			}
 		}

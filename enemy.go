@@ -194,7 +194,7 @@ func (eb *enemyBuilder) defaultHunter() iEnemyBuilder {
 }
 func (eb *enemyBuilder) defaultGhost() iEnemyBuilder {
 	fn := func(x, y int) bool {
-		return !isCharBorder(x, y) && !isCharEnemy(x, y)
+		return !isCharBoundary(x, y) && !isCharEnemy(x, y)
 	}
 	return eb.displayFormat(chGhost, "CYAN").speed(2).movable(fn).strategize(&assault{})
 }
