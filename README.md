@@ -11,6 +11,10 @@ The Go gopher was designed by Renée French.
 
 ---
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/masahiro-kasatani/pacvim)](https://goreportcard.com/report/github.com/masahiro-kasatani/pacvim)
+
+---
+
 ## Building and running
 ### How to build(Mac OS)
 ```
