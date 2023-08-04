@@ -1,8 +1,9 @@
+![pacvim](https://github.com/masahiro-kasatani/pacvim/blob/readme-images/files/readme.png?raw=true)
+
 <p align="center">
   <b>PacVim is a Vim learning game ʕ◔ϖ◔ʔ</b>
 </p>
 
-![pacvim](https://github.com/masahiro-kasatani/pacvim/blob/readme-images/files/readme.png?raw=true)
 
 <p align="right">
 The Go gopher was designed by Renée French.
