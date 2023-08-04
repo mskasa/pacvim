@@ -31,15 +31,16 @@ func initStages() []stage {
 		{
 			level:         2,
 			mapPath:       "files/stage/map02.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			hunterBuilder: newEnemyBuilder().defaultHunter().strategize(&tricky{}),
 			ghostBuilder:  newEnemyBuilder().defaultGhost(),
 			gameSpeed:     1000 * time.Millisecond,
 		},
 		{
 			level:         3,
 			mapPath:       "files/stage/map03.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter().strategize(&tricky{}),
-			gameSpeed:     750 * time.Millisecond,
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			ghostBuilder:  newEnemyBuilder().defaultGhost(),
+			gameSpeed:     1000 * time.Millisecond,
 		},
 		{
 			level:         4,
@@ -50,42 +51,8 @@ func initStages() []stage {
 		{
 			level:         5,
 			mapPath:       "files/stage/map05.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
-			ghostBuilder:  newEnemyBuilder().defaultGhost(),
-			gameSpeed:     1000 * time.Millisecond,
-		},
-		{
-			level:         6,
-			mapPath:       "files/stage/map06.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
-			ghostBuilder:  newEnemyBuilder().defaultGhost(),
+			hunterBuilder: newEnemyBuilder().defaultHunter().strategize(&tricky{}),
 			gameSpeed:     750 * time.Millisecond,
-		},
-		{
-			level:         7,
-			mapPath:       "files/stage/map07.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
-			ghostBuilder:  newEnemyBuilder().defaultGhost().speed(1).strategize(&tricky{}),
-			gameSpeed:     750 * time.Millisecond,
-		},
-		{
-			level:         8,
-			mapPath:       "files/stage/map08.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
-			ghostBuilder:  newEnemyBuilder().defaultGhost(),
-			gameSpeed:     750 * time.Millisecond,
-		},
-		{
-			level:         9,
-			mapPath:       "files/stage/map09.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
-			gameSpeed:     500 * time.Millisecond,
-		},
-		{
-			level:         10,
-			mapPath:       "files/stage/map10.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
-			gameSpeed:     500 * time.Millisecond,
 		},
 	}
 }
