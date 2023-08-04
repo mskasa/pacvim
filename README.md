@@ -1,7 +1,15 @@
-# PacVim
-PacVim is a game that teaches you vim commands. 
+<p align="center">
+  <b>PacVim is a Vim learning game ʕ◔ϖ◔ʔ</b>
+</p>
 
-![pacvim](https://user-images.githubusercontent.com/61332083/103471092-e7063200-4dbe-11eb-8e7f-76d6db668186.png)
+![pacvim](https://github.com/masahiro-kasatani/pacvim/blob/readme-images/files/readme.png?raw=true)
+
+<p align="right">
+The Go gopher was designed by Renée French.
+</p>
+
+---
+
 ## Building and running
 ### How to build(Mac OS)
 ```
