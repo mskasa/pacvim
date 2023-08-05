@@ -20,8 +20,11 @@ jobs:
       - name: Download Go modules
         run: go mod download
 
+      - name: Setup faketty
+        uses: Yuri6037/Action-FakeTTY@v1.1
+
       - name: Test
-        run: go test -cover -coverprofile=cover.out
+        run: faketty go test -cover -coverprofile=cover.out
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
