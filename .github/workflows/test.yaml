@@ -10,7 +10,7 @@ on:
 jobs:
   test:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
@@ -18,9 +18,7 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Download Go modules
-        run: |
-          go mod download
-          go install github.com/nsf/termbox-go@v1.1.1
+        run: go mod download
 
       - name: Test
         run: go test -v ./...
