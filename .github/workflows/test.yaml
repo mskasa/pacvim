@@ -18,7 +18,9 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Download Go modules
-        run: go mod download
+        run: |
+          go mod download
+          go install github.com/nsf/termbox-go@v1.1.1
 
       - name: Test
         run: go test -v ./...
