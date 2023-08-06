@@ -14,10 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
+        id: setup-go
         with:
           go-version-file: "go.mod"
 
       - name: Download Go modules
+        shell: bash
         if: ${{ steps.setup-go.outputs.cache-hit != 'true' }}
         run: go mod download
 
