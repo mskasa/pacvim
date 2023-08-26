@@ -1,88 +1,79 @@
+# PacVim is a Vim learning game ʕ◔ϖ◔ʔ
+
 ![pacvim](https://github.com/masahiro-kasatani/pacvim/blob/readme-images/files/readme.png?raw=true)
 
-<p align="center">
-  <b>PacVim is a Vim learning game ʕ◔ϖ◔ʔ</b>
-</p>
-
-
 <p align="right">
-The Go gopher was designed by Renée French.
+The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blank">Renée French</a>.
 </p>
-
----
 
 [![test](https://github.com/masahiro-kasatani/pacvim/actions/workflows/test.yaml/badge.svg)](https://github.com/masahiro-kasatani/pacvim/actions/workflows/test.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/masahiro-kasatani/pacvim)](https://goreportcard.com/report/github.com/masahiro-kasatani/pacvim)
 [![codecov](https://codecov.io/gh/masahiro-kasatani/pacvim/branch/master/graph/badge.svg?token=KZ2LVX4GCT)](https://codecov.io/gh/masahiro-kasatani/pacvim)
 
----
+| English | [日本語](https://github.com/masahiro-kasatani/pacvim/blob/master/README-JA.md) |
 
-## Building and running
-### How to build(Mac OS)
-```
-# mac
-$ go build -o bin/mac/pacvim ./main.go
-# win
-$ GOOS=windows GOARCH=amd64 go build -o bin/win/pacvim.exe ./main.go
-```
+<!-- TOC -->
 
-### How to run
-Double click to run binary
-* ./bin/win/pacvim.exe
-* ./bin/mac/pacvim
+## Table of Contents
 
-or execute 'go run'
-```
-$ go run main.go
-$ go run main.go -initiaLevel 5
-```
+- [How to start PacVim](#how-to-start-pacvim)
+- [PacVim Rules](#pacvim-rules)
+- [Player Controls](#player-controls)
+  - [About action type](#about-action-type)
+- [License](#license)
+- [Author](#author)
 
-## How to play
-![objects](https://user-images.githubusercontent.com/61332083/103471133-790e3a80-4dbf-11eb-96fd-a6525766b5f5.png)
-### Objects
-| char | what it does |
-|:-:|:-:|
-| o  | food  |
-| X  | poison  |
-| G  | ghost  |
+<!-- /TOC -->
 
-### Game status
-| state | conditions |
-|:-:|:-:|
-| Game Clear  | Clear all 10 stages  |
-| Game Over  | Fail a total of 4 times  |
-| Stage Win  | Eat all food  |
-| Stage Lose  | Eat poison<br>Caught by a ghost  |
+## How to start PacVim
 
-### Operation
-| key | what it does |
-|:-:|:-:|
-| q  | quit the game  |
-| h  | move left  |
-| j  | move down  |
-| k  | move up  |
-| l  | move right  |
-| w  | move forward to next word beginning  |
-| e  | move forward to next word ending  |
-| b  | move backward to next word beginning  |
-| $  | move to the end of the line  |
-| 0  | move to the beginning of the line  |
-| gg/1G  | move to the beginning of the first line  |
-| NG  | move to the beginning of the line given by N  |
-| G  | move to the beginning of the last line  |
-| ^  | move to the first word at the current line  |
+PacVim is started by double-clicking on the binary file below.
 
-#### "w,e,b" ： Move at once.
-![w](https://user-images.githubusercontent.com/61332083/103471176-3c8f0e80-4dc0-11eb-97b4-b20b905b55c4.gif)
+- Windows: [./bin/win/pacvim.exe](https://github.com/masahiro-kasatani/pacvim/tree/master/bin/win)
+- Mac: [./bin/mac/pacvim](https://github.com/masahiro-kasatani/pacvim/tree/master/bin/mac)
 
-#### "$,0,gg,NG,G,^" ： Warp
-![dollar](https://user-images.githubusercontent.com/61332083/103471203-ba531a00-4dc0-11eb-9533-2d6be6e8b962.gif)
+## PacVim Rules
 
-### How to play with your own map
-Replace map file (./files/stage/)
+PacVim follows the rules of Pac-Man.
+
+TODO ゲーム画面の画像貼り、各オブジェクトの説明を入れる
+
+| State         | To transition to the left state |
+| :------------ | :------------------------------ |
+| Stage clear   | Eat all apples                  |
+| Stage failure | Caught by enemy or eat poison   |
+| Game clear    | Clear all stages                |
+| Game over     | Stage failure with 0 life.      |
+
+## Player Controls
+
+|  key  | action                                                      | action type |
+| :---: | :---------------------------------------------------------- | :---------- |
+|   h   | move left                                                   | walk        |
+|   j   | move down                                                   | walk        |
+|   k   | move up                                                     | walk        |
+|   l   | move right                                                  | walk        |
+|   w   | move forward to next word beginning                         | walk        |
+|   e   | move forward to next word ending                            | walk        |
+|   b   | move backward to previous word beginning                    | walk        |
+|   0   | move to the beginning of the current line                   | jump        |
+|   $   | move to the end of the current line                         | jump        |
+|   ^   | move to the beginning of the first word on the current line | jump        |
+| gg/1G | move to the beginning of the first word on the first line   | jump        |
+|   G   | move to the beginning of the first word on the last line    | jump        |
+|  NG   | move to the beginning of the first word on the nth line     | jump        |
+|   q   | quit the game                                               | -           |
+
+### About action type
+
+- walk
+
+- jump
 
 ## License
+
 MIT
 
 ## Author
-Masahiro Kasatani
+
+[Masahiro Kasatani](https://masahiro-kasatani.github.io/portfolio/)
