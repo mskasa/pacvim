@@ -30,7 +30,7 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
   - [How to customize PacVim](#how-to-customize-pacvim)
     - [How to add a stage map](#how-to-add-a-stage-map)
     - [How to add enemy types](#how-to-add-enemy-types)
-    - [How to add the enemy's thought logic](#how-to-add-the-enemys-thought-logic)
+    - [How to add enemy strategies](#how-to-add-enemy-strategies)
 - [License](#license)
 - [Author](#author)
 
@@ -169,7 +169,7 @@ Usage of ./pacvim:
 
 [Reference commit](https://github.com/masahiro-kasatani/pacvim/commit/6c5f88a32b7ffe73bd640717f0470407578c65d0)
 
-#### How to add the enemy's thought logic
+#### How to add enemy strategies
 
 [Reference commit](https://github.com/masahiro-kasatani/pacvim/commit/b0f405ff0be4dc3143579536f89aa30c83c608b6)
 
