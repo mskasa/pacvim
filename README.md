@@ -53,6 +53,10 @@ PacVim follows the rules of Pac-Man.
 
 ![game screen](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/screen.png)
 
+> **Note**
+>
+> I suggest you play with a larger view of your terminal or command prompt because your eyes will flicker.
+
 #### About objects
 
 | Object name   |                                                                                                                                                         Display                                                                                                                                                         | Supplementary explanation               |
