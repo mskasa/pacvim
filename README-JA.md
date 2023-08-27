@@ -179,4 +179,4 @@ MIT
 
 ## 著者
 
-<a href="https://masahiro-kasatani.github.io/portfolio/" target="_blank">笠谷昌弘</a>
+<a href="https://masahiro-kasatani.github.io/portfolio/" target="_blank" rel="noopener noreferrer">笠谷昌弘</a>
