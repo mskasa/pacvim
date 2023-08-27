@@ -131,8 +131,11 @@ func isCharHunter(x, y int) bool {
 func isCharGhost(x, y int) bool {
 	return isChar(x, y, chGhost)
 }
+func isCharAssassin(x, y int) bool {
+	return isChar(x, y, chAssassin)
+}
 func isCharEnemy(x, y int) bool {
-	return isCharHunter(x, y) || isCharGhost(x, y)
+	return isCharHunter(x, y) || isCharGhost(x, y) || isCharAssassin(x, y)
 }
 func isCharSpace(x, y int) bool {
 	return isChar(x, y, chSpace)

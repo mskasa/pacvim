@@ -10,23 +10,25 @@ import (
 )
 
 type stage struct {
-	level         int
-	mapPath       string
-	hunterBuilder iEnemyBuilder
-	ghostBuilder  iEnemyBuilder
-	enemies       []iEnemy
-	gameSpeed     time.Duration
-	width         int
-	height        int
+	level           int
+	mapPath         string
+	hunterBuilder   iEnemyBuilder
+	ghostBuilder    iEnemyBuilder
+	assassinBuilder iEnemyBuilder // The only change is here.
+	enemies         []iEnemy
+	gameSpeed       time.Duration
+	width           int
+	height          int
 }
 
 func initStages() []stage {
 	return []stage{
 		{
-			level:         1,
-			mapPath:       "files/stage/map01.txt",
-			hunterBuilder: newEnemyBuilder().defaultHunter(),
-			gameSpeed:     1250 * time.Millisecond,
+			level:           1,
+			mapPath:         "files/stage/map01.txt",
+			hunterBuilder:   newEnemyBuilder().defaultHunter(),
+			assassinBuilder: newEnemyBuilder().defaultAssassin(), // The only change is here.
+			gameSpeed:       1250 * time.Millisecond,
 		},
 		{
 			level:         2,
@@ -121,6 +123,12 @@ func (s *stage) plot(b *buffer, p *player) {
 				char, color := g.getDisplayFormat()
 				termbox.SetCell(x, y, char, color, color)
 				s.enemies = append(s.enemies, g)
+			} else if isCharAssassin(x, y) {
+				a := s.assassinBuilder.build()
+				a.setPosition(x, y)
+				char, color := a.getDisplayFormat()
+				termbox.SetCell(x, y, char, color, color)
+				s.enemies = append(s.enemies, a)
 			}
 		}
 	}

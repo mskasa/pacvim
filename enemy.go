@@ -34,6 +34,9 @@ type hunter struct {
 type ghost struct {
 	enemy
 }
+type assassin struct {
+	enemy
+}
 
 type strategy interface {
 	eval(p *player, x, y int) float64
@@ -148,6 +151,7 @@ type iEnemyBuilder interface {
 	movable(func(int, int) bool) iEnemyBuilder
 	defaultHunter() iEnemyBuilder
 	defaultGhost() iEnemyBuilder
+	defaultAssassin() iEnemyBuilder
 	build() iEnemy
 }
 type enemyBuilder struct {
@@ -169,6 +173,8 @@ func (eb *enemyBuilder) displayFormat(r rune, s string) iEnemyBuilder {
 		eb.color = termbox.ColorRed
 	case "CYAN":
 		eb.color = termbox.ColorCyan
+	case "DARK_GRAY":
+		eb.color = termbox.ColorDarkGray
 	}
 	return eb
 }
@@ -197,6 +203,12 @@ func (eb *enemyBuilder) defaultGhost() iEnemyBuilder {
 		return !isCharBoundary(x, y) && !isCharEnemy(x, y)
 	}
 	return eb.displayFormat(chGhost, "CYAN").speed(2).movable(fn).strategize(&assault{})
+}
+func (eb *enemyBuilder) defaultAssassin() iEnemyBuilder {
+	fn := func(x, y int) bool {
+		return !isCharWall(x, y) && !isCharEnemy(x, y)
+	}
+	return eb.displayFormat(chAssassin, "DARK_GRAY").speed(1).movable(fn).strategize(&assault{})
 }
 
 func newEnemyBuilder() iEnemyBuilder {
