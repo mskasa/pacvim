@@ -18,6 +18,9 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
 
 - [PacVim の起動方法](#PacVim-の起動方法)
 - [PacVim のルール](#PacVim-のルール)
+  - [ゲーム画面](#ゲーム画面)
+  - [オブジェクトについて](#オブジェクトについて)
+  - [ゲームの状態について](#ゲームの状態について)
 - [プレイヤーの操作方法](#操作方法)
   - [動作種別について](#動作種別について)
 - [ライセンス](#ライセンス)
@@ -36,7 +39,22 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
 
 PacVim はパックマンのルールを踏襲しています。
 
-TODO ゲーム画面の画像貼り、各オブジェクトの説明を入れる
+### ゲーム画面
+
+![ゲーム画面](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/screen.png)
+
+### オブジェクトについて
+
+| オブジェクト名 |                                                                                                                                                         表示                                                                                                                                                         | 補足説明                 |
+| :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------- |
+| りんご         |                                               ![りんご（未）](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/apple_1.png) ![りんご（済）](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/apple_2.png)                                                | 食べると緑色になります   |
+| 毒             |                                                                                                           ![毒](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/poison.png)                                                                                                           | -                        |
+| 障害物         | ![障害物１](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/wall_1.png) ![障害物２](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/wall_2.png) ![障害物３](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/wall_3.png) | -                        |
+| プレイヤー     |                                                                                                       ![プレイヤー](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/player.png)                                                                                                       | -                        |
+| 敵（ハンター） |                                                                                                        ![ハンター](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/hunter.png)                                                                                                        | -                        |
+| 敵（ゴースト） |                                                                                                        ![ゴースト](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/ghost.png)                                                                                                         | 障害物をすり抜けられる敵 |
+
+### ゲームの状態について
 
 | 状態           | 遷移条件                            |
 | :------------- | :---------------------------------- |
@@ -66,9 +84,14 @@ TODO ゲーム画面の画像貼り、各オブジェクトの説明を入れる
 
 ### 動作種別について
 
-- walk
+- `walk`
 
-- jump
+  - 「`walk`」は目的地まで、 1 マスずつ一瞬で移動するイメージです。そのため、敵や障害物、りんごとの当たり判定が適用されます。一気にりんごを食べたいときに使いましょう。
+    ![walkの例](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/readme-w.gif)
+
+- `jump`
+  - 「`jump`」は目的地まで、間を飛び越えて一瞬で到達するイメージです。そのため、敵や障害物、りんごとの当たり判定が適用されません。敵や障害物を避けて移動したいときに使いましょう。
+    ![jumpの例](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/readme-doller.gif)
 
 ## ライセンス
 

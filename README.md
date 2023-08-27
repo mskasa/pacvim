@@ -36,7 +36,22 @@ PacVim is started by double-clicking on the binary file below.
 
 PacVim follows the rules of Pac-Man.
 
-TODO ゲーム画面の画像貼り、各オブジェクトの説明を入れる
+### Game screen
+
+![game screen](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/screen.png)
+
+### About objects
+
+| Object name   |                                                                                                                                                         display                                                                                                                                                         | supplementary explanation               |
+| :------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------- |
+| apple         |                                                       ![apple1](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/apple_1.png) ![apple2](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/apple_2.png)                                                       | This turns green when eaten.            |
+| poison        |                                                                                                          ![poison](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/poison.png)                                                                                                           | -                                       |
+| obstacles     | ![obstacle1](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/wall_1.png) ![obstacle2](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/wall_2.png) ![obstacle3](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/wall_3.png) | -                                       |
+| player        |                                                                                                          ![player](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/player.png)                                                                                                           | -                                       |
+| Enemy(hunter) |                                                                                                          ![hunter](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/hunter.png)                                                                                                           | -                                       |
+| Enemy(ghost)  |                                                                                                           ![ghost](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/ghost.png)                                                                                                            | Enemies that can slip through obstacles |
+
+### About the state of the game
 
 | State         | To transition to the left state |
 | :------------ | :------------------------------ |
@@ -66,9 +81,14 @@ TODO ゲーム画面の画像貼り、各オブジェクトの説明を入れる
 
 ### About action type
 
-- walk
+- `walk`
 
-- jump
+  - `walk` is the image of moving one square at a time to the destination in an instant. Therefore, hit detection with enemies, obstacles, and apples is applied. Use it when you want to eat apples all at once.
+    ![walk example](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/readme-w.gif)
+
+- `jump`
+  - `jump` is the image of jumping between to the destination and reaching it in an instant. Therefore, hit detection with enemies, obstacles, and apples is not applied. Use it when you want to move to avoid enemies or obstacles.
+    ![jump example](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/readme-doller.gif)
 
 ## License
 
