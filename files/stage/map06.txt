@@ -1,0 +1,15 @@
++++++++++++++++++++++++++++++
++             o             +
++            ooo            +
++     H    ooooooo          +
++        ooooooooooo        +
++      oooooo!!!oooooo      +
++    oooo!         !oooo    +
++  oooooo!    P    !oooooo  +
++    oooo!         !oooo    +
++      oooooo!!!oooooo      +
++        ooooooooooo        +
++          ooooooo    H     +
++            ooo            +
++             o             +
++++++++++++++++++++++++++++++

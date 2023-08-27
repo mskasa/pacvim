@@ -54,6 +54,12 @@ func initStages() []stage {
 			hunterBuilder: newEnemyBuilder().defaultHunter().strategize(&tricky{}),
 			gameSpeed:     750 * time.Millisecond,
 		},
+		{
+			level:         6,
+			mapPath:       "files/stage/map06.txt",
+			hunterBuilder: newEnemyBuilder().defaultHunter(),
+			gameSpeed:     1250 * time.Millisecond,
+		},
 	}
 }
 
