@@ -53,6 +53,10 @@ PacVim はパックマンのルールを踏襲しています。
 
 ![ゲーム画面](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/screen.png)
 
+> **Note**
+>
+> 目がチカチカするので、ターミナルやコマンドプロンプトを拡大表示して遊ぶことをオススメします。
+
 #### オブジェクトについて
 
 | オブジェクト名 |                                                                                                                                                         表示                                                                                                                                                         | 補足説明                     |
