@@ -87,12 +87,16 @@ PacVim はパックマンのルールを踏襲しています。
 - `walk`
 
   - `walk` は目的地まで、 1 マスずつ一瞬で移動するイメージです。そのため、敵や障害物、りんごとの当たり判定が適用されます。一気にりんごを食べたいときに使いましょう。
+
     - 例： `w` を入力した場合
+
       ![walkの例](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/readme-w.gif)
 
 - `jump`
   - `jump` は目的地まで、間を飛び越えて一瞬で到達するイメージです。そのため、敵や障害物、りんごとの当たり判定が適用されません。敵や障害物を避けて移動したいときに使いましょう。
+
     - 例： `$` を入力した場合
+
       ![jumpの例](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/readme-doller.gif)
 
 ## ライセンス
