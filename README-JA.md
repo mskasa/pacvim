@@ -1,4 +1,4 @@
-# PacVim ~Vim 学習ゲーム~ ʕ◔ϖ◔ʔ
+# PacVim \~Vim 学習ゲーム\~ ʕ◔ϖ◔ʔ
 
 ![pacvim](https://github.com/masahiro-kasatani/pacvim/blob/readme-images/files/readme.png?raw=true)
 
