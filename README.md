@@ -16,34 +16,44 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
 
 ## Table of Contents
 
-- [How to start PacVim](#how-to-start-pacvim)
-- [PacVim Rules](#pacvim-rules)
-  - [Game screen](#game-screen)
-  - [About objects](#about-objects)
-  - [About the state of the game](#about-the-state-of-the-game)
-- [Player Controls](#player-controls)
-  - [About action type](#about-action-type)
+- [For those who want to play with PacVim](#for-those-who-want-to-play-with-pacvim)
+  - [How to start PacVim](#how-to-start-pacvim)
+  - [PacVim Rules](#pacvim-rules)
+    - [Game screen](#game-screen)
+    - [About objects](#about-objects)
+    - [About the state of the game](#about-the-state-of-the-game)
+  - [Player Controls](#player-controls)
+    - [About action type](#about-action-type)
+- [For those who want to develop PacVim](#for-those-who-want-to-develop-pacvim)
+  - [Commands for development](#commands-for-development)
+  - [Execution options](#execution-options)
+  - [How to customize PacVim](#how-to-customize-pacvim)
+    - [How to add a stage map](#how-to-add-a-stage-map)
+    - [How to add enemy types](#how-to-add-enemy-types)
+    - [How to add the enemy's thought logic](#how-to-add-the-enemys-thought-logic)
 - [License](#license)
 - [Author](#author)
 
 <!-- /TOC -->
 
-## How to start PacVim
+## For those who want to play with PacVim
+
+### How to start PacVim
 
 PacVim is started by double-clicking on the binary file below.
 
 - Windows: [./bin/win/pacvim.exe](https://github.com/masahiro-kasatani/pacvim/tree/master/bin/win)
 - Mac: [./bin/mac/pacvim](https://github.com/masahiro-kasatani/pacvim/tree/master/bin/mac)
 
-## PacVim Rules
+### PacVim Rules
 
 PacVim follows the rules of Pac-Man.
 
-### Game screen
+#### Game screen
 
 ![game screen](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/screen.png)
 
-### About objects
+#### About objects
 
 | Object name   |                                                                                                                                                         Display                                                                                                                                                         | Supplementary explanation               |
 | :------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------- |
@@ -54,7 +64,7 @@ PacVim follows the rules of Pac-Man.
 | Enemy(hunter) |                                                                                                          ![hunter](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/hunter.png)                                                                                                           | -                                       |
 | Enemy(ghost)  |                                                                                                           ![ghost](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/ghost.png)                                                                                                            | Enemies that can slip through obstacles |
 
-### About the state of the game
+#### About the state of the game
 
 | State         | To transition to the left state |
 | :------------ | :------------------------------ |
@@ -63,7 +73,7 @@ PacVim follows the rules of Pac-Man.
 | Game clear    | Clear all stages                |
 | Game over     | Stage failure with 0 life.      |
 
-## Player Controls
+### Player Controls
 
 | Key  | Action type | Action                                                      |
 | :--: | :---------- | :---------------------------------------------------------- |
@@ -82,7 +92,7 @@ PacVim follows the rules of Pac-Man.
 | `NG` | `jump`      | move to the beginning of the first word on the nth line     |
 | `q`  | -           | quit the game                                               |
 
-### About action type
+#### About action type
 
 - `walk`
 
@@ -99,6 +109,69 @@ PacVim follows the rules of Pac-Man.
     - e.g. If you type `$`.
 
       ![jump example](https://raw.githubusercontent.com/masahiro-kasatani/pacvim/readme-images/files/readme-doller.gif)
+
+## For those who want to develop PacVim
+
+### Commands for development
+
+```sh
+make help
+Usage:
+    make <command>
+
+Commands:
+    fmt
+        go fmt
+    lint
+        golangci-lint run
+    deps
+        go mod tidy
+    test
+        go test
+    cover
+        create cover.html
+    build
+        Make a macOS executable binary
+    build-win
+        Make a Windows executable binary
+    clean
+        Remove binary files
+```
+
+> **Note**
+>
+> If you have not installed make, refer to the Makefile and execute the command.<br>
+>
+> - e.g. When building on MacOS<br>
+>   - `go build -o bin/mac/pacvim .`
+
+### Execution options
+
+```sh
+./pacvim -h
+Usage of ./pacvim:
+  -level int
+    	Level at the start of the game. (1-2) (default 1)
+  -life int
+    	Remaining lives. (0-5) (default 3)
+```
+
+- e.g. If you want to start from level 3 with 5 lives.
+  - `go run . -level 3 -life 5`
+
+### How to customize PacVim
+
+#### How to add a stage map
+
+[Reference commit](https://github.com/masahiro-kasatani/pacvim/commit/ab3afdd377e3ac83e0b05b279096f3bcbdd5a26f)
+
+#### How to add enemy types
+
+[Reference commit](https://github.com/masahiro-kasatani/pacvim/commit/6c5f88a32b7ffe73bd640717f0470407578c65d0)
+
+#### How to add the enemy's thought logic
+
+[Reference commit](https://github.com/masahiro-kasatani/pacvim/commit/b0f405ff0be4dc3143579536f89aa30c83c608b6)
 
 ## License
 
