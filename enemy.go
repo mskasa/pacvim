@@ -151,15 +151,14 @@ type iEnemyBuilder interface {
 	build() iEnemy
 }
 type enemyBuilder struct {
-	x                int
-	y                int
-	char             rune
-	color            termbox.Attribute
-	underRuneBgColor termbox.Attribute
-	waitingTime      int
-	oneActionInN     int
-	canMove          func(int, int) bool
-	strategy         strategy
+	x            int
+	y            int
+	char         rune
+	color        termbox.Attribute
+	waitingTime  int
+	oneActionInN int
+	canMove      func(int, int) bool
+	strategy     strategy
 }
 
 func (eb *enemyBuilder) displayFormat(r rune, s string) iEnemyBuilder {
