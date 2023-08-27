@@ -30,7 +30,7 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
   - [PacVim のカスタマイズ方法](#pacvim-のカスタマイズ方法)
     - [ステージマップの追加方法](#ステージマップの追加方法)
     - [敵の種類の追加方法](#敵の種類の追加方法)
-    - [敵の思考ロジックの追加方法](#敵の思考ロジックの追加方法)
+    - [敵の戦略の追加方法](#敵の戦略の追加方法)
 - [ライセンス](#ライセンス)
 - [著者](#著者)
 
@@ -169,7 +169,7 @@ Usage of ./pacvim:
 
 [参考コミット](https://github.com/masahiro-kasatani/pacvim/commit/6c5f88a32b7ffe73bd640717f0470407578c65d0)
 
-#### 敵の思考ロジックの追加方法
+#### 敵の戦略の追加方法
 
 [参考コミット](https://github.com/masahiro-kasatani/pacvim/commit/b0f405ff0be4dc3143579536f89aa30c83c608b6)
 
