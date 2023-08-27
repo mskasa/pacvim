@@ -43,6 +43,7 @@ type strategy interface {
 }
 type assault struct{}
 type tricky struct{}
+type ambush struct{}
 
 type underRune struct {
 	char    rune
@@ -135,6 +136,10 @@ func (s *tricky) eval(p *player, x, y int) float64 {
 	} else {
 		return math.Sqrt(math.Pow(float64(p.y-y), 2) + math.Pow(float64(p.x-x), 2))
 	}
+}
+func (s *ambush) eval(p *player, x, y int) float64 {
+	// Implement the logic for calculating the evaluation value.
+	return float64(random(0, 30))
 }
 
 // Return a value between min and max

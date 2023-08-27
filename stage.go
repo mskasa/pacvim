@@ -26,7 +26,7 @@ func initStages() []stage {
 		{
 			level:           1,
 			mapPath:         "files/stage/map01.txt",
-			hunterBuilder:   newEnemyBuilder().defaultHunter(),
+			hunterBuilder:   newEnemyBuilder().defaultHunter().strategize(&ambush{}),
 			assassinBuilder: newEnemyBuilder().defaultAssassin(), // The only change is here.
 			gameSpeed:       1250 * time.Millisecond,
 		},
