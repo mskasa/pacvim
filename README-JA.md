@@ -42,8 +42,8 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
 
 以下のバイナリファイルをダブルクリックして起動してください。
 
-- Windows: [./bin/win/pacvim.exe](https://github.com/masahiro-kasatani/pacvim/tree/master/bin/win)
-- Mac: [./bin/mac/pacvim](https://github.com/masahiro-kasatani/pacvim/tree/master/bin/mac)
+- Windows: <a href="https://github.com/masahiro-kasatani/pacvim/tree/master/bin/win" target="_blank">./bin/win/pacvim.exe</a>
+- Mac: <a href="https://github.com/masahiro-kasatani/pacvim/tree/master/bin/mac" target="_blank">./bin/mac/pacvim</a>
 
 ### PacVim のルール
 
@@ -163,15 +163,15 @@ Usage of ./pacvim:
 
 #### ステージマップの追加方法
 
-[参考コミット](https://github.com/masahiro-kasatani/pacvim/commit/ab3afdd377e3ac83e0b05b279096f3bcbdd5a26f)
+<a href="https://github.com/masahiro-kasatani/pacvim/commit/ab3afdd377e3ac83e0b05b279096f3bcbdd5a26f" target="_blank">参考コミット</a>
 
 #### 敵の種類の追加方法
 
-[参考コミット](https://github.com/masahiro-kasatani/pacvim/commit/6c5f88a32b7ffe73bd640717f0470407578c65d0)
+<a href="https://github.com/masahiro-kasatani/pacvim/commit/6c5f88a32b7ffe73bd640717f0470407578c65d0" target="_blank">参考コミット</a>
 
 #### 敵の思考ロジックの追加方法
 
-[参考コミット](https://github.com/masahiro-kasatani/pacvim/commit/b0f405ff0be4dc3143579536f89aa30c83c608b6)
+<a href="https://github.com/masahiro-kasatani/pacvim/commit/b0f405ff0be4dc3143579536f89aa30c83c608b6" target="_blank">参考コミット</a>
 
 ## ライセンス
 
@@ -179,4 +179,4 @@ MIT
 
 ## 著者
 
-[笠谷昌弘](https://masahiro-kasatani.github.io/portfolio/)
+<a href="https://masahiro-kasatani.github.io/portfolio/" target="_blank">笠谷昌弘</a>
