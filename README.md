@@ -18,6 +18,9 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
 
 - [How to start PacVim](#how-to-start-pacvim)
 - [PacVim Rules](#pacvim-rules)
+  - [Game screen](#game-screen)
+  - [About objects](#about-objects)
+  - [About the state of the game](#about-the-state-of-the-game)
 - [Player Controls](#player-controls)
   - [About action type](#about-action-type)
 - [License](#license)
