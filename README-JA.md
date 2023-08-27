@@ -27,7 +27,7 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
 - [PacVim を開発したい方へ](#pacvim-を開発したい方へ)
   - [開発用コマンド](#開発用コマンド)
   - [実行用オプション](#実行用オプション)
-  - [PacVim の改良方法](#pacvim-の改良方法)
+  - [PacVim のカスタマイズ方法](#pacvim-のカスタマイズ方法)
     - [ステージマップの追加方法](#ステージマップの追加方法)
     - [敵の種類の追加方法](#敵の種類の追加方法)
     - [敵の思考ロジックの追加方法](#敵の思考ロジックの追加方法)
@@ -159,7 +159,7 @@ Usage of ./pacvim:
 - 例：残機 5 でレベル 3 からスタートしたい場合
   - `go run . -level 3 -life 5`
 
-### PacVim の改良方法
+### PacVim のカスタマイズ方法
 
 #### ステージマップの追加方法
 
