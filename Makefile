@@ -12,8 +12,8 @@ deps: lint ## go mod tidy
 	go mod tidy
 .PHONY: deps
 
-test: deps ## go test -short
-	go test -short
+test: deps ## go test
+	go test
 .PHONY: test
 
 cover: ## create cover.html
