@@ -75,22 +75,22 @@ PacVim follows the rules of Pac-Man.
 
 ### Player Controls
 
-| Key  | Action type | Action                                                      |
-| :--: | :---------- | :---------------------------------------------------------- |
-| `h`  | `walk`      | move left                                                   |
-| `j`  | `walk`      | move down                                                   |
-| `k`  | `walk`      | move up                                                     |
-| `l`  | `walk`      | move right                                                  |
-| `w`  | `walk`      | move forward to next word beginning                         |
-| `e`  | `walk`      | move forward to next word ending                            |
-| `b`  | `walk`      | move backward to previous word beginning                    |
-| `0`  | `jump`      | move to the beginning of the current line                   |
-| `$`  | `jump`      | move to the end of the current line                         |
-| `^`  | `jump`      | move to the beginning of the first word on the current line |
-| `gg` | `jump`      | move to the beginning of the first word on the first line   |
-| `G`  | `jump`      | move to the beginning of the first word on the last line    |
-| `NG` | `jump`      | move to the beginning of the first word on the nth line     |
-| `q`  | -           | quit the game                                               |
+|    Key    | Action type | Action                                                             |
+| :-------: | :---------- | :----------------------------------------------------------------- |
+| `h`, `Nh` | `walk`      | move left (If `Nh`, repeat N times)                                |
+| `j`, `Nj` | `walk`      | move down (If `Nj`, repeat N times)                                |
+| `k`, `Nk` | `walk`      | move up (If `Nk`, repeat N times)                                  |
+| `l`, `Nl` | `walk`      | move right (If `Nl`, repeat N times)                               |
+| `w`, `Nw` | `walk`      | move forward to next word beginning (If `Nw`, repeat N times)      |
+| `e`, `Ne` | `walk`      | move forward to next word ending (If `Ne`, repeat N times)         |
+| `b`, `Nb` | `walk`      | move backward to previous word beginning (If `Nb`, repeat N times) |
+|    `0`    | `jump`      | move to the beginning of the current line                          |
+|    `$`    | `jump`      | move to the end of the current line                                |
+|    `^`    | `jump`      | move to the beginning of the first word on the current line        |
+|   `gg`    | `jump`      | move to the beginning of the first word on the first line          |
+|    `G`    | `jump`      | move to the beginning of the first word on the last line           |
+|   `NG`    | `jump`      | move to the beginning of the first word on the nth line            |
+|    `q`    | -           | quit the game                                                      |
 
 #### About action type
 
