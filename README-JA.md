@@ -155,9 +155,9 @@ Commands:
 ./pacvim -h
 Usage of ./pacvim:
   -level int
-    	Level at the start of the game. (1-2) (default 1)
+    	Level at the start of the game. (default 1)
   -life int
-    	Remaining lives. (0-5) (default 3)
+    	Remaining lives. (default 2)
 ```
 
 - 例：残機 5 でレベル 3 からスタートしたい場合
