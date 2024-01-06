@@ -16,23 +16,25 @@ The Go gopher was designed by <a href="https://go.dev/blog/gopher" target="_blan
 
 ## Table of Contents
 
-- [For those who want to play with PacVim](#for-those-who-want-to-play-with-pacvim)
-  - [How to start PacVim](#how-to-start-pacvim)
-  - [PacVim Rules](#pacvim-rules)
-    - [Game screen](#game-screen)
-    - [About objects](#about-objects)
-    - [About the state of the game](#about-the-state-of-the-game)
-  - [Player Controls](#player-controls)
-    - [About action type](#about-action-type)
-- [For those who want to develop PacVim](#for-those-who-want-to-develop-pacvim)
-  - [Commands for development](#commands-for-development)
-  - [Execution options](#execution-options)
-  - [How to customize PacVim](#how-to-customize-pacvim)
-    - [How to add a stage map](#how-to-add-a-stage-map)
-    - [How to add enemy types](#how-to-add-enemy-types)
-    - [How to add enemy strategies](#how-to-add-enemy-strategies)
-- [License](#license)
-- [Author](#author)
+- [PacVim is a Vim learning game ʕ◔ϖ◔ʔ](#pacvim-is-a-vim-learning-game-ʕϖʔ)
+  - [Table of Contents](#table-of-contents)
+  - [For those who want to play with PacVim](#for-those-who-want-to-play-with-pacvim)
+    - [How to start PacVim](#how-to-start-pacvim)
+    - [PacVim Rules](#pacvim-rules)
+      - [Game screen](#game-screen)
+      - [About objects](#about-objects)
+      - [About the state of the game](#about-the-state-of-the-game)
+    - [Player Controls](#player-controls)
+      - [About action type](#about-action-type)
+  - [For those who want to develop PacVim](#for-those-who-want-to-develop-pacvim)
+    - [Commands for development](#commands-for-development)
+    - [Execution options](#execution-options)
+    - [How to customize PacVim](#how-to-customize-pacvim)
+      - [How to add a stage map](#how-to-add-a-stage-map)
+      - [How to add enemy types](#how-to-add-enemy-types)
+      - [How to add enemy strategies](#how-to-add-enemy-strategies)
+  - [License](#license)
+  - [Author](#author)
 
 <!-- /TOC -->
 
@@ -183,4 +185,4 @@ MIT
 
 ## Author
 
-[Masahiro Kasatani](https://masahiro-kasatani.github.io/portfolio/)
+[Masahiro Kasatani](https://lapras.com/public/kasatani)
