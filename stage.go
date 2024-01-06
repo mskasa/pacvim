@@ -163,6 +163,9 @@ func (s stage) start(p *player) error {
 }
 
 func (s stage) control(p *player) error {
+	// Implemented as sequential execution for the following reasons:
+	// - The processing content is light.
+	// - Considering the overlap of enemies makes the implementation complex.
 	for _, e := range s.enemies {
 		e.move(e.think(p))
 		e.hasCaptured(p)
