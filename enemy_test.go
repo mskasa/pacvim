@@ -22,14 +22,14 @@ func TestEnemyControl(t *testing.T) {
 	for name, tt := range cases {
 		tt := tt
 		t.Run(name, func(t *testing.T) {
-			p, stage, err := enemyActionTestInit(t, enemyTestMapPath+tt.mapFileName, tt.enemyBuilder)
+			p, s, err := enemyActionTestInit(t, enemyTestMapPath+tt.mapFileName, tt.enemyBuilder)
 			if err != nil {
 				t.Error(err)
 			}
 			p.state = continuing
 			count := 0
 			for p.state == continuing {
-				if err := control(stage, p); err != nil {
+				if err := s.control(p); err != nil {
 					t.Error(err)
 				}
 				count++
