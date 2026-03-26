@@ -10,7 +10,7 @@ name: Promote Draft Documents
 on:
   push:
     branches:
-      - main  # ← change this if your default branch has a different name
+      - master  # ← change this if your default branch has a different name
 
 jobs:
   promote:
