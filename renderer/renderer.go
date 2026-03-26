@@ -142,20 +142,22 @@ func (r *Renderer) drawPlayer(screen *ebiten.Image, p *state.Player) {
 	r.drawSprite32(screen, r.sheets.gopherFrames[frame], p.X, p.Y)
 }
 
-// drawSprite32 は 32×32 スプライトを TileSize(16) に縮小してグリッド座標 (gx, gy) に描画する。
+// drawSprite32 は 32×32 スプライトをグリッド座標 (gx, gy) のタイルに中央揃えで描画する。
+// タイル(16×16)より大きいため、隣接タイルに 8px はみ出す。
 func (r *Renderer) drawSprite32(screen *ebiten.Image, sprite *ebiten.Image, gx, gy int) {
 	sx, sy := gridToScreen(gx, gy)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(float64(TileSize)/32, float64(TileSize)/32)
-	op.GeoM.Translate(float64(sx), float64(sy))
+	op.GeoM.Translate(float64(sx-8), float64(sy-8))
 	screen.DrawImage(sprite, op)
 }
 
-// drawSprite16 は 16×16 スプライトをグリッド座標 (gx, gy) に描画する。
+// drawSprite16 は 16×16 スプライトを 2 倍に拡大して 32×32 として描画する。
+// drawSprite32 と同じサイズ・位置合わせになる。
 func (r *Renderer) drawSprite16(screen *ebiten.Image, sprite *ebiten.Image, gx, gy int) {
 	sx, sy := gridToScreen(gx, gy)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(sx), float64(sy))
+	op.GeoM.Scale(2, 2)
+	op.GeoM.Translate(float64(sx-8), float64(sy-8))
 	screen.DrawImage(sprite, op)
 }
 
