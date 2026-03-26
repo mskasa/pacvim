@@ -153,10 +153,40 @@ func (gs *GameState) advanceEnemyTick() {
 }
 
 // moveEnemies は全敵を1ステップ移動させる。
+// 移動先が他の敵の現在地または他の敵の移動先と重複する場合は移動しない。
+// インデックスが小さい敵が優先される。
 func (gs *GameState) moveEnemies() {
-	for _, e := range gs.Enemies {
-		nx, ny := e.Think(gs.Player, gs.Stage().Grid)
-		e.Move(nx, ny, gs.Stage().Grid)
+	grid := gs.Stage().Grid
+
+	// 全員の移動先を先に決定する
+	targets := make([][2]int, len(gs.Enemies))
+	for i, e := range gs.Enemies {
+		nx, ny := e.Think(gs.Player, grid)
+		targets[i] = [2]int{nx, ny}
+	}
+
+	for i, e := range gs.Enemies {
+		nx, ny := targets[i][0], targets[i][1]
+		conflict := false
+		for j, other := range gs.Enemies {
+			if i == j {
+				continue
+			}
+			// 他の敵の現在地と重複
+			ox, oy := other.Position()
+			if nx == ox && ny == oy {
+				conflict = true
+				break
+			}
+			// 他の敵の移動先と重複（インデックスが小さい方を優先）
+			if nx == targets[j][0] && ny == targets[j][1] && i > j {
+				conflict = true
+				break
+			}
+		}
+		if !conflict {
+			e.Move(nx, ny, grid)
+		}
 	}
 }
 

@@ -265,6 +265,64 @@ func TestGameClearOnLastStage(t *testing.T) {
 	}
 }
 
+// --- 敵の重複移動防止 ---
+
+func TestEnemiesDoNotOverlapSameTarget(t *testing.T) {
+	// 2体の敵が同じセルへ移動しようとする状況
+	// グリッド: 横一列の通路、プレイヤーが右端
+	// E1(1,1) E2(2,1) → 両者とも右へ進もうとするが、E2 の移動先(3,1)に E1 も行こうとする
+	gs := newGameStateWithGrid([]string{
+		"++++++",
+		"+    +",
+		"++++++",
+	}, 3)
+	gs.Player.X = 4
+	gs.Player.Y = 1
+	gs.Enemies = []Enemy{
+		NewHunterBuilder().Build(1, 1),
+		NewHunterBuilder().Build(2, 1),
+	}
+	gs.Phase = PhasePlaying
+	gs.Stages[0].GameSpeed = time.Second / 60 // 即座に移動
+
+	_ = gs.Update(input.CmdNone, 0)
+
+	x0, y0 := gs.Enemies[0].Position()
+	x1, y1 := gs.Enemies[1].Position()
+	if x0 == x1 && y0 == y1 {
+		t.Errorf("enemies should not occupy the same cell, both at (%d,%d)", x0, y0)
+	}
+}
+
+func TestEnemiesDoNotMoveToOccupiedCell(t *testing.T) {
+	// E1 の現在地に E2 が移動しようとする場合、E2 は移動しない
+	gs := newGameStateWithGrid([]string{
+		"++++++",
+		"+    +",
+		"++++++",
+	}, 3)
+	gs.Player.X = 4
+	gs.Player.Y = 1
+	// E1(3,1) E2(1,1): E2 は右へ進もうとするが、E1 がいるので最終的に重なってはいけない
+	gs.Enemies = []Enemy{
+		NewHunterBuilder().Build(3, 1),
+		NewHunterBuilder().Build(1, 1),
+	}
+	gs.Phase = PhasePlaying
+	gs.Stages[0].GameSpeed = time.Second / 60
+
+	// 複数フレーム動かしても重複しない
+	for range 10 {
+		_ = gs.Update(input.CmdNone, 0)
+		x0, y0 := gs.Enemies[0].Position()
+		x1, y1 := gs.Enemies[1].Position()
+		if x0 == x1 && y0 == y1 {
+			t.Errorf("enemies overlapped at (%d,%d)", x0, y0)
+			return
+		}
+	}
+}
+
 // --- Stage() アクセサ ---
 
 func TestStageAccessor(t *testing.T) {
