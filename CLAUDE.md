@@ -489,11 +489,11 @@ make wasm         # WebAssembly ビルド（docs/wasm/ に出力）
 
 ### Phase 2：Ebitengine への接続
 
-- [ ] `go.mod`：`github.com/hajimehoshi/ebiten/v2` を追加
-- [ ] `input/input.go`：キー入力 → `Command` 変換
-- [ ] `renderer/renderer.go`：グリッド / プレイヤー / 敵 / UI の描画
-- [ ] `game.go`：`ebiten.Game` の実装
-- [ ] `main.go`：`ebiten.RunGame` で起動
+- [x] `go.mod`：`github.com/hajimehoshi/ebiten/v2` を追加
+- [x] `input/input.go`：キー入力 → `Command` 変換
+- [x] `renderer/renderer.go`：グリッド / プレイヤー / 敵 / UI の描画
+- [x] `game.go`：`ebiten.Game` の実装
+- [x] `main.go`：`ebiten.RunGame` で起動
 
 ### Phase 3：機能拡張
 
