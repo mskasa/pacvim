@@ -481,7 +481,7 @@ make wasm         # WebAssembly ビルド（docs/wasm/ に出力）
 ### Phase 1：state パッケージ（termbox 不要・テスト可能）
 
 - [x] `state/map.go`：`Grid` / `Cell` / マップ読み込み
-- [ ] `state/player.go`：`Player` と基本コマンド（h j k l w e b 0 $ ^ gg G）
+- [x] `state/player.go`：`Player` と基本コマンド（h j k l w e b 0 $ ^ gg G）
 - [ ] `state/enemy.go`：`Enemy` / Builder / Strategy（Assault / Tricky）
 - [ ] `state/stage.go`：`Stage` とステージ定義
 - [ ] `state/gamestate.go`：`GameState.Update()`
