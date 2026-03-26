@@ -1,36 +1,29 @@
 .DEFAULT_GOAL := help
 
-fmt: ## go fmt
-	go fmt
-.PHONY: fmt
+run: ## Run the game
+	go run .
+.PHONY: run
 
-lint: fmt ## golangci-lint run
-	golangci-lint run
-.PHONY: lint
-
-deps: lint ## go mod tidy
-	go mod tidy
-.PHONY: deps
-
-test: deps ## go test
-	go test
+test: ## Run tests
+	go test ./...
 .PHONY: test
 
-cover: ## create cover.html
-	go test -cover -coverprofile=cover.out
-	go tool cover -html=cover.out -o cover.html
-
-build: test ## Make a macOS executable binary
+build: ## Make a macOS executable binary
 	go build -o bin/mac/pacvim .
 .PHONY: build
 
-build-win: test ## Make a Windows executable binary
+build-win: ## Make a Windows executable binary
 	GOOS=windows GOARCH=amd64 go build -o bin/win/pacvim.exe .
 .PHONY: build-win
 
+wasm: ## Build WebAssembly (output: docs/wasm/)
+	mkdir -p docs/wasm
+	GOOS=js GOARCH=wasm go build -o docs/wasm/pacvim.wasm .
+	cp "$(shell go env GOROOT)/misc/wasm/wasm_exec.js" docs/wasm/
+.PHONY: wasm
+
 clean: ## Remove binary files
-	rm ./bin/mac/pacvim
-	rm ./bin/win/pacvim.exe
+	rm -f bin/mac/pacvim bin/win/pacvim.exe docs/wasm/pacvim.wasm
 .PHONY: clean
 
 help:
