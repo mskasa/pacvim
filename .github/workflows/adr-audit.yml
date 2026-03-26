@@ -1,0 +1,43 @@
+name: kizami Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: '1.22'
+      - name: Install kizami
+        run: go install github.com/mskasa/kizami@latest
+      - name: Run kizami audit
+        id: audit
+        run: kizami audit
+      - name: Create GitHub Issue if stale documents found
+        if: steps.audit.outputs.stale_found == 'true'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const title = `[kizami audit] Stale file references detected (${new Date().toISOString().slice(0, 10)})`;
+            const body = process.env.AUDIT_RESULT;
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+            });
+            const duplicate = existing.data.find(i => i.title.includes('[kizami audit]'));
+            if (!duplicate) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+              });
+            }

@@ -1,0 +1,48 @@
+name: Promote Draft Documents
+
+# Auto-promotes documents from Draft → Active when changes are merged to the default branch.
+# This signals that decisions recorded during development are now considered final.
+#
+# Customize:
+#   - Change 'main' below to your release branch name if needed.
+#   - Add or remove directories in the 'dirs' variable to match your project layout.
+
+on:
+  push:
+    branches:
+      - main  # ← change this if your default branch has a different name
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Promote Draft documents to Active
+        id: promote
+        run: |
+          # Customize: add or remove directories to scan for Draft documents.
+          dirs="docs/decisions docs/design"
+          changed=0
+          for dir in $dirs; do
+            [ -d "$dir" ] || continue
+            while IFS= read -r -d '' file; do
+              if grep -q "^- Status: Draft$" "$file"; then
+                sed -i 's/^- Status: Draft$/- Status: Active/' "$file"
+                echo "Promoted: $file"
+                changed=1
+              fi
+            done < <(find "$dir" -name "*.md" -print0)
+          done
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Commit promoted documents
+        if: steps.promote.outputs.changed == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git commit -m "docs: auto-promote Draft documents to Active [skip ci]"
+          git push
