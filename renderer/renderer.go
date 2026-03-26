@@ -16,13 +16,13 @@ import (
 )
 
 const (
-	TileSize     = 16
-	OffsetX      = 40 // 行番号エリアの幅（ピクセル）
+	TileSize     = 32
+	OffsetX      = 48 // 行番号エリアの幅（ピクセル）
 	OffsetY      = 16 // 上部マージン
-	ScreenWidth  = 800
-	ScreenHeight = 600
+	ScreenWidth  = OffsetX + 29*TileSize // 48 + 928 = 976
+	ScreenHeight = OffsetY + 15*TileSize + 28 // 16 + 480 + 28 = 524
 
-	statusBarY = ScreenHeight - 24
+	statusBarY = ScreenHeight - 28
 )
 
 // 色定義
@@ -117,7 +117,7 @@ func (r *Renderer) drawLineNumbers(screen *ebiten.Image, grid *state.Grid) {
 	for y := 0; y < grid.Height; y++ {
 		_, sy := gridToScreen(0, y)
 		num := fmt.Sprintf("%2d", y+1)
-		r.drawChar(screen, num, 2, sy+11, colorLineNum)
+		r.drawChar(screen, num, 2, sy+TileSize/2+4, colorLineNum)
 	}
 }
 
@@ -142,27 +142,26 @@ func (r *Renderer) drawPlayer(screen *ebiten.Image, p *state.Player) {
 	r.drawSprite32(screen, r.sheets.gopherFrames[frame], p.X, p.Y)
 }
 
-// drawSprite32 は 32×32 スプライトをグリッド座標 (gx, gy) のタイルに中央揃えで描画する。
-// タイル(16×16)より大きいため、隣接タイルに 8px はみ出す。
+// drawSprite32 は 32×32 スプライトをグリッド座標 (gx, gy) のタイルにぴったり描画する。
+// TileSize=32 なのでスケール不要。
 func (r *Renderer) drawSprite32(screen *ebiten.Image, sprite *ebiten.Image, gx, gy int) {
 	sx, sy := gridToScreen(gx, gy)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(sx-8), float64(sy-8))
+	op.GeoM.Translate(float64(sx), float64(sy))
 	screen.DrawImage(sprite, op)
 }
 
-// drawSprite16 は 16×16 スプライトを 2 倍に拡大して 32×32 として描画する。
-// drawSprite32 と同じサイズ・位置合わせになる。
+// drawSprite16 は 16×16 スプライトを 2 倍に拡大して TileSize(32) に合わせて描画する。
 func (r *Renderer) drawSprite16(screen *ebiten.Image, sprite *ebiten.Image, gx, gy int) {
 	sx, sy := gridToScreen(gx, gy)
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(2, 2)
-	op.GeoM.Translate(float64(sx-8), float64(sy-8))
+	op.GeoM.Translate(float64(sx), float64(sy))
 	screen.DrawImage(sprite, op)
 }
 
 func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
-	vector.FillRect(screen, 0, float32(statusBarY), ScreenWidth, 24, colorStatusBg, false)
+	vector.FillRect(screen, 0, float32(statusBarY), ScreenWidth, 28, colorStatusBg, false)
 	stage := gs.Stage()
 	text := fmt.Sprintf("  Level: %d    Score: %d/%d    Life: %d",
 		stage.Level, gs.Player.Score, gs.Player.TargetScore, gs.Life)
