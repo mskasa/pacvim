@@ -142,12 +142,12 @@ func (r *Renderer) drawPlayer(screen *ebiten.Image, p *state.Player) {
 	r.drawSprite32(screen, r.sheets.gopherFrames[frame], p.X, p.Y)
 }
 
-// drawSprite32 は 32×32 スプライトをグリッド座標 (gx, gy) に描画する。
-// TileSize(16) の 2×2 タイル分のサイズなので、(-8, -8) オフセットで中央揃えする。
+// drawSprite32 は 32×32 スプライトを TileSize(16) に縮小してグリッド座標 (gx, gy) に描画する。
 func (r *Renderer) drawSprite32(screen *ebiten.Image, sprite *ebiten.Image, gx, gy int) {
 	sx, sy := gridToScreen(gx, gy)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(sx-8), float64(sy-8))
+	op.GeoM.Scale(float64(TileSize)/32, float64(TileSize)/32)
+	op.GeoM.Translate(float64(sx), float64(sy))
 	screen.DrawImage(sprite, op)
 }
 
