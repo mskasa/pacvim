@@ -109,8 +109,8 @@ func TestUpdateOpeningStartsOnCommand(t *testing.T) {
 		t.Fatalf("NewGameState failed: %v", err)
 	}
 	_ = gs.Update(input.CmdMoveRight, 0)
-	if gs.Phase != PhasePlaying {
-		t.Errorf("command should transition to PhasePlaying, got %v", gs.Phase)
+	if gs.Phase != PhaseReady {
+		t.Errorf("command should transition to PhaseReady, got %v", gs.Phase)
 	}
 }
 
@@ -229,8 +229,8 @@ func TestStageClearAdvancesStage(t *testing.T) {
 	if gs.StageIdx != 1 {
 		t.Errorf("want StageIdx=1 after clear, got %d", gs.StageIdx)
 	}
-	if gs.Phase != PhasePlaying {
-		t.Errorf("want PhasePlaying after stage clear, got %v", gs.Phase)
+	if gs.Phase != PhaseReady {
+		t.Errorf("want PhaseReady after stage clear, got %v", gs.Phase)
 	}
 }
 
