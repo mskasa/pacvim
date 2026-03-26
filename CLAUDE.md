@@ -46,14 +46,15 @@ pacvim/
 │   ├── player.go        # Player struct・Vim コマンドのロジック
 │   ├── enemy.go         # Enemy インターフェース・Builder・Strategy
 │   ├── stage.go         # Stage struct・ステージ定義
-│   └── map.go           # Grid・Cell・マップ読み込み
+│   ├── map.go           # Grid・Cell・マップ読み込み
+│   └── files/
+│       └── stage/       # マップファイル（map01.txt〜）※go:embed のため state/ 配下に配置
 ├── input/
 │   └── input.go         # キー入力 → Command 型への変換
 ├── renderer/
 │   └── renderer.go      # Ebitengine を使った描画ロジック
 ├── files/
-│   ├── stage/           # マップファイル（map01.txt〜）
-│   └── fonts/           # 埋め込みフォント
+│   └── fonts/           # 埋め込みフォント（renderer パッケージから参照予定）
 ├── docs/
 │   ├── decisions/       # ADR（Architecture Decision Records）
 │   └── design/          # 設計ドキュメント
@@ -351,17 +352,19 @@ type Stage struct {
 func InitStages() []Stage { ... }
 ```
 
-### マップファイルの文字規則（`files/stage/*.txt`）
+### マップファイルの文字規則（`state/files/stage/*.txt`）
 
 ```
-|   境界線（行番号とマップの区切り）
-#   障害物
-*   リンゴ（収集対象）
-x   毒
++   境界線（マップの外枠）→ CellBoundary
+!   障害物（縦・横・斜め接続部）→ CellWall
+-   障害物（水平線）→ CellWall
+|   障害物（垂直線）→ CellWall
+o   リンゴ（収集対象）→ CellApple
+X   毒 → CellPoison
 P   プレイヤー初期位置（読み込み後は CellSpace）
 H   ハンター初期位置（読み込み後は CellSpace）
 G   ゴースト初期位置（読み込み後は CellSpace）
-    スペース（通路）
+    スペース（通路）→ CellSpace
 ```
 
 ---
@@ -389,8 +392,8 @@ if time.Duration(gs.EnemyTick)*(time.Second/60) >= gs.Stage().GameSpeed {
 ```go
 func TestPlayerWalkRight(t *testing.T) {
     grid := buildGrid([]string{
-        "|    ",
-        "| P* ",
+        "++++",
+        "+ Po",
     })
     stage := &state.Stage{Grid: grid}
     p := &state.Player{X: 2, Y: 1, State: state.PlayerAlive}
@@ -477,7 +480,7 @@ make wasm         # WebAssembly ビルド（docs/wasm/ に出力）
 
 ### Phase 1：state パッケージ（termbox 不要・テスト可能）
 
-- [ ] `state/map.go`：`Grid` / `Cell` / マップ読み込み
+- [x] `state/map.go`：`Grid` / `Cell` / マップ読み込み
 - [ ] `state/player.go`：`Player` と基本コマンド（h j k l w e b 0 $ ^ gg G）
 - [ ] `state/enemy.go`：`Enemy` / Builder / Strategy（Assault / Tricky）
 - [ ] `state/stage.go`：`Stage` とステージ定義
