@@ -16,13 +16,13 @@ import (
 )
 
 const (
-	TileSize     = 16
-	OffsetX      = 40 // 行番号エリアの幅（ピクセル）
+	TileSize     = 32
+	OffsetX      = 48 // 行番号エリアの幅（ピクセル）
 	OffsetY      = 16 // 上部マージン
-	ScreenWidth  = 800
-	ScreenHeight = 600
+	ScreenWidth  = OffsetX + 29*TileSize // 48 + 928 = 976
+	ScreenHeight = OffsetY + 15*TileSize + 28 // 16 + 480 + 28 = 524
 
-	statusBarY = ScreenHeight - 24
+	statusBarY = ScreenHeight - 28
 )
 
 // 色定義
@@ -30,12 +30,6 @@ var (
 	colorBackground = color.RGBA{10, 10, 20, 255}
 	colorBoundary   = color.RGBA{40, 40, 80, 255}
 	colorWall       = color.RGBA{90, 90, 110, 255}
-	colorApple      = color.RGBA{80, 200, 80, 255}
-	colorAppleEaten = color.RGBA{30, 60, 30, 255}
-	colorPoison     = color.RGBA{200, 50, 50, 255}
-	colorPlayer     = color.RGBA{255, 255, 100, 255}
-	colorHunter     = color.RGBA{255, 140, 0, 255}
-	colorGhost      = color.RGBA{180, 100, 255, 255}
 	colorLineNum    = color.RGBA{100, 100, 140, 255}
 	colorStatusBg   = color.RGBA{30, 30, 50, 255}
 	colorStatusText = color.RGBA{200, 200, 200, 255}
@@ -46,18 +40,26 @@ var (
 
 // Renderer は Draw() の呼び出しごとにゲーム状態を画面に描画する。
 type Renderer struct {
-	face *textv2.GoXFace
+	face   *textv2.GoXFace
+	sheets *spriteSheet // スプライトシート
+	tick   int          // アニメーション用フレームカウンタ
 }
 
-// New は Renderer を生成する。
-func New() *Renderer {
-	return &Renderer{
-		face: textv2.NewGoXFace(basicfont.Face7x13),
+// New は Renderer を生成する。スプライトシートのロードに失敗した場合は error を返す。
+func New() (*Renderer, error) {
+	ss, err := newSpriteSheet()
+	if err != nil {
+		return nil, err
 	}
+	return &Renderer{
+		face:   textv2.NewGoXFace(basicfont.Face7x13),
+		sheets: ss,
+	}, nil
 }
 
 // Draw はゲーム全体を描画する。state を変更しない。
 func (r *Renderer) Draw(screen *ebiten.Image, gs *state.GameState) {
+	r.tick++
 	screen.Fill(colorBackground)
 
 	switch gs.Phase {
@@ -99,13 +101,13 @@ func (r *Renderer) drawGrid(screen *ebiten.Image, grid *state.Grid) {
 				vector.FillRect(screen, float32(sx), float32(sy), TileSize, TileSize, colorBoundary, false)
 				r.drawChar(screen, "+", sx+4, sy+11, colorWall)
 			case state.CellWall:
-				vector.FillRect(screen, float32(sx), float32(sy), TileSize, TileSize, colorWall, false)
+				r.drawSprite16(screen, r.sheets.wall, x, y)
 			case state.CellApple:
-				r.drawChar(screen, "o", sx+4, sy+11, colorApple)
+				r.drawSprite16(screen, r.sheets.apple, x, y)
 			case state.CellAppleEaten:
-				r.drawChar(screen, "·", sx+4, sy+11, colorAppleEaten)
+				r.drawSprite16(screen, r.sheets.appleEaten, x, y)
 			case state.CellPoison:
-				r.drawChar(screen, "X", sx+3, sy+11, colorPoison)
+				r.drawSprite16(screen, r.sheets.poison, x, y)
 			}
 		}
 	}
@@ -115,21 +117,19 @@ func (r *Renderer) drawLineNumbers(screen *ebiten.Image, grid *state.Grid) {
 	for y := 0; y < grid.Height; y++ {
 		_, sy := gridToScreen(0, y)
 		num := fmt.Sprintf("%2d", y+1)
-		r.drawChar(screen, num, 2, sy+11, colorLineNum)
+		r.drawChar(screen, num, 2, sy+TileSize/2+4, colorLineNum)
 	}
 }
 
 func (r *Renderer) drawEnemies(screen *ebiten.Image, enemies []state.Enemy) {
+	frame := (r.tick / 20) % 4
 	for _, e := range enemies {
 		x, y := e.Position()
-		sx, sy := gridToScreen(x, y)
 		switch e.Kind() {
 		case state.EnemyHunter:
-			vector.FillRect(screen, float32(sx)+2, float32(sy)+2, TileSize-4, TileSize-4, colorHunter, false)
-			r.drawChar(screen, "H", sx+4, sy+11, colorBackground)
+			r.drawSprite32(screen, r.sheets.hunterFrames[frame], x, y)
 		case state.EnemyGhost:
-			vector.FillRect(screen, float32(sx)+2, float32(sy)+2, TileSize-4, TileSize-4, colorGhost, false)
-			r.drawChar(screen, "G", sx+4, sy+11, colorBackground)
+			r.drawSprite32(screen, r.sheets.ghostFrames[frame], x, y)
 		}
 	}
 }
@@ -138,13 +138,30 @@ func (r *Renderer) drawPlayer(screen *ebiten.Image, p *state.Player) {
 	if p == nil {
 		return
 	}
-	sx, sy := gridToScreen(p.X, p.Y)
-	vector.FillRect(screen, float32(sx)+1, float32(sy)+1, TileSize-2, TileSize-2, colorPlayer, false)
-	r.drawChar(screen, "P", sx+4, sy+11, colorBackground)
+	frame := (r.tick / 20) % 4
+	r.drawSprite32(screen, r.sheets.gopherFrames[frame], p.X, p.Y)
+}
+
+// drawSprite32 は 32×32 スプライトをグリッド座標 (gx, gy) のタイルにぴったり描画する。
+// TileSize=32 なのでスケール不要。
+func (r *Renderer) drawSprite32(screen *ebiten.Image, sprite *ebiten.Image, gx, gy int) {
+	sx, sy := gridToScreen(gx, gy)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(sx), float64(sy))
+	screen.DrawImage(sprite, op)
+}
+
+// drawSprite16 は 16×16 スプライトを 2 倍に拡大して TileSize(32) に合わせて描画する。
+func (r *Renderer) drawSprite16(screen *ebiten.Image, sprite *ebiten.Image, gx, gy int) {
+	sx, sy := gridToScreen(gx, gy)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(2, 2)
+	op.GeoM.Translate(float64(sx), float64(sy))
+	screen.DrawImage(sprite, op)
 }
 
 func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
-	vector.FillRect(screen, 0, float32(statusBarY), ScreenWidth, 24, colorStatusBg, false)
+	vector.FillRect(screen, 0, float32(statusBarY), ScreenWidth, 28, colorStatusBg, false)
 	stage := gs.Stage()
 	text := fmt.Sprintf("  Level: %d    Score: %d/%d    Life: %d",
 		stage.Level, gs.Player.Score, gs.Player.TargetScore, gs.Life)

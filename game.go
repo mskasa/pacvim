@@ -23,10 +23,14 @@ func NewGame() (*Game, error) {
 	if err != nil {
 		return nil, err
 	}
+	ren, err := renderer.New()
+	if err != nil {
+		return nil, err
+	}
 	return &Game{
 		gs:  gs,
 		in:  &input.Handler{},
-		ren: renderer.New(),
+		ren: ren,
 	}, nil
 }
 
