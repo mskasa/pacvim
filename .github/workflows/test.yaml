@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - master
+      - ebitengine
   pull_request:
     branches:
       - master
+      - ebitengine
 
 jobs:
   test:
@@ -27,7 +29,7 @@ jobs:
         shell: 'script -q -e -c "stty cols 200 rows 100; bash {0}"'
         run: |
           export TERM="xterm-256color"
-          go test -cover -coverprofile=cover.out
+          go test ./state/... ./input/... -cover -coverprofile=cover.out
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
