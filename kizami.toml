@@ -1,0 +1,20 @@
+[ai]
+model = "claude-sonnet-4-20250514"
+
+[documents]
+dirs = ["docs/decisions", "docs/design"]
+
+[decisions]
+dir = "docs/decisions"
+
+[design]
+dir = "docs/design"
+
+[audit]
+dirs = ["docs/decisions", "docs/design"]
+
+[review]
+months_threshold = 6
+
+[editor]
+command = "code --wait"
