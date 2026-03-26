@@ -53,7 +53,7 @@ func TestPlayerMoveRight(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	if p.X != 2 || p.Y != 1 {
 		t.Errorf("want (2,1), got (%d,%d)", p.X, p.Y)
 	}
@@ -66,7 +66,7 @@ func TestPlayerMoveLeft(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 3, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdMoveLeft, 0, stage)
+	p.Apply(input.CmdMoveLeft, 0, stage, nil)
 	if p.X != 2 || p.Y != 1 {
 		t.Errorf("want (2,1), got (%d,%d)", p.X, p.Y)
 	}
@@ -79,7 +79,7 @@ func TestPlayerMoveUp(t *testing.T) {
 		"+ +",
 	})
 	p := &Player{X: 1, Y: 2, State: PlayerAlive}
-	p.Apply(input.CmdMoveUp, 0, stage)
+	p.Apply(input.CmdMoveUp, 0, stage, nil)
 	if p.X != 1 || p.Y != 1 {
 		t.Errorf("want (1,1), got (%d,%d)", p.X, p.Y)
 	}
@@ -92,7 +92,7 @@ func TestPlayerMoveDown(t *testing.T) {
 		"+ +",
 	})
 	p := &Player{X: 1, Y: 0, State: PlayerAlive}
-	p.Apply(input.CmdMoveDown, 0, stage)
+	p.Apply(input.CmdMoveDown, 0, stage, nil)
 	if p.X != 1 || p.Y != 1 {
 		t.Errorf("want (1,1), got (%d,%d)", p.X, p.Y)
 	}
@@ -105,7 +105,7 @@ func TestPlayerMoveBlockedByWall(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	// ! は CellWall なので移動できない
 	if p.X != 1 {
 		t.Errorf("should be blocked, got X=%d", p.X)
@@ -120,8 +120,8 @@ func TestPlayerMoveWithCount(t *testing.T) {
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
 	// 3l = 3 マス右
-	p.Apply(input.CmdNum, '3', stage)
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdNum, '3', stage, nil)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	if p.X != 4 {
 		t.Errorf("want X=4, got X=%d", p.X)
 	}
@@ -135,9 +135,9 @@ func TestPlayerMoveCountStopsAtWall(t *testing.T) {
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
 	// 10l = 壁手前で止まる
-	p.Apply(input.CmdNum, '1', stage)
-	p.Apply(input.CmdNum, '0', stage)
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdNum, '1', stage, nil)
+	p.Apply(input.CmdNum, '0', stage, nil)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	if p.X != 3 {
 		t.Errorf("want X=3 (stopped at wall), got X=%d", p.X)
 	}
@@ -152,7 +152,7 @@ func TestPlayerEatsApple(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 1}
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	if p.Score != 1 {
 		t.Errorf("want Score=1, got %d", p.Score)
 	}
@@ -168,7 +168,7 @@ func TestPlayerWinsWhenAllApplesEaten(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 1}
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	if p.State != PlayerWon {
 		t.Errorf("want PlayerWon, got %v", p.State)
 	}
@@ -181,7 +181,7 @@ func TestPlayerDiesOnPoison(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	if p.State != PlayerDead {
 		t.Errorf("want PlayerDead, got %v", p.State)
 	}
@@ -194,7 +194,7 @@ func TestPlayerDeadIgnoresCommands(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerDead}
-	p.Apply(input.CmdMoveRight, 0, stage)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
 	if p.X != 1 {
 		t.Errorf("dead player should not move, got X=%d", p.X)
 	}
@@ -210,7 +210,7 @@ func TestPlayerWordForward(t *testing.T) {
 		"++++++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
-	p.Apply(input.CmdWordForward, 0, stage)
+	p.Apply(input.CmdWordForward, 0, stage, nil)
 	if p.X != 5 {
 		t.Errorf("want X=5 (next word), got X=%d", p.X)
 	}
@@ -224,7 +224,7 @@ func TestPlayerWordForwardCollectsApples(t *testing.T) {
 		"+++++++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 10}
-	p.Apply(input.CmdWordForward, 0, stage)
+	p.Apply(input.CmdWordForward, 0, stage, nil)
 	// 通過したリンゴ（x=1,x=2）は収集される
 	if p.Score < 1 {
 		t.Errorf("want apples collected during w, got Score=%d", p.Score)
@@ -239,7 +239,7 @@ func TestPlayerWordBack(t *testing.T) {
 		"++++++++",
 	})
 	p := &Player{X: 6, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdWordBack, 0, stage)
+	p.Apply(input.CmdWordBack, 0, stage, nil)
 	if p.X != 5 {
 		t.Errorf("want X=5 (prev word start), got X=%d", p.X)
 	}
@@ -253,7 +253,7 @@ func TestPlayerWordEnd(t *testing.T) {
 		"++++++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdWordEnd, 0, stage)
+	p.Apply(input.CmdWordEnd, 0, stage, nil)
 	if p.X != 2 {
 		t.Errorf("want X=2 (word end), got X=%d", p.X)
 	}
@@ -267,8 +267,8 @@ func TestPlayerWordForwardWithCount(t *testing.T) {
 		"++++++++++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
-	p.Apply(input.CmdNum, '2', stage)
-	p.Apply(input.CmdWordForward, 0, stage)
+	p.Apply(input.CmdNum, '2', stage, nil)
+	p.Apply(input.CmdWordForward, 0, stage, nil)
 	if p.X != 9 {
 		t.Errorf("want X=9 (2nd next word), got X=%d", p.X)
 	}
@@ -283,7 +283,7 @@ func TestPlayerLineBegin(t *testing.T) {
 		"++++++++",
 	})
 	p := &Player{X: 6, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdLineBegin, 0, stage)
+	p.Apply(input.CmdLineBegin, 0, stage, nil)
 	if p.X != 1 {
 		t.Errorf("want X=1 (line begin), got X=%d", p.X)
 	}
@@ -296,7 +296,7 @@ func TestPlayerLineEnd(t *testing.T) {
 		"++++++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdLineEnd, 0, stage)
+	p.Apply(input.CmdLineEnd, 0, stage, nil)
 	if p.X != 6 {
 		t.Errorf("want X=6 (line end), got X=%d", p.X)
 	}
@@ -310,7 +310,7 @@ func TestPlayerLineFirstWord(t *testing.T) {
 		"++++++++",
 	})
 	p := &Player{X: 7, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdLineFirstWord, 0, stage)
+	p.Apply(input.CmdLineFirstWord, 0, stage, nil)
 	if p.X != 4 {
 		t.Errorf("want X=4 (first word), got X=%d", p.X)
 	}
@@ -324,7 +324,7 @@ func TestPlayerLineBeginJumpsNotWalks(t *testing.T) {
 		"+++++++",
 	})
 	p := &Player{X: 5, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdLineBegin, 0, stage)
+	p.Apply(input.CmdLineBegin, 0, stage, nil)
 	// 毒を飛び越えて行先頭へ（行先頭は Space なので死なない）
 	if p.X != 1 {
 		t.Errorf("want X=1, got X=%d", p.X)
@@ -344,7 +344,7 @@ func TestPlayerFileTop(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 2, State: PlayerAlive}
-	p.Apply(input.CmdFileTop, 0, stage)
+	p.Apply(input.CmdFileTop, 0, stage, nil)
 	if p.Y != 1 {
 		t.Errorf("want Y=1 (first line), got Y=%d", p.Y)
 	}
@@ -362,7 +362,7 @@ func TestPlayerFileBottom(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdFileBottom, 0, stage)
+	p.Apply(input.CmdFileBottom, 0, stage, nil)
 	if p.Y != 2 {
 		t.Errorf("want Y=2 (last line), got Y=%d", p.Y)
 	}
@@ -378,8 +378,8 @@ func TestPlayerFileTopWithCount(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 3, State: PlayerAlive}
-	p.Apply(input.CmdNum, '2', stage)
-	p.Apply(input.CmdFileTop, 0, stage)
+	p.Apply(input.CmdNum, '2', stage, nil)
+	p.Apply(input.CmdFileTop, 0, stage, nil)
 	if p.Y != 1 {
 		t.Errorf("want Y=1 (line 2), got Y=%d", p.Y)
 	}
@@ -395,9 +395,66 @@ func TestPlayerFileBottomWithCount(t *testing.T) {
 		"+++++",
 	})
 	p := &Player{X: 1, Y: 1, State: PlayerAlive}
-	p.Apply(input.CmdNum, '3', stage)
-	p.Apply(input.CmdFileBottom, 0, stage)
+	p.Apply(input.CmdNum, '3', stage, nil)
+	p.Apply(input.CmdFileBottom, 0, stage, nil)
 	if p.Y != 2 {
 		t.Errorf("want Y=2 (line 3), got Y=%d", p.Y)
+	}
+}
+
+// --- walk vs jump の動作差異 ---
+
+// TestWalkCollectsApplesAlongPath: walk コマンド（l）は経路上のリンゴを全て収集する。
+func TestWalkCollectsApplesAlongPath(t *testing.T) {
+	stage := newStage([]string{
+		"++++++",
+		"+ ooo+",
+		"++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdNum, '4', stage, nil)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
+	// x=2,3,4 の 3 個を通過
+	if p.Score != 3 {
+		t.Errorf("want Score=3 (walk collects all apples), got %d", p.Score)
+	}
+}
+
+// TestJumpSkipsEnemiesAlongPath: jump コマンド（0）は経路上の敵を無視して目的地のみ判定する。
+func TestJumpSkipsEnemiesAlongPath(t *testing.T) {
+	stage := newStage([]string{
+		"++++++",
+		"+    +",
+		"++++++",
+	})
+	// x=2 に敵を配置。プレイヤーは x=4 から 0 で x=1 へジャンプ。
+	enemy := NewHunterBuilder().Build(2, 1)
+	p := &Player{X: 4, Y: 1, State: PlayerAlive}
+	p.Apply(input.CmdLineBegin, 0, stage, []Enemy{enemy})
+	if p.X != 1 {
+		t.Errorf("want X=1 (jumped to line begin), got X=%d", p.X)
+	}
+	if p.State != PlayerAlive {
+		t.Errorf("jump should skip enemy along path, want PlayerAlive, got %v", p.State)
+	}
+}
+
+// TestWalkDiesOnPoison: walk コマンド（l）は経路上の毒を踏むと即死する。
+func TestWalkDiesOnPoison(t *testing.T) {
+	stage := newStage([]string{
+		"+++++",
+		"+ X +",
+		"+++++",
+	})
+	// x=1 から 3l で毒(x=2)を踏む
+	p := &Player{X: 1, Y: 1, State: PlayerAlive}
+	p.Apply(input.CmdNum, '3', stage, nil)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
+	if p.State != PlayerDead {
+		t.Errorf("walk into poison should kill player, got %v", p.State)
+	}
+	// 毒で止まっているので x=3 には到達しない
+	if p.X != 2 {
+		t.Errorf("want X=2 (stopped at poison), got X=%d", p.X)
 	}
 }

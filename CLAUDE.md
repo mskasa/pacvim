@@ -292,8 +292,25 @@ type Strategy interface {
 
 | タイプ | コマンド | 挙動 |
 |---|---|---|
-| walk | h j k l w e b f t F T | 経路上の全セルで判定。リンゴを連続取得できる |
-| jump | 0 $ ^ gg G H M L { } | 目的地のみ判定。壁・敵を飛び越える |
+| walk | h j k l w e b f t F T | 経路上の **全ステップ** で `checkCell` を呼ぶ。リンゴを連続取得、毒・敵に接触したら即死 |
+| jump | 0 $ ^ gg G H M L { } | **目的地のみ** `checkCell` を呼ぶ。経路上の壁・敵・毒は無視する |
+
+実装上のルール:
+- walk は `walkTo` を繰り返し呼ぶ。`walkTo` は内部で `checkCell(stage, enemies)` を呼ぶ。
+- jump は `jumpTo` を直接呼ぶ。`jumpTo` は `IsWalkable` で目的地を確認してから `checkCell(stage, enemies)` を呼ぶ。
+- `Apply` の引数に `enemies []Enemy` を渡すことで、walk 中の各ステップで敵接触を判定できる。
+- `checkCell` は敵 → セル種別の順に判定する。敵に接触した時点で即リターンする。
+
+```go
+// walk: 1ステップ移動して判定
+func (p *Player) walkTo(targetX, targetY int, stage *Stage, enemies []Enemy) bool
+
+// jump: 目的地へ直接移動して判定（経路上のセル・敵は無視）
+func (p *Player) jumpTo(targetX, targetY int, stage *Stage, enemies []Enemy)
+
+// checkCell: 現在地の敵接触・セル種別を判定
+func (p *Player) checkCell(stage *Stage, enemies []Enemy)
+```
 
 ### カウント入力
 

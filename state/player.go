@@ -22,8 +22,9 @@ type Player struct {
 }
 
 // Apply はコマンドをプレイヤー状態に適用する。
+// enemies には現在の敵一覧を渡す。walk 中の各ステップで接触判定に使用する。
 // CmdNum のみ入力を蓄積してリターンし、それ以外は resetInput() で入力をリセットする。
-func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage) {
+func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage, enemies []Enemy) {
 	if p.State != PlayerAlive {
 		return
 	}
@@ -34,39 +35,39 @@ func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage) {
 		return // カウント蓄積中はリセットしない
 
 	case input.CmdMoveLeft:
-		p.applyWalk(-1, 0, stage)
+		p.applyWalk(-1, 0, stage, enemies)
 	case input.CmdMoveRight:
-		p.applyWalk(1, 0, stage)
+		p.applyWalk(1, 0, stage, enemies)
 	case input.CmdMoveUp:
-		p.applyWalk(0, -1, stage)
+		p.applyWalk(0, -1, stage, enemies)
 	case input.CmdMoveDown:
-		p.applyWalk(0, 1, stage)
+		p.applyWalk(0, 1, stage, enemies)
 
 	case input.CmdWordForward:
-		p.applyWordMove(p.toBeginningOfNextWord, stage)
+		p.applyWordMove(p.toBeginningOfNextWord, stage, enemies)
 	case input.CmdWordEnd:
-		p.applyWordMove(p.toEndOfCurrentWord, stage)
+		p.applyWordMove(p.toEndOfCurrentWord, stage, enemies)
 	case input.CmdWordBack:
-		p.applyWordMove(p.toBeginningPrevWord, stage)
+		p.applyWordMove(p.toBeginningPrevWord, stage, enemies)
 
 	case input.CmdLineBegin:
-		p.jumpTo(p.lineBeginX(stage), p.Y, stage)
+		p.jumpTo(p.lineBeginX(stage), p.Y, stage, enemies)
 	case input.CmdLineEnd:
-		p.jumpTo(p.lineEndX(stage), p.Y, stage)
+		p.jumpTo(p.lineEndX(stage), p.Y, stage, enemies)
 	case input.CmdLineFirstWord:
-		p.jumpTo(p.lineFirstWordX(stage), p.Y, stage)
+		p.jumpTo(p.lineFirstWordX(stage), p.Y, stage, enemies)
 
 	case input.CmdFileTop:
 		if p.inputNum != 0 {
-			p.gotoLine(p.inputNum, stage)
+			p.gotoLine(p.inputNum, stage, enemies)
 		} else {
-			p.gotoFirstLine(stage)
+			p.gotoFirstLine(stage, enemies)
 		}
 	case input.CmdFileBottom:
 		if p.inputNum != 0 {
-			p.gotoLine(p.inputNum, stage)
+			p.gotoLine(p.inputNum, stage, enemies)
 		} else {
-			p.gotoLastLine(stage)
+			p.gotoLastLine(stage, enemies)
 		}
 	}
 
@@ -88,28 +89,39 @@ func (p *Player) resetInput() {
 }
 
 // walkTo は現在地から (targetX, targetY) へ1ステップ移動する。
-// 移動先が歩行可能なら移動してセルを判定し true を返す。
+// 移動先が歩行可能なら移動してセルと敵の接触を判定し true を返す。
 // 移動不可なら false を返す。
-func (p *Player) walkTo(targetX, targetY int, stage *Stage) bool {
+func (p *Player) walkTo(targetX, targetY int, stage *Stage, enemies []Enemy) bool {
 	if !stage.Grid.IsWalkable(targetX, targetY) {
 		return false
 	}
 	p.X = targetX
 	p.Y = targetY
-	p.checkCell(stage)
+	p.checkCell(stage, enemies)
 	return true
 }
 
 // jumpTo は (targetX, targetY) へ直接ジャンプし、目的地のみ判定する。
-// 経路上の壁・敵は無視する。
-func (p *Player) jumpTo(targetX, targetY int, stage *Stage) {
+// 経路上の壁・敵は無視する。目的地が歩行不可な場合は移動しない。
+func (p *Player) jumpTo(targetX, targetY int, stage *Stage, enemies []Enemy) {
+	if !stage.Grid.IsWalkable(targetX, targetY) {
+		return
+	}
 	p.X = targetX
 	p.Y = targetY
-	p.checkCell(stage)
+	p.checkCell(stage, enemies)
 }
 
-// checkCell は現在地のセルを判定し、スコア加算・死亡判定を行う。
-func (p *Player) checkCell(stage *Stage) {
+// checkCell は現在地のセルと敵接触を判定し、スコア加算・死亡判定を行う。
+func (p *Player) checkCell(stage *Stage, enemies []Enemy) {
+	// 敵との接触判定（walk の各ステップで発生する）
+	for _, e := range enemies {
+		ex, ey := e.Position()
+		if ex == p.X && ey == p.Y {
+			p.State = PlayerDead
+			return
+		}
+	}
 	switch stage.Grid.At(p.X, p.Y).Kind {
 	case CellApple:
 		p.Score++
@@ -123,10 +135,10 @@ func (p *Player) checkCell(stage *Stage) {
 }
 
 // applyWalk は (dx, dy) 方向へ repeatCount 回 walk を繰り返す。
-func (p *Player) applyWalk(dx, dy int, stage *Stage) {
+func (p *Player) applyWalk(dx, dy int, stage *Stage, enemies []Enemy) {
 	count := p.repeatCount()
 	for i := 0; i < count; i++ {
-		if !p.walkTo(p.X+dx, p.Y+dy, stage) {
+		if !p.walkTo(p.X+dx, p.Y+dy, stage, enemies) {
 			break
 		}
 		if p.State != PlayerAlive {
@@ -136,10 +148,10 @@ func (p *Player) applyWalk(dx, dy int, stage *Stage) {
 }
 
 // applyWordMove は word 移動関数を repeatCount 回繰り返す。
-func (p *Player) applyWordMove(fn func(*Stage) bool, stage *Stage) {
+func (p *Player) applyWordMove(fn func(*Stage, []Enemy) bool, stage *Stage, enemies []Enemy) {
 	count := p.repeatCount()
 	for i := 0; i < count; i++ {
-		if !fn(stage) {
+		if !fn(stage, enemies) {
 			break
 		}
 		if p.State != PlayerAlive {
@@ -155,10 +167,10 @@ func isWordKind(k CellKind) bool {
 }
 
 // w: 次のワードの先頭へ移動
-func (p *Player) toBeginningOfNextWord(stage *Stage) bool {
+func (p *Player) toBeginningOfNextWord(stage *Stage, enemies []Enemy) bool {
 	for {
 		seenSpace := !isWordKind(stage.Grid.At(p.X, p.Y).Kind)
-		if !p.walkTo(p.X+1, p.Y, stage) {
+		if !p.walkTo(p.X+1, p.Y, stage, enemies) {
 			return false
 		}
 		if p.State != PlayerAlive {
@@ -171,10 +183,10 @@ func (p *Player) toBeginningOfNextWord(stage *Stage) bool {
 }
 
 // b: 前のワードの先頭へ移動
-func (p *Player) toBeginningPrevWord(stage *Stage) bool {
+func (p *Player) toBeginningPrevWord(stage *Stage, enemies []Enemy) bool {
 	// スペースを左にスキップ
 	for stage.Grid.At(p.X-1, p.Y).Kind == CellSpace {
-		if !p.walkTo(p.X-1, p.Y, stage) {
+		if !p.walkTo(p.X-1, p.Y, stage, enemies) {
 			return false
 		}
 		if p.State != PlayerAlive {
@@ -183,7 +195,7 @@ func (p *Player) toBeginningPrevWord(stage *Stage) bool {
 	}
 	// ワード文字を左にスキップしてワード先頭へ
 	for isWordKind(stage.Grid.At(p.X-1, p.Y).Kind) {
-		if !p.walkTo(p.X-1, p.Y, stage) {
+		if !p.walkTo(p.X-1, p.Y, stage, enemies) {
 			return false
 		}
 		if p.State != PlayerAlive {
@@ -194,10 +206,10 @@ func (p *Player) toBeginningPrevWord(stage *Stage) bool {
 }
 
 // e: 現在のワードの末尾へ移動
-func (p *Player) toEndOfCurrentWord(stage *Stage) bool {
+func (p *Player) toEndOfCurrentWord(stage *Stage, enemies []Enemy) bool {
 	// スペースを右にスキップ
 	for stage.Grid.At(p.X+1, p.Y).Kind == CellSpace {
-		if !p.walkTo(p.X+1, p.Y, stage) {
+		if !p.walkTo(p.X+1, p.Y, stage, enemies) {
 			return false
 		}
 		if p.State != PlayerAlive {
@@ -206,7 +218,7 @@ func (p *Player) toEndOfCurrentWord(stage *Stage) bool {
 	}
 	// ワード文字を右にスキップしてワード末尾へ
 	for isWordKind(stage.Grid.At(p.X+1, p.Y).Kind) {
-		if !p.walkTo(p.X+1, p.Y, stage) {
+		if !p.walkTo(p.X+1, p.Y, stage, enemies) {
 			return false
 		}
 		if p.State != PlayerAlive {
@@ -258,29 +270,29 @@ func (p *Player) rowHasContent(y int, stage *Stage) bool {
 }
 
 // gotoFirstLine はコンテンツが存在する最初の行の最初のワードへジャンプする（gg）。
-func (p *Player) gotoFirstLine(stage *Stage) {
+func (p *Player) gotoFirstLine(stage *Stage, enemies []Enemy) {
 	for y := 0; y < stage.Grid.Height; y++ {
 		if p.rowHasContent(y, stage) {
 			p.Y = y
-			p.jumpTo(p.lineFirstWordX(stage), p.Y, stage)
+			p.jumpTo(p.lineFirstWordX(stage), p.Y, stage, enemies)
 			return
 		}
 	}
 }
 
 // gotoLastLine はコンテンツが存在する最後の行の最初のワードへジャンプする（G）。
-func (p *Player) gotoLastLine(stage *Stage) {
+func (p *Player) gotoLastLine(stage *Stage, enemies []Enemy) {
 	for y := stage.Grid.Height - 1; y >= 0; y-- {
 		if p.rowHasContent(y, stage) {
 			p.Y = y
-			p.jumpTo(p.lineFirstWordX(stage), p.Y, stage)
+			p.jumpTo(p.lineFirstWordX(stage), p.Y, stage, enemies)
 			return
 		}
 	}
 }
 
 // gotoLine は n 行目（1-indexed）の最初のワードへジャンプする（Ngg / NG）。
-func (p *Player) gotoLine(n int, stage *Stage) {
+func (p *Player) gotoLine(n int, stage *Stage, enemies []Enemy) {
 	y := n - 1
 	if y < 0 || y >= stage.Grid.Height {
 		return
@@ -289,5 +301,5 @@ func (p *Player) gotoLine(n int, stage *Stage) {
 		return
 	}
 	p.Y = y
-	p.jumpTo(p.lineFirstWordX(stage), p.Y, stage)
+	p.jumpTo(p.lineFirstWordX(stage), p.Y, stage, enemies)
 }
