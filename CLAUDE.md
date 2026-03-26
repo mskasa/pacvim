@@ -484,8 +484,8 @@ make wasm         # WebAssembly ビルド（docs/wasm/ に出力）
 - [x] `state/player.go`：`Player` と基本コマンド（h j k l w e b 0 $ ^ gg G）
 - [x] `state/enemy.go`：`Enemy` / Builder / Strategy（Assault / Tricky）
 - [x] `state/stage.go`：`Stage` とステージ定義
-- [ ] `state/gamestate.go`：`GameState.Update()`
-- [ ] `state/*_test.go`：上記のユニットテスト
+- [x] `state/gamestate.go`：`GameState.Update()`
+- [x] `state/*_test.go`：上記のユニットテスト
 
 ### Phase 2：Ebitengine への接続
 
