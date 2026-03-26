@@ -123,7 +123,7 @@ func (gs *GameState) updateWaitKey(cmd input.Command, next GamePhase) {
 
 // updatePlaying はプレイ中の更新処理。
 func (gs *GameState) updatePlaying(cmd input.Command, ch rune) {
-	gs.Player.Apply(cmd, ch, gs.Stage())
+	gs.Player.Apply(cmd, ch, gs.Stage(), gs.Enemies)
 
 	gs.checkEnemyCapture()
 	if gs.Phase != PhasePlaying {
