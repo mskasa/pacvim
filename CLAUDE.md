@@ -482,7 +482,7 @@ make wasm         # WebAssembly ビルド（docs/wasm/ に出力）
 
 - [x] `state/map.go`：`Grid` / `Cell` / マップ読み込み
 - [x] `state/player.go`：`Player` と基本コマンド（h j k l w e b 0 $ ^ gg G）
-- [ ] `state/enemy.go`：`Enemy` / Builder / Strategy（Assault / Tricky）
+- [x] `state/enemy.go`：`Enemy` / Builder / Strategy（Assault / Tricky）
 - [ ] `state/stage.go`：`Stage` とステージ定義
 - [ ] `state/gamestate.go`：`GameState.Update()`
 - [ ] `state/*_test.go`：上記のユニットテスト
