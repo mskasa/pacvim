@@ -14,11 +14,11 @@ var ErrQuit = errors.New("quit")
 type GamePhase int
 
 const (
-	PhaseOpening   GamePhase = iota // 開幕画面（最初のキー入力待ち）
-	PhasePlaying                    // プレイ中
-	PhaseStageClear                 // ステージクリア
-	PhaseGameOver                   // ゲームオーバー
-	PhaseGameClear                  // 全ステージクリア
+	PhaseOpening GamePhase = iota // 開幕画面（最初のキー入力待ち）
+	PhaseReady                    // 準備画面（ステージ開始前・ミス後）
+	PhasePlaying                  // プレイ中
+	PhaseGameOver                 // ゲームオーバー
+	PhaseGameClear                // 全ステージクリア
 )
 
 // GameState はゲーム全体の状態を保持する。
@@ -104,19 +104,20 @@ func (gs *GameState) Update(cmd input.Command, ch rune) error {
 
 	switch gs.Phase {
 	case PhaseOpening:
-		gs.updateOpening(cmd, ch)
+		gs.updateWaitKey(cmd, PhaseReady)
+	case PhaseReady:
+		gs.updateWaitKey(cmd, PhasePlaying)
 	case PhasePlaying:
 		gs.updatePlaying(cmd, ch)
 	}
 	return nil
 }
 
-// updateOpening はオープニング画面の更新処理。
-// CmdNone 以外のコマンドが来たらゲームを開始する。
-func (gs *GameState) updateOpening(cmd input.Command, ch rune) {
+// updateWaitKey は CmdNone 以外のキー入力で next フェーズへ遷移する。
+// キーはゲームコマンドとして処理しない（消費するだけ）。
+func (gs *GameState) updateWaitKey(cmd input.Command, next GamePhase) {
 	if cmd != input.CmdNone {
-		gs.Phase = PhasePlaying
-		gs.updatePlaying(cmd, ch)
+		gs.Phase = next
 	}
 }
 
@@ -207,7 +208,7 @@ func (gs *GameState) handleStageClear() {
 	if gs.StageIdx+1 < len(gs.Stages) {
 		gs.StageIdx++
 		_ = gs.loadStage()
-		gs.Phase = PhasePlaying
+		gs.Phase = PhaseReady
 	} else {
 		gs.Phase = PhaseGameClear
 	}
@@ -220,6 +221,6 @@ func (gs *GameState) handlePlayerDeath() {
 		gs.Phase = PhaseGameOver
 	} else {
 		_ = gs.loadStage()
-		gs.Phase = PhasePlaying
+		gs.Phase = PhaseReady
 	}
 }

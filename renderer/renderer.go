@@ -66,6 +66,9 @@ func (r *Renderer) Draw(screen *ebiten.Image, gs *state.GameState) {
 	case state.PhaseOpening:
 		r.drawGame(screen, gs)
 		r.drawOpeningOverlay(screen)
+	case state.PhaseReady:
+		r.drawGame(screen, gs)
+		r.drawReadyOverlay(screen, gs)
 	case state.PhasePlaying:
 		r.drawGame(screen, gs)
 	case state.PhaseGameOver:
@@ -176,6 +179,17 @@ func (r *Renderer) drawOpeningOverlay(screen *ebiten.Image) {
 	cy := ScreenHeight / 2
 	r.drawCharCentered(screen, "PacVim", cx, cy-30, colorTitle)
 	r.drawCharCentered(screen, "Learn Vim by playing Pac-Man!", cx, cy-10, colorHint)
+	r.drawCharCentered(screen, "Press any key to start", cx, cy+16, colorStatusText)
+	r.drawCharCentered(screen, "q: quit", cx, cy+36, colorHint)
+}
+
+func (r *Renderer) drawReadyOverlay(screen *ebiten.Image, gs *state.GameState) {
+	vector.FillRect(screen, 0, 0, ScreenWidth, ScreenHeight, colorOverlay, false)
+	cx := ScreenWidth / 2
+	cy := ScreenHeight / 2
+	stage := gs.Stage()
+	r.drawCharCentered(screen, fmt.Sprintf("Level %d", stage.Level), cx, cy-30, colorTitle)
+	r.drawCharCentered(screen, fmt.Sprintf("Life: %d", gs.Life), cx, cy-10, colorHint)
 	r.drawCharCentered(screen, "Press any key to start", cx, cy+16, colorStatusText)
 	r.drawCharCentered(screen, "q: quit", cx, cy+36, colorHint)
 }
