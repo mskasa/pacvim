@@ -71,6 +71,9 @@ func (r *Renderer) Draw(screen *ebiten.Image, gs *state.GameState) {
 		r.drawReadyOverlay(screen, gs)
 	case state.PhasePlaying:
 		r.drawGame(screen, gs)
+	case state.PhaseDead:
+		r.drawGame(screen, gs)
+		r.drawDeadOverlay(screen)
 	case state.PhaseGameOver:
 		r.drawGame(screen, gs)
 		r.drawMessageOverlay(screen, "GAME OVER", "press any key to quit")
@@ -192,6 +195,13 @@ func (r *Renderer) drawReadyOverlay(screen *ebiten.Image, gs *state.GameState) {
 	r.drawCharCentered(screen, fmt.Sprintf("Life: %d", gs.Life), cx, cy-10, colorHint)
 	r.drawCharCentered(screen, "Press any key to start", cx, cy+16, colorStatusText)
 	r.drawCharCentered(screen, "q: quit", cx, cy+36, colorHint)
+}
+
+func (r *Renderer) drawDeadOverlay(screen *ebiten.Image) {
+	vector.FillRect(screen, 0, 0, ScreenWidth, ScreenHeight, color.RGBA{120, 0, 0, 80}, false)
+	cx := ScreenWidth / 2
+	cy := ScreenHeight / 2
+	r.drawCharCentered(screen, "MISS...", cx, cy, colorTitle)
 }
 
 func (r *Renderer) drawMessageOverlay(screen *ebiten.Image, title, hint string) {
