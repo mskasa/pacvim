@@ -53,13 +53,12 @@ type Handler struct {
 	prevG        bool       // g を受け取った後、次のキーを待つ
 	awaitChar    bool       // f/F/t/T の後、対象文字を待つ
 	pendingCmd   Command    // awaitChar 中の保留コマンド
-	inNumMode    bool       // 数字蓄積中かどうか（0 の振り分けに使用）
 	repeatKey    ebiten.Key // 現在リピート中のキー
 	repeatFrames int        // repeatKey を押し続けたフレーム数
 }
 
 // Read は1フレーム分のキー入力を読み取り、(Command, rune) を返す。
-// CmdNum のとき rune は押された数字文字。
+// CmdNum のとき rune は押された数字文字（0〜9）。0 単独か数字蓄積中かの判断は state 側で行う。
 // CmdFindForward/Back/TillForward/Back のとき rune は対象文字。
 // それ以外の場合 rune は 0。
 func (h *Handler) Read() (Command, rune) {
@@ -70,7 +69,6 @@ func (h *Handler) Read() (Command, rune) {
 			cmd := h.pendingCmd
 			h.awaitChar = false
 			h.pendingCmd = CmdNone
-			h.inNumMode = false
 			return cmd, chars[0]
 		}
 		return CmdNone, 0
@@ -82,38 +80,29 @@ func (h *Handler) Read() (Command, rune) {
 	if h.prevG {
 		if !shift && inpututil.IsKeyJustPressed(ebiten.KeyG) {
 			h.prevG = false
-			h.inNumMode = false
 			return CmdFileTop, 0
 		}
 		if !shift && inpututil.IsKeyJustPressed(ebiten.KeyE) {
 			h.prevG = false
-			h.inNumMode = false
 			return CmdWordEndBack, 0
 		}
 		return CmdNone, 0
 	}
 
-	// 数字キー（1〜9 は常に CmdNum）
+	// 数字キー（0〜9）は常に CmdNum として返す。
+	// 0 単独か数字蓄積中かの判断は state 側（Player.Apply）で行う。
 	digits := []ebiten.Key{
 		ebiten.Key1, ebiten.Key2, ebiten.Key3, ebiten.Key4, ebiten.Key5,
 		ebiten.Key6, ebiten.Key7, ebiten.Key8, ebiten.Key9,
 	}
 	for i, k := range digits {
 		if !shift && inpututil.IsKeyJustPressed(k) {
-			h.inNumMode = true
 			return CmdNum, rune('1' + i)
 		}
 	}
-	// 0: 数字蓄積中なら CmdNum、単独なら CmdLineBegin
 	if !shift && inpututil.IsKeyJustPressed(ebiten.Key0) {
-		if h.inNumMode {
-			return CmdNum, '0'
-		}
-		return CmdLineBegin, 0
+		return CmdNum, '0'
 	}
-
-	// 以降のコマンドは数字蓄積をリセット
-	h.inNumMode = false
 
 	if shift {
 		switch {
@@ -161,14 +150,12 @@ func (h *Handler) Read() (Command, rune) {
 				if inpututil.IsKeyJustPressed(rk.key) {
 					h.repeatKey = rk.key
 					h.repeatFrames = 0
-					h.inNumMode = false
 					return rk.cmd, 0
 				}
 				if h.repeatKey == rk.key {
 					h.repeatFrames++
 					elapsed := h.repeatFrames - repeatInitialDelay
 					if elapsed >= 0 && elapsed%repeatInterval == 0 {
-						h.inNumMode = false
 						return rk.cmd, 0
 					}
 				}

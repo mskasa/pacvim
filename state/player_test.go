@@ -458,3 +458,86 @@ func TestWalkDiesOnPoison(t *testing.T) {
 		t.Errorf("want X=2 (stopped at poison), got X=%d", p.X)
 	}
 }
+
+// --- 数値入力（カウントプレフィックス） ---
+
+// TestCountMoveRight: 3l で右に3マス移動する。
+func TestCountMoveRight(t *testing.T) {
+	stage := newStage([]string{
+		"++++++++",
+		"+      +",
+		"++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive}
+	p.Apply(input.CmdNum, '3', stage, nil)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
+	if p.X != 4 {
+		t.Errorf("3l: want X=4, got X=%d", p.X)
+	}
+}
+
+// TestCount10MoveDown: 1 → 0 → j で10マス下移動する。
+func TestCount10MoveDown(t *testing.T) {
+	stage := newStage([]string{
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+		"+ +",
+	})
+	p := &Player{X: 1, Y: 0, State: PlayerAlive}
+	p.Apply(input.CmdNum, '1', stage, nil)
+	p.Apply(input.CmdNum, '0', stage, nil)
+	p.Apply(input.CmdMoveDown, 0, stage, nil)
+	if p.Y != 10 {
+		t.Errorf("10j: want Y=10, got Y=%d", p.Y)
+	}
+}
+
+// TestCountGotoLine: 5G で5行目（1-indexed）に移動する。
+func TestCountGotoLine(t *testing.T) {
+	stage := newStage([]string{
+		"+++++",
+		"+ooo+",
+		"+ooo+",
+		"+ooo+",
+		"+ooo+",
+		"+ooo+",
+		"+++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive}
+	p.Apply(input.CmdNum, '5', stage, nil)
+	p.Apply(input.CmdFileBottom, 0, stage, nil)
+	// gotoLine(5) は 1-indexed → y=4（0-indexed）
+	if p.Y != 4 {
+		t.Errorf("5G: want Y=4 (line 5, 1-indexed), got Y=%d", p.Y)
+	}
+}
+
+// TestCountResetAfterCommand: コマンド実行後にカウントがリセットされ、次のコマンドに引き継がれない。
+func TestCountResetAfterCommand(t *testing.T) {
+	stage := newStage([]string{
+		"++++++++",
+		"+      +",
+		"++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive}
+	// 3l でX=4へ
+	p.Apply(input.CmdNum, '3', stage, nil)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
+	if p.X != 4 {
+		t.Errorf("3l: want X=4, got X=%d", p.X)
+	}
+	// カウントリセット後の l は1マスだけ移動する
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
+	if p.X != 5 {
+		t.Errorf("after reset, l: want X=5, got X=%d", p.X)
+	}
+}
