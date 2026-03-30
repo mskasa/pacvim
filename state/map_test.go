@@ -99,7 +99,7 @@ func TestLoadGrid_Map01(t *testing.T) {
 			}
 		}
 	}
-	const wantApples = 170
+	const wantApples = 139
 	if appleCount != wantApples {
 		t.Errorf("apple count = %d, want %d", appleCount, wantApples)
 	}

@@ -1,15 +1,15 @@
 +++++++++++++++++++++++++++++
-+ oooo        o        oooo +
-+ oooo       ooo       oooo +
-+ ooooH    ooooooo     oooo +
-+        ooooooooooo        +
-+      oooooo!!!oooooo      +
-+    oooo!ooooooooo!oooo    +
-+  oooooo!ooooPoooo!oooooo  +
-+    oooo!ooooooooo!oooo    +
-+      oooooo!!!oooooo      +
-+        ooooooooooo        +
-+ oooo     ooooooo    Hoooo +
-+ oooo       ooo       oooo +
-+ oooo        o        oooo +
++ooooooo   ooooooooo   ooooo+
++o     o   o       o   o   o+
++o  H  o   o       o   o   o+
++o     o   ooooooooo   o   o+
++ooooooo               ooooo+
++                           +
++ooooooooooo  P  ooooooooooo+
++                           +
++ooooooo               ooooo+
++o     o   ooooooooo   o   o+
++o     o   o       o   o   o+
++o     oHo o       o   o   o+
++ooooooo   ooooooooo   ooooo+
 +++++++++++++++++++++++++++++
