@@ -509,6 +509,7 @@ kizami audit                   # Related Files とコードの乖離を検出
 | `0001-rewrite-from-scratch-with-ebitengine.md` | termbox 版を捨て Ebitengine で1から書き直した理由 |
 | `0002-separate-state-and-renderer.md` | state パッケージを ebiten から切り離した理由 |
 | `0003-abstract-input-as-command-type.md` | キー入力を Command 型で抽象化した理由 |
+| `2026-03-30-ebitengine.md` | Ebitengine のキーリピート実装方針（ソフトウェアリピートの採用理由） |
 
 ---
 
