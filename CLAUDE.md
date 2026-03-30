@@ -337,6 +337,37 @@ func gridToScreen(gx, gy int) (float64, float64) {
 
 ---
 
+## 入力実装の注意事項（`input/input.go`）
+
+### `IsKeyJustPressed` と `IsKeyPressed` の使い分け
+
+Ebitengine の入力 API には2種類あります。
+
+| API | 挙動 | 用途 |
+|---|---|---|
+| `inpututil.IsKeyJustPressed(key)` | 押した瞬間の1フレームのみ true | 1回だけ発火させたいコマンド |
+| `ebiten.IsKeyPressed(key)` | 押している間ずっと true | リピート処理の継続判定 |
+
+移動キーに `IsKeyJustPressed` のみを使うと、押し続けても最初の1回しか反応しません。
+**移動キーは必ずリピート処理を経由して発火させてください。**
+
+### キーリピートの実装
+
+`Handler` にリピート状態（`repeatKey`・`repeatFrames`）を持たせ、以下の挙動を実現しています。
+
+- 押した瞬間 → 即座に発火（`IsKeyJustPressed` で検出）
+- 押し続けて `repeatInitialDelay` フレーム（約300ms）経過後 → `repeatInterval` フレーム（約60ms）ごとに繰り返し発火
+- キーを離したら → `repeatKey` と `repeatFrames` をリセット
+
+### リピート対象のキー
+
+| 区分 | キー | 理由 |
+|---|---|---|
+| **対象（連続発火）** | `h` `j` `k` `l` `w` `e` `b` | 押し続けでカーソルを連続移動させたい |
+| **対象外（1回のみ）** | `g`（gg の1打目）、`q`、`f/F/t/T`（文字待ち）、数字キー | 誤操作を防ぐ・2ストロークの状態管理を壊さない |
+
+---
+
 ## ステージの定義（`state/stage.go`）
 
 ```go
