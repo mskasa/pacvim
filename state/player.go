@@ -28,6 +28,9 @@ func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage, enemies []Enemy
 	if p.State != PlayerAlive {
 		return
 	}
+	if cmd == input.CmdNone {
+		return
+	}
 
 	switch cmd {
 	case input.CmdNum:

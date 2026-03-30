@@ -521,6 +521,25 @@ func TestCountGotoLine(t *testing.T) {
 	}
 }
 
+// TestCountNotResetByCmdNone: CmdNone が来てもカウントはリセットされない。
+// 毎フレーム Apply が呼ばれる実ゲームで 3 と l の間に CmdNone フレームが挟まっても正しく動作する。
+func TestCountNotResetByCmdNone(t *testing.T) {
+	stage := newStage([]string{
+		"++++++++",
+		"+      +",
+		"++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive}
+	p.Apply(input.CmdNum, '3', stage, nil)
+	// CmdNone が複数フレーム挟まってもカウントは保持される
+	p.Apply(input.CmdNone, 0, stage, nil)
+	p.Apply(input.CmdNone, 0, stage, nil)
+	p.Apply(input.CmdMoveRight, 0, stage, nil)
+	if p.X != 4 {
+		t.Errorf("3 + (CmdNone×2) + l: want X=4, got X=%d", p.X)
+	}
+}
+
 // TestCountResetAfterCommand: コマンド実行後にカウントがリセットされ、次のコマンドに引き継がれない。
 func TestCountResetAfterCommand(t *testing.T) {
 	stage := newStage([]string{
