@@ -40,13 +40,22 @@ const (
 	CmdQuit                 // q
 )
 
+// キーリピートのタイミング定数（TPS=60 基準）
+const (
+	repeatInitialDelay = 18 // 最初のリピートまでのフレーム数（約300ms）
+	repeatInterval     = 4  // リピート間隔のフレーム数（約60ms）
+)
+
 // Handler はキー入力を毎フレーム読み取り Command に変換する。
 // 2ストロークコマンド（gg, ge, f/t）の状態はここで管理する。
+// 移動キーのリピート状態もここで管理する。
 type Handler struct {
-	prevG      bool    // g を受け取った後、次のキーを待つ
-	awaitChar  bool    // f/F/t/T の後、対象文字を待つ
-	pendingCmd Command // awaitChar 中の保留コマンド
-	inNumMode  bool    // 数字蓄積中かどうか（0 の振り分けに使用）
+	prevG        bool       // g を受け取った後、次のキーを待つ
+	awaitChar    bool       // f/F/t/T の後、対象文字を待つ
+	pendingCmd   Command    // awaitChar 中の保留コマンド
+	inNumMode    bool       // 数字蓄積中かどうか（0 の振り分けに使用）
+	repeatKey    ebiten.Key // 現在リピート中のキー
+	repeatFrames int        // repeatKey を押し続けたフレーム数
 }
 
 // Read は1フレーム分のキー入力を読み取り、(Command, rune) を返す。
@@ -134,21 +143,43 @@ func (h *Handler) Read() (Command, rune) {
 			return CmdBlockForward, 0
 		}
 	} else {
+		// 移動キーはリピート処理を経由して発火する
+		repeatableKeys := []struct {
+			key ebiten.Key
+			cmd Command
+		}{
+			{ebiten.KeyH, CmdMoveLeft},
+			{ebiten.KeyJ, CmdMoveDown},
+			{ebiten.KeyK, CmdMoveUp},
+			{ebiten.KeyL, CmdMoveRight},
+			{ebiten.KeyW, CmdWordForward},
+			{ebiten.KeyE, CmdWordEnd},
+			{ebiten.KeyB, CmdWordBack},
+		}
+		for _, rk := range repeatableKeys {
+			if ebiten.IsKeyPressed(rk.key) {
+				if inpututil.IsKeyJustPressed(rk.key) {
+					h.repeatKey = rk.key
+					h.repeatFrames = 0
+					h.inNumMode = false
+					return rk.cmd, 0
+				}
+				if h.repeatKey == rk.key {
+					h.repeatFrames++
+					elapsed := h.repeatFrames - repeatInitialDelay
+					if elapsed >= 0 && elapsed%repeatInterval == 0 {
+						h.inNumMode = false
+						return rk.cmd, 0
+					}
+				}
+				return CmdNone, 0
+			}
+		}
+		// リピート中のキーが離されたらリセット
+		h.repeatKey = 0
+		h.repeatFrames = 0
+
 		switch {
-		case inpututil.IsKeyJustPressed(ebiten.KeyH):
-			return CmdMoveLeft, 0
-		case inpututil.IsKeyJustPressed(ebiten.KeyJ):
-			return CmdMoveDown, 0
-		case inpututil.IsKeyJustPressed(ebiten.KeyK):
-			return CmdMoveUp, 0
-		case inpututil.IsKeyJustPressed(ebiten.KeyL):
-			return CmdMoveRight, 0
-		case inpututil.IsKeyJustPressed(ebiten.KeyW):
-			return CmdWordForward, 0
-		case inpututil.IsKeyJustPressed(ebiten.KeyE):
-			return CmdWordEnd, 0
-		case inpututil.IsKeyJustPressed(ebiten.KeyB):
-			return CmdWordBack, 0
 		case inpututil.IsKeyJustPressed(ebiten.KeyG):
 			h.prevG = true
 			return CmdNone, 0
