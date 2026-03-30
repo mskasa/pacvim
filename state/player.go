@@ -28,9 +28,18 @@ func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage, enemies []Enemy
 	if p.State != PlayerAlive {
 		return
 	}
+	if cmd == input.CmdNone {
+		return
+	}
 
 	switch cmd {
 	case input.CmdNum:
+		// 0 単独（inputNum == 0）は行先頭へのジャンプとして処理する。
+		// 数字蓄積中（inputNum > 0）の 0 はカウントの一桁として蓄積する。
+		if ch == '0' && p.inputNum == 0 {
+			p.jumpTo(p.lineBeginX(stage), p.Y, stage, enemies)
+			break
+		}
 		p.inputNum = p.inputNum*10 + int(ch-'0')
 		return // カウント蓄積中はリセットしない
 

@@ -383,6 +383,36 @@ Ebitengine の入力 API には2種類あります。
 | **対象（連続発火）** | `h` `j` `k` `l` `w` `e` `b` | 押し続けでカーソルを連続移動させたい |
 | **対象外（1回のみ）** | `g`（gg の1打目）、`q`、`f/F/t/T`（文字待ち）、数字キー | 誤操作を防ぐ・2ストロークの状態管理を壊さない |
 
+### 数値入力（カウントプレフィックス）の責務分離
+
+`input` と `state` の責務は明確に分離します。
+
+**`input` 側の責務：**
+数字キー（`0`〜`9`）が押されたら常に `CmdNum` を返す。`0` 単独か数字蓄積中かの判断は行わない。
+
+```go
+// 0 も含めて常に CmdNum として返す
+if !shift && inpututil.IsKeyJustPressed(ebiten.Key0) {
+    return CmdNum, '0'
+}
+```
+
+**`state` 側の責務：**
+`CmdNum` を受け取ったとき、`0` かつ `inputNum == 0` であれば `CmdLineBegin` として処理する。
+それ以外は `inputNum` に桁を加算して蓄積する。
+
+```go
+case input.CmdNum:
+    if ch == '0' && p.inputNum == 0 {
+        p.jumpTo(p.lineBeginX(stage), p.Y, stage, enemies)
+        break
+    }
+    p.inputNum = p.inputNum*10 + int(ch-'0')
+    return
+```
+
+各コマンド実行時は `repeatCount()` で繰り返し回数を取得し、実行後は必ず `resetInput()` を呼ぶ。
+
 ---
 
 ## ステージの定義（`state/stage.go`）
@@ -509,6 +539,7 @@ kizami audit                   # Related Files とコードの乖離を検出
 | `0001-rewrite-from-scratch-with-ebitengine.md` | termbox 版を捨て Ebitengine で1から書き直した理由 |
 | `0002-separate-state-and-renderer.md` | state パッケージを ebiten から切り離した理由 |
 | `0003-abstract-input-as-command-type.md` | キー入力を Command 型で抽象化した理由 |
+| `2026-03-30-ebitengine.md` | Ebitengine のキーリピート実装方針（ソフトウェアリピートの採用理由） |
 
 ---
 
