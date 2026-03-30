@@ -189,12 +189,31 @@ func (r *Renderer) drawOpeningOverlay(screen *ebiten.Image) {
 func (r *Renderer) drawReadyOverlay(screen *ebiten.Image, gs *state.GameState) {
 	vector.FillRect(screen, 0, 0, ScreenWidth, ScreenHeight, colorOverlay, false)
 	cx := ScreenWidth / 2
-	cy := ScreenHeight / 2
 	stage := gs.Stage()
-	r.drawCharCentered(screen, fmt.Sprintf("Level %d", stage.Level), cx, cy-30, colorTitle)
-	r.drawCharCentered(screen, fmt.Sprintf("Life: %d", gs.Life), cx, cy-10, colorHint)
-	r.drawCharCentered(screen, "Press any key to start", cx, cy+16, colorStatusText)
-	r.drawCharCentered(screen, "q: quit", cx, cy+36, colorHint)
+
+	const lineH = 18
+	// 表示行数からブロック全体の高さを計算して垂直センタリング
+	// title(1) + theme(1) + gap(1) + commands(N) + gap(1) + life(1) + gap(1) + press(1) + quit(1)
+	totalLines := 3 + len(stage.Commands) + 4
+	startY := (ScreenHeight - totalLines*lineH) / 2
+
+	y := startY
+	r.drawCharCentered(screen, fmt.Sprintf("Level %d", stage.Level), cx, y, colorTitle)
+	y += lineH
+	if stage.Theme != "" {
+		r.drawCharCentered(screen, fmt.Sprintf("── %s ──", stage.Theme), cx, y, colorHint)
+	}
+	y += lineH * 2
+	for _, cmd := range stage.Commands {
+		r.drawCharCentered(screen, cmd, cx, y, colorStatusText)
+		y += lineH
+	}
+	y += lineH
+	r.drawCharCentered(screen, fmt.Sprintf("Life: %d", gs.Life), cx, y, colorHint)
+	y += lineH * 2
+	r.drawCharCentered(screen, "Press any key to start", cx, y, colorStatusText)
+	y += lineH
+	r.drawCharCentered(screen, "q: quit", cx, y, colorHint)
 }
 
 func (r *Renderer) drawDeadOverlay(screen *ebiten.Image) {

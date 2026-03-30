@@ -425,10 +425,25 @@ type Stage struct {
     HunterConfig EnemyConfig
     GhostConfig  *EnemyConfig  // nil のステージもある
     GameSpeed    time.Duration
+    Theme        string   // 学習テーマ（例: "基本移動"）
+    Commands     []string // このステージで練習するコマンドの説明（PhaseReady 画面に表示）
 }
 
 func InitStages() []Stage { ... }
 ```
+
+### ステージの学習テーマ
+
+| Level | Theme | 練習コマンド |
+|---|---|---|
+| 1 | Basic Movement | `h` `l` `j` `k` |
+| 2 | Word Motion | `w` `e` `b` |
+| 3 | Line & File Motion | `0` `$` `^` `gg` `G` |
+| 4 | Find Character | `f{c}` `t{c}` `;` `,` |
+| 5 | All Commands | 全コマンド |
+
+`Theme` と `Commands` は `PhaseReady`（準備画面）に表示される。
+新しいステージを追加するときはこれらのフィールドも設定すること。
 
 ### マップファイルの文字規則（`state/files/stage/*.txt`）
 
@@ -541,6 +556,7 @@ kizami audit                   # Related Files とコードの乖離を検出
 | `0003-abstract-input-as-command-type.md` | キー入力を Command 型で抽象化した理由 |
 | `2026-03-30-ebitengine.md` | Ebitengine のキーリピート実装方針（ソフトウェアリピートの採用理由） |
 | `2026-03-30-num-input.md` | 数値入力（カウントプレフィックス）の責務分離（0キーの解釈を state 側で行う） |
+| `2026-03-30-stage-learning-metadata.md` | ステージへの学習メタデータ埋め込み方針（Theme・Commands を Stage struct に持たせる） |
 
 ---
 

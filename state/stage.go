@@ -10,6 +10,8 @@ type Stage struct {
 	HunterConfig EnemyConfig
 	GhostConfig  *EnemyConfig // ゴーストが存在しないステージでは nil
 	GameSpeed    time.Duration
+	Theme        string   // 学習テーマ（例: "Basic Movement"）
+	Commands     []string // このステージで練習するコマンドの説明（表示用）
 }
 
 // Load はマップファイルを読み込み、Grid を設定して SpawnPoints を返す。
@@ -31,6 +33,13 @@ func InitStages() []Stage {
 			MapPath:      "files/stage/map01.txt",
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder()},
 			GameSpeed:    1250 * time.Millisecond,
+			Theme:        "Basic Movement",
+			Commands: []string{
+				"h  move left",
+				"l  move right",
+				"j  move down",
+				"k  move up",
+			},
 		},
 		{
 			Level:        2,
@@ -38,6 +47,12 @@ func InitStages() []Stage {
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder().Strategize(&TrickyStrategy{})},
 			GhostConfig:  &EnemyConfig{Builder: NewGhostBuilder()},
 			GameSpeed:    1000 * time.Millisecond,
+			Theme:        "Word Motion",
+			Commands: []string{
+				"w  move to next word",
+				"e  move to end of word",
+				"b  move to previous word",
+			},
 		},
 		{
 			Level:        3,
@@ -45,18 +60,39 @@ func InitStages() []Stage {
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder()},
 			GhostConfig:  &EnemyConfig{Builder: NewGhostBuilder()},
 			GameSpeed:    1000 * time.Millisecond,
+			Theme:        "Line & File Motion",
+			Commands: []string{
+				"0   move to start of line",
+				"$   move to end of line",
+				"^   move to first word on line",
+				"gg  move to first line",
+				"G   move to last line  (NG: line N)",
+			},
 		},
 		{
 			Level:        4,
 			MapPath:      "files/stage/map04.txt",
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder()},
 			GameSpeed:    750 * time.Millisecond,
+			Theme:        "Find Character",
+			Commands: []string{
+				"f{c}  jump to character c",
+				"t{c}  jump before character c",
+				";     repeat last find",
+				",     repeat last find (reverse)",
+			},
 		},
 		{
 			Level:        5,
 			MapPath:      "files/stage/map05.txt",
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder().Strategize(&TrickyStrategy{})},
 			GameSpeed:    750 * time.Millisecond,
+			Theme:        "All Commands",
+			Commands: []string{
+				"Use everything you've learned!",
+				"h/j/k/l  w/e/b  0/$/^",
+				"gg/G  f/t/;/,",
+			},
 		},
 	}
 }
