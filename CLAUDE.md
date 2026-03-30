@@ -425,10 +425,25 @@ type Stage struct {
     HunterConfig EnemyConfig
     GhostConfig  *EnemyConfig  // nil のステージもある
     GameSpeed    time.Duration
+    Theme        string   // 学習テーマ（例: "基本移動"）
+    Commands     []string // このステージで練習するコマンドの説明（PhaseReady 画面に表示）
 }
 
 func InitStages() []Stage { ... }
 ```
+
+### ステージの学習テーマ
+
+| Level | Theme | 練習コマンド |
+|---|---|---|
+| 1 | 基本移動 | `h` `l` `j` `k` |
+| 2 | 単語移動 | `w` `e` `b` |
+| 3 | 行・ファイル移動 | `0` `$` `^` `gg` `G` |
+| 4 | 文字検索 | `f{c}` `t{c}` `;` `,` |
+| 5 | 総合 | 全コマンド |
+
+`Theme` と `Commands` は `PhaseReady`（準備画面）に表示される。
+新しいステージを追加するときはこれらのフィールドも設定すること。
 
 ### マップファイルの文字規則（`state/files/stage/*.txt`）
 
