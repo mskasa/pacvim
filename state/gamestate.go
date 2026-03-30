@@ -14,12 +14,16 @@ var ErrQuit = errors.New("quit")
 type GamePhase int
 
 const (
-	PhaseOpening GamePhase = iota // 開幕画面（最初のキー入力待ち）
-	PhaseReady                    // 準備画面（ステージ開始前・ミス後）
-	PhasePlaying                  // プレイ中
-	PhaseGameOver                 // ゲームオーバー
-	PhaseGameClear                // 全ステージクリア
+	PhaseOpening  GamePhase = iota // 開幕画面（最初のキー入力待ち）
+	PhaseReady                     // 準備画面（ステージ開始前・ミス後）
+	PhasePlaying                   // プレイ中
+	PhaseDead                      // 死亡演出中（deadDuration フレーム後に PhaseReady へ遷移）
+	PhaseGameOver                  // ゲームオーバー
+	PhaseGameClear                 // 全ステージクリア
 )
+
+// deadDuration は PhaseDead の持続フレーム数（約1.5秒 @ TPS=60）。
+const deadDuration = 90
 
 // GameState はゲーム全体の状態を保持する。
 type GameState struct {
@@ -30,6 +34,7 @@ type GameState struct {
 	Life      int
 	EnemyTick int
 	Phase     GamePhase
+	deadTimer int // PhaseDead の経過フレーム数
 }
 
 // NewGameState は初期状態の GameState を生成する。
@@ -109,8 +114,19 @@ func (gs *GameState) Update(cmd input.Command, ch rune) error {
 		gs.updateWaitKey(cmd, PhasePlaying)
 	case PhasePlaying:
 		gs.updatePlaying(cmd, ch)
+	case PhaseDead:
+		gs.updateDead()
 	}
 	return nil
+}
+
+// updateDead は PhaseDead のフレームを進め、deadDuration 経過後に PhaseReady へ遷移する。
+func (gs *GameState) updateDead() {
+	gs.deadTimer++
+	if gs.deadTimer >= deadDuration {
+		_ = gs.loadStage()
+		gs.Phase = PhaseReady
+	}
 }
 
 // updateWaitKey は CmdNone 以外のキー入力で next フェーズへ遷移する。
@@ -215,12 +231,13 @@ func (gs *GameState) handleStageClear() {
 }
 
 // handlePlayerDeath はプレイヤー死亡時の処理を行う。
+// ライフが残っている場合は PhaseDead へ遷移し、loadStage は deadDuration 後まで遅らせる。
 func (gs *GameState) handlePlayerDeath() {
 	gs.Life--
 	if gs.Life <= 0 {
 		gs.Phase = PhaseGameOver
 	} else {
-		_ = gs.loadStage()
-		gs.Phase = PhaseReady
+		gs.deadTimer = 0
+		gs.Phase = PhaseDead
 	}
 }

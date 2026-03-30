@@ -211,6 +211,60 @@ func TestPoisonKillsPlayer(t *testing.T) {
 	}
 }
 
+// --- PhaseDead ---
+
+func TestPlayerDeathTransitionsToPhaseDead(t *testing.T) {
+	gs := newGameStateWithGrid([]string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Enemies = []Enemy{NewHunterBuilder().Build(gs.Player.X, gs.Player.Y)}
+	gs.Phase = PhasePlaying
+
+	_ = gs.Update(input.CmdNone, 0)
+	if gs.Phase != PhaseDead {
+		t.Errorf("want PhaseDead after death, got %v", gs.Phase)
+	}
+}
+
+func TestPhaseDeadTransitionsToPhaseReadyAfterDuration(t *testing.T) {
+	gs := newGameStateWithGrid([]string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Phase = PhaseDead
+	gs.deadTimer = 0
+
+	for i := 0; i < deadDuration-1; i++ {
+		_ = gs.Update(input.CmdNone, 0)
+		if gs.Phase != PhaseDead {
+			t.Fatalf("want PhaseDead at frame %d, got %v", i, gs.Phase)
+		}
+	}
+	_ = gs.Update(input.CmdNone, 0)
+	if gs.Phase != PhaseReady {
+		t.Errorf("want PhaseReady after deadDuration, got %v", gs.Phase)
+	}
+}
+
+func TestPhaseDeadIgnoresPlayerInput(t *testing.T) {
+	gs := newGameStateWithGrid([]string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Phase = PhaseDead
+	gs.deadTimer = 0
+	startX := gs.Player.X
+
+	_ = gs.Update(input.CmdMoveRight, 0)
+	if gs.Player.X != startX {
+		t.Errorf("player should not move during PhaseDead, got X=%d", gs.Player.X)
+	}
+}
+
 // --- ステージクリア ---
 
 func TestStageClearAdvancesStage(t *testing.T) {
