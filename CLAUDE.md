@@ -556,6 +556,7 @@ kizami audit                   # Related Files とコードの乖離を検出
 | `0003-abstract-input-as-command-type.md` | キー入力を Command 型で抽象化した理由 |
 | `2026-03-30-ebitengine.md` | Ebitengine のキーリピート実装方針（ソフトウェアリピートの採用理由） |
 | `2026-03-30-num-input.md` | 数値入力（カウントプレフィックス）の責務分離（0キーの解釈を state 側で行う） |
+| `2026-03-30-stage-learning-metadata.md` | ステージへの学習メタデータ埋め込み方針（Theme・Commands を Stage struct に持たせる） |
 
 ---
 
