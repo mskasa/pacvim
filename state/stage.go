@@ -10,7 +10,7 @@ type Stage struct {
 	HunterConfig EnemyConfig
 	GhostConfig  *EnemyConfig // ゴーストが存在しないステージでは nil
 	GameSpeed    time.Duration
-	Theme        string   // 学習テーマ（例: "基本移動"）
+	Theme        string   // 学習テーマ（例: "Basic Movement"）
 	Commands     []string // このステージで練習するコマンドの説明（表示用）
 }
 
@@ -33,12 +33,12 @@ func InitStages() []Stage {
 			MapPath:      "files/stage/map01.txt",
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder()},
 			GameSpeed:    1250 * time.Millisecond,
-			Theme:        "基本移動",
+			Theme:        "Basic Movement",
 			Commands: []string{
-				"h  左へ移動",
-				"l  右へ移動",
-				"j  下へ移動",
-				"k  上へ移動",
+				"h  move left",
+				"l  move right",
+				"j  move down",
+				"k  move up",
 			},
 		},
 		{
@@ -47,11 +47,11 @@ func InitStages() []Stage {
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder().Strategize(&TrickyStrategy{})},
 			GhostConfig:  &EnemyConfig{Builder: NewGhostBuilder()},
 			GameSpeed:    1000 * time.Millisecond,
-			Theme:        "単語移動",
+			Theme:        "Word Motion",
 			Commands: []string{
-				"w  次の単語の先頭へ",
-				"e  単語の末尾へ",
-				"b  前の単語の先頭へ",
+				"w  move to next word",
+				"e  move to end of word",
+				"b  move to previous word",
 			},
 		},
 		{
@@ -60,13 +60,13 @@ func InitStages() []Stage {
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder()},
 			GhostConfig:  &EnemyConfig{Builder: NewGhostBuilder()},
 			GameSpeed:    1000 * time.Millisecond,
-			Theme:        "行・ファイル移動",
+			Theme:        "Line & File Motion",
 			Commands: []string{
-				"0   行の先頭へ",
-				"$   行の末尾へ",
-				"^   行の最初の単語へ",
-				"gg  ファイルの先頭へ",
-				"G   ファイルの末尾へ（N行目へ）",
+				"0   move to start of line",
+				"$   move to end of line",
+				"^   move to first word on line",
+				"gg  move to first line",
+				"G   move to last line  (NG: line N)",
 			},
 		},
 		{
@@ -74,12 +74,12 @@ func InitStages() []Stage {
 			MapPath:      "files/stage/map04.txt",
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder()},
 			GameSpeed:    750 * time.Millisecond,
-			Theme:        "文字検索",
+			Theme:        "Find Character",
 			Commands: []string{
-				"f{c}  右方向で文字 c へジャンプ",
-				"t{c}  右方向で文字 c の手前へ",
-				";     直前の検索を繰り返す",
-				",     直前の検索を逆方向に繰り返す",
+				"f{c}  jump to character c",
+				"t{c}  jump before character c",
+				";     repeat last find",
+				",     repeat last find (reverse)",
 			},
 		},
 		{
@@ -87,9 +87,9 @@ func InitStages() []Stage {
 			MapPath:      "files/stage/map05.txt",
 			HunterConfig: EnemyConfig{Builder: NewHunterBuilder().Strategize(&TrickyStrategy{})},
 			GameSpeed:    750 * time.Millisecond,
-			Theme:        "総合",
+			Theme:        "All Commands",
 			Commands: []string{
-				"全コマンドを駆使してクリアしよう！",
+				"Use everything you've learned!",
 				"h/j/k/l  w/e/b  0/$/^",
 				"gg/G  f/t/;/,",
 			},
