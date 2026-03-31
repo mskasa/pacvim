@@ -101,8 +101,8 @@ func TestStageLoad(t *testing.T) {
 	}
 
 	// map01.txt のハンター数
-	if len(spawns.Hunters) != 2 {
-		t.Errorf("want 2 hunters, got %d", len(spawns.Hunters))
+	if len(spawns.Hunters) != 3 {
+		t.Errorf("want 3 hunters, got %d", len(spawns.Hunters))
 	}
 }
 

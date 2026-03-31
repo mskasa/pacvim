@@ -1,7 +1,7 @@
 +++++++++++++++++++++++++++++
 +ooooooo   ooooooooo   ooooo+
 +o     o   o       o   o   o+
-+o  H  o   o       o   o   o+
++o  H  o   o       o   o H o+
 +o     o   ooooooooo   o   o+
 +ooooooo               ooooo+
 +                           +
