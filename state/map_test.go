@@ -99,7 +99,7 @@ func TestLoadGrid_Map01(t *testing.T) {
 			}
 		}
 	}
-	const wantApples = 170
+	const wantApples = 139
 	if appleCount != wantApples {
 		t.Errorf("apple count = %d, want %d", appleCount, wantApples)
 	}
@@ -115,9 +115,9 @@ func TestLoadGrid_Map01(t *testing.T) {
 		t.Errorf("player spawn cell should be CellSpace")
 	}
 
-	// ハンターが2体いることを確認
-	if len(spawns.Hunters) != 2 {
-		t.Errorf("hunter count = %d, want 2", len(spawns.Hunters))
+	// ハンターが3体いることを確認
+	if len(spawns.Hunters) != 3 {
+		t.Errorf("hunter count = %d, want 3", len(spawns.Hunters))
 	}
 
 	// ハンター座標のセルが CellSpace になっていることを確認

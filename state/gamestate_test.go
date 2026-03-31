@@ -47,9 +47,9 @@ func TestNewGameStateEnemiesSpawned(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewGameState failed: %v", err)
 	}
-	// map01.txt には2体のハンターがいる
-	if len(gs.Enemies) != 2 {
-		t.Errorf("want 2 enemies, got %d", len(gs.Enemies))
+	// map01.txt には3体のハンターがいる
+	if len(gs.Enemies) != 3 {
+		t.Errorf("want 3 enemies, got %d", len(gs.Enemies))
 	}
 }
 
