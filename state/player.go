@@ -11,14 +11,22 @@ const (
 	PlayerWon
 )
 
+// findCmd は f/F/t/T コマンドの繰り返し（;/,）に必要な情報を保持する。
+type findCmd struct {
+	isTill  bool // true = t/T、false = f/F
+	forward bool // true = 右方向、false = 左方向
+	ch      rune // 検索対象文字
+}
+
 // Player はプレイヤーの状態と Vim コマンドのロジックを保持する。
 type Player struct {
 	X, Y        int
 	Score       int
 	TargetScore int
 	State       PlayerState
-	inputNum    int  // カウント蓄積（3w の "3" など）
-	inputG      bool // g 入力待ち（gg コマンド用、input.Handler で管理するため通常は未使用）
+	inputNum    int      // カウント蓄積（3w の "3" など）
+	inputG      bool     // g 入力待ち（gg コマンド用、input.Handler で管理するため通常は未使用）
+	lastFind    *findCmd // f/t の繰り返し用（; , コマンド）
 }
 
 // Apply はコマンドをプレイヤー状態に適用する。
@@ -77,6 +85,26 @@ func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage, enemies []Enemy
 			p.gotoLine(p.inputNum, stage, enemies)
 		} else {
 			p.gotoLastLine(stage, enemies)
+		}
+
+	case input.CmdFindForward:
+		p.applyFind(ch, true, false, stage, enemies)
+	case input.CmdFindBack:
+		p.applyFind(ch, false, false, stage, enemies)
+	case input.CmdTillForward:
+		p.applyFind(ch, true, true, stage, enemies)
+	case input.CmdTillBack:
+		p.applyFind(ch, false, true, stage, enemies)
+
+	case input.CmdRepeatFind:
+		if p.lastFind != nil {
+			f := p.lastFind
+			p.applyFind(f.ch, f.forward, f.isTill, stage, enemies)
+		}
+	case input.CmdRepeatFindRev:
+		if p.lastFind != nil {
+			f := p.lastFind
+			p.applyFind(f.ch, !f.forward, f.isTill, stage, enemies)
 		}
 	}
 
@@ -298,6 +326,61 @@ func (p *Player) gotoLastLine(stage *Stage, enemies []Enemy) {
 			return
 		}
 	}
+}
+
+// charMatchesCell は入力文字がセルの種別と対応するかを返す。
+// f/t コマンドで検索する文字→セル種別の対応を定義する。
+func charMatchesCell(ch rune, cell Cell) bool {
+	switch ch {
+	case charApple: // 'o'
+		return cell.Kind == CellApple
+	case charPoison: // 'X'
+		return cell.Kind == CellPoison
+	case ' ':
+		return cell.Kind == CellSpace || cell.Kind == CellAppleEaten
+	}
+	return false
+}
+
+// applyFind は f/F/t/T の検索・移動ロジックを実行する。
+// forward=true で右方向、isTill=true で1マス手前止まり（t/T 挙動）。
+func (p *Player) applyFind(ch rune, forward bool, isTill bool, stage *Stage, enemies []Enemy) {
+	dx := 1
+	if !forward {
+		dx = -1
+	}
+
+	// 現在行で対象文字を検索
+	targetX := -1
+	for x := p.X + dx; x >= 0 && x < stage.Grid.Width; x += dx {
+		if charMatchesCell(ch, stage.Grid.At(x, p.Y)) {
+			targetX = x
+			break
+		}
+	}
+	if targetX == -1 {
+		return
+	}
+
+	// t/T は1マス手前で止まる
+	if isTill {
+		targetX -= dx
+		if targetX == p.X {
+			return
+		}
+	}
+
+	// walk で1ステップずつ移動
+	for p.X != targetX {
+		if !p.walkTo(p.X+dx, p.Y, stage, enemies) {
+			break
+		}
+		if p.State != PlayerAlive {
+			return
+		}
+	}
+
+	p.lastFind = &findCmd{isTill: isTill, forward: forward, ch: ch}
 }
 
 // gotoLine は n 行目（1-indexed）の最初のワードへジャンプする（Ngg / NG）。
