@@ -540,6 +540,193 @@ func TestCountNotResetByCmdNone(t *testing.T) {
 	}
 }
 
+// --- f F t T ; ,（文字検索） ---
+
+// TestFindForward: fo で右方向の次の o（リンゴ）まで walk 移動し、リンゴを取得する。
+// "+  o o  +" → x=3 に最初の o がある
+func TestFindForward(t *testing.T) {
+	stage := newStage([]string{
+		"++++++++++",
+		"+  o o   +",
+		"++++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	// 最初の o は x=3
+	if p.X != 3 {
+		t.Errorf("fo: want X=3, got X=%d", p.X)
+	}
+	// x=3 の o を取得
+	if p.Score != 1 {
+		t.Errorf("fo: want Score=1, got %d", p.Score)
+	}
+}
+
+// TestFindForwardCollectsApplesAlongPath: fo で経路上のリンゴも収集する。
+func TestFindForwardCollectsApplesAlongPath(t *testing.T) {
+	stage := newStage([]string{
+		"+++++++",
+		"+ oo o+",
+		"+++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	// fo: 最初の o は x=2。経路上のリンゴ（x=2）を取得
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 2 {
+		t.Errorf("fo: want X=2, got X=%d", p.X)
+	}
+	// 2回目の fo: 次の o は x=3。x=3 のリンゴを取得
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 3 {
+		t.Errorf("fo: want X=3, got X=%d", p.X)
+	}
+	if p.Score != 2 {
+		t.Errorf("fo: want Score=2, got %d", p.Score)
+	}
+}
+
+// TestFindBack: Fo で左方向の次の o まで移動する。
+// "+  o o  +" → x=5 に右側の o がある
+func TestFindBack(t *testing.T) {
+	stage := newStage([]string{
+		"++++++++++",
+		"+  o o   +",
+		"++++++++++",
+	})
+	p := &Player{X: 8, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdFindBack, 'o', stage, nil)
+	// 右から見て最初の o は x=5
+	if p.X != 5 {
+		t.Errorf("Fo: want X=5, got X=%d", p.X)
+	}
+}
+
+// TestTillForward: to で右方向の次の o の1つ手前まで移動する。
+func TestTillForward(t *testing.T) {
+	stage := newStage([]string{
+		"+++++++",
+		"+   o +",
+		"+++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdTillForward, 'o', stage, nil)
+	// o は x=4、1つ手前は x=3
+	if p.X != 3 {
+		t.Errorf("to: want X=3, got X=%d", p.X)
+	}
+}
+
+// TestTillBack: To で左方向の次の o の1つ右まで移動する。
+func TestTillBack(t *testing.T) {
+	stage := newStage([]string{
+		"+++++++",
+		"+ o   +",
+		"+++++++",
+	})
+	p := &Player{X: 5, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdTillBack, 'o', stage, nil)
+	// o は x=2、1つ右は x=3
+	if p.X != 3 {
+		t.Errorf("To: want X=3, got X=%d", p.X)
+	}
+}
+
+// TestFindNotFound: 対象文字が存在しない場合は移動しない。
+func TestFindNotFound(t *testing.T) {
+	stage := newStage([]string{
+		"+++++",
+		"+   +",
+		"+++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive}
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 1 {
+		t.Errorf("fo (not found): should not move, got X=%d", p.X)
+	}
+}
+
+// TestRepeatFind: fo の後に ; で同じ方向に繰り返し移動する。
+// "+  o   o   o  +" → x=3, x=7, x=11 に o がある
+func TestRepeatFind(t *testing.T) {
+	stage := newStage([]string{
+		"+++++++++++++++",
+		"+  o   o   o  +",
+		"+++++++++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	// fo: x=3 へ
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 3 {
+		t.Fatalf("fo: want X=3, got X=%d", p.X)
+	}
+	// ; で繰り返し: x=7 へ
+	p.Apply(input.CmdRepeatFind, 0, stage, nil)
+	if p.X != 7 {
+		t.Errorf(";: want X=7, got X=%d", p.X)
+	}
+	// ; で繰り返し: x=11 へ
+	p.Apply(input.CmdRepeatFind, 0, stage, nil)
+	if p.X != 11 {
+		t.Errorf(";: want X=11, got X=%d", p.X)
+	}
+}
+
+// TestRepeatFindReverse: fo の後に , で逆方向に移動する。
+// プレイヤーを中間点（x=5）に置き、右の o（x=8）へ fo で移動後、
+// 左の o（x=2）へ , で戻る。fo で x=2 は通らないので食べられていない。
+func TestRepeatFindReverse(t *testing.T) {
+	stage := newStage([]string{
+		"+++++++++++",
+		"+ o     o +",
+		"+++++++++++",
+	})
+	// x=2: o, x=8: o。プレイヤーは x=5 からスタート
+	p := &Player{X: 5, Y: 1, State: PlayerAlive, TargetScore: 99}
+	// fo: x=8 へ（x=2 は通らないので食べられない）
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 8 {
+		t.Fatalf("fo: want X=8, got X=%d", p.X)
+	}
+	// lastFind = {forward: true, ch: 'o'}
+	// , で逆方向（左）: x=7 から検索 → x=2 の o へ
+	p.Apply(input.CmdRepeatFindRev, 0, stage, nil)
+	if p.X != 2 {
+		t.Errorf(",: want X=2, got X=%d", p.X)
+	}
+}
+
+// TestRepeatFindNilLastFind: lastFind が nil の場合は何もしない。
+func TestRepeatFindNilLastFind(t *testing.T) {
+	stage := newStage([]string{
+		"+++++++",
+		"+ o o +",
+		"+++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive}
+	p.Apply(input.CmdRepeatFind, 0, stage, nil)
+	if p.X != 1 {
+		t.Errorf("; with no lastFind: should not move, got X=%d", p.X)
+	}
+}
+
+// TestFindWalkDiesOnPoison: fo は walk なので経路上に毒があれば死亡する。
+func TestFindWalkDiesOnPoison(t *testing.T) {
+	stage := newStage([]string{
+		"+++++++",
+		"+ X o +",
+		"+++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	// 経路上の x=2 に毒があるので死亡
+	if p.State != PlayerDead {
+		t.Errorf("fo through poison: want PlayerDead, got %v", p.State)
+	}
+	if p.X != 2 {
+		t.Errorf("fo through poison: want stopped at X=2, got X=%d", p.X)
+	}
+}
+
 // TestCountResetAfterCommand: コマンド実行後にカウントがリセットされ、次のコマンドに引き継がれない。
 func TestCountResetAfterCommand(t *testing.T) {
 	stage := newStage([]string{
