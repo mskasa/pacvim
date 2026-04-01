@@ -88,12 +88,16 @@ func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage, enemies []Enemy
 		}
 
 	case input.CmdFindForward:
+		p.lastFind = &findCmd{isTill: false, forward: true, ch: ch}
 		p.applyFind(ch, true, false, stage, enemies)
 	case input.CmdFindBack:
+		p.lastFind = &findCmd{isTill: false, forward: false, ch: ch}
 		p.applyFind(ch, false, false, stage, enemies)
 	case input.CmdTillForward:
+		p.lastFind = &findCmd{isTill: true, forward: true, ch: ch}
 		p.applyFind(ch, true, true, stage, enemies)
 	case input.CmdTillBack:
+		p.lastFind = &findCmd{isTill: true, forward: false, ch: ch}
 		p.applyFind(ch, false, true, stage, enemies)
 
 	case input.CmdRepeatFind:
@@ -380,7 +384,6 @@ func (p *Player) applyFind(ch rune, forward bool, isTill bool, stage *Stage, ene
 		}
 	}
 
-	p.lastFind = &findCmd{isTill: isTill, forward: forward, ch: ch}
 }
 
 // gotoLine は n 行目（1-indexed）の最初のワードへジャンプする（Ngg / NG）。

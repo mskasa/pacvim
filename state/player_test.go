@@ -695,6 +695,34 @@ func TestRepeatFindReverse(t *testing.T) {
 	}
 }
 
+// TestRepeatFindReverseMultiple: , を複数回押しても逆方向（左）を維持する。
+// lastFind は f/F/t/T の直接入力時のみ更新され、;/, では更新されないことを検証する。
+func TestRepeatFindReverseMultiple(t *testing.T) {
+	// x=2, x=4, x=8 に o がある。プレイヤーは x=5 からスタート。
+	stage := newStage([]string{
+		"++++++++++++",
+		"+ o o   o  +",
+		"++++++++++++",
+	})
+	p := &Player{X: 5, Y: 1, State: PlayerAlive, TargetScore: 99}
+	// fo: x=8 へ（x=2, x=4 は通らないので食べられない）
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 8 {
+		t.Fatalf("fo: want X=8, got X=%d", p.X)
+	}
+	// lastFind = {forward: true, ch: 'o'}
+	// 1回目の ,: 逆方向（左）→ x=4 へ
+	p.Apply(input.CmdRepeatFindRev, 0, stage, nil)
+	if p.X != 4 {
+		t.Errorf("1st ,: want X=4, got X=%d", p.X)
+	}
+	// 2回目の ,: lastFind は更新されていないので引き続き逆方向（左）→ x=2 へ
+	p.Apply(input.CmdRepeatFindRev, 0, stage, nil)
+	if p.X != 2 {
+		t.Errorf("2nd ,: want X=2, got X=%d", p.X)
+	}
+}
+
 // TestRepeatFindNilLastFind: lastFind が nil の場合は何もしない。
 func TestRepeatFindNilLastFind(t *testing.T) {
 	stage := newStage([]string{
