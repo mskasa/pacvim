@@ -438,7 +438,7 @@ func InitStages() []Stage { ... }
 |---|---|---|---|
 | 1 | Basic Movement | `h` `l` `j` `k` | なし |
 | 2 | Word Motion | `w` `e` `b` | `h` `l` |
-| 3 | Line & File Motion | `0` `$` `^` `gg` `G` | `h` `l` `w` `e` `b` |
+| 3 | Line & File Motion | `0` `$` `^` `gg` `G` | なし |
 | 4 | Find Character | `f{c}` `t{c}` `;` `,` | `w` `e` `b` |
 | 5 | All Commands | 全コマンド | なし |
 

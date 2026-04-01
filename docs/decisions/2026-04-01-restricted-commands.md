@@ -11,7 +11,7 @@
 また、3面でも「壁がなければ `h/l` だけでクリアできる」という問題があり、
 マップ設計で学習を強制しようとすると不自然な制約が生まれやすかった。
 
-「使えないキーをシステムで封印する」ことで、マップ設計に頼らず学習文脈を強制できるようにする。
+特定のキーをシステムで封印することで、マップ設計に頼らず学習文脈を強制できるようにする。
 
 ## Decision
 
@@ -20,13 +20,13 @@
 - 制限されているキーを押したときは UI にフィードバックを表示する（「このステージでは使えません」など）
 - 各ステージの制限は以下のとおり
 
-| 面 | 封印するコマンド |
-|---|---|
-| 1面 | なし |
-| 2面 | h l（CmdMoveLeft・CmdMoveRight） |
-| 3面 | h l w e b（CmdMoveLeft・CmdMoveRight・CmdWordForward・CmdWordEnd・CmdWordBack） |
-| 4面 | w e b（CmdWordForward・CmdWordEnd・CmdWordBack） |
-| 5面 | なし（全コマンド解禁） |
+| 面  | 封印するコマンド                                                                |
+| --- | ------------------------------------------------------------------------------- |
+| 1面 | なし                                                                            |
+| 2面 | h l（CmdMoveLeft・CmdMoveRight）                                                |
+| 3面 | なし                                                                            |
+| 4面 | w e b（CmdWordForward・CmdWordEnd・CmdWordBack）                                |
+| 5面 | なし（全コマンド解禁）                                                          |
 
 ## Consequences
 
