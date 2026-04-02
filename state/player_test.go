@@ -806,6 +806,52 @@ func TestFindWalkDiesOnPoison(t *testing.T) {
 	}
 }
 
+// TestFindAppleEatenMatchesO: 取得済みりんご（CellAppleEaten）も fo でヒットする。
+func TestFindAppleEatenMatchesO(t *testing.T) {
+	stage := newStage([]string{
+		"++++++++",
+		"+ o o o+",
+		"++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	// 最初の fo で x=2 のりんごを取得（CellAppleEaten になる）
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 2 {
+		t.Fatalf("fo: want X=2, got X=%d", p.X)
+	}
+	// x=2 が CellAppleEaten になっていることを確認
+	if stage.Grid.At(2, 1).Kind != CellAppleEaten {
+		t.Fatalf("want CellAppleEaten at x=2")
+	}
+	// x=4 へ移動してから Fo で左方向検索 → 取得済みの x=2 もヒットするはず
+	p.Apply(input.CmdFindForward, 'o', stage, nil) // x=4
+	p.Apply(input.CmdFindBack, 'o', stage, nil)    // Fo: 左方向 → x=2（取得済み）
+	if p.X != 2 {
+		t.Errorf("Fo on eaten apple: want X=2, got X=%d", p.X)
+	}
+}
+
+// TestFindSpaceDoesNotMatchAppleEaten: f<space> は取得済みりんごにヒットしない。
+func TestFindSpaceDoesNotMatchAppleEaten(t *testing.T) {
+	stage := newStage([]string{
+		"++++++++",
+		"+ o   o+",
+		"++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	// fo で x=2 を取得（CellAppleEaten）
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	if p.X != 2 {
+		t.Fatalf("fo: want X=2, got X=%d", p.X)
+	}
+	// x=1 に戻って f<space> → 取得済みの x=2 はスペースではないので x=3 にヒット
+	p.X = 1
+	p.Apply(input.CmdFindForward, ' ', stage, nil)
+	if p.X != 3 {
+		t.Errorf("f<space> should skip AppleEaten: want X=3, got X=%d", p.X)
+	}
+}
+
 // TestCountResetAfterCommand: コマンド実行後にカウントがリセットされ、次のコマンドに引き継がれない。
 func TestCountResetAfterCommand(t *testing.T) {
 	stage := newStage([]string{
