@@ -549,8 +549,8 @@ func TestRestrictedCmdNotBlockedOnStage1(t *testing.T) {
 	}
 }
 
-// TestRestrictedInputFlagSet: 封印コマンドを入力したとき RestrictedInput が true になる。
-func TestRestrictedInputFlagSet(t *testing.T) {
+// TestRestrictedMsgFramesSet: 封印コマンドを入力したとき RestrictedMsgFrames が正の値になる。
+func TestRestrictedMsgFramesSet(t *testing.T) {
 	gs := newGameStateAtStage(1, []string{
 		"+++++",
 		"+   +",
@@ -558,23 +558,24 @@ func TestRestrictedInputFlagSet(t *testing.T) {
 	}, 3)
 	gs.Player.X = 3
 	_ = gs.Update(input.CmdMoveLeft, 0) // 2面では封印
-	if !gs.RestrictedInput {
-		t.Error("want RestrictedInput=true after restricted cmd, got false")
+	if gs.RestrictedMsgFrames <= 0 {
+		t.Errorf("want RestrictedMsgFrames>0 after restricted cmd, got %d", gs.RestrictedMsgFrames)
 	}
 }
 
-// TestRestrictedInputFlagClearedNextFrame: 次のフレームで RestrictedInput がリセットされる。
-func TestRestrictedInputFlagClearedNextFrame(t *testing.T) {
+// TestRestrictedMsgFramesCountsDown: フレームごとに RestrictedMsgFrames が減少する。
+func TestRestrictedMsgFramesCountsDown(t *testing.T) {
 	gs := newGameStateAtStage(1, []string{
 		"+++++",
 		"+   +",
 		"+++++",
 	}, 3)
 	gs.Player.X = 3
-	_ = gs.Update(input.CmdMoveLeft, 0) // 封印コマンド → true
-	_ = gs.Update(input.CmdNone, 0)     // 次フレーム → false
-	if gs.RestrictedInput {
-		t.Error("want RestrictedInput=false after next frame, got true")
+	_ = gs.Update(input.CmdMoveLeft, 0) // 封印コマンド → フレーム数セット
+	first := gs.RestrictedMsgFrames
+	_ = gs.Update(input.CmdNone, 0) // 次フレーム → 1減る
+	if gs.RestrictedMsgFrames != first-1 {
+		t.Errorf("want RestrictedMsgFrames=%d, got %d", first-1, gs.RestrictedMsgFrames)
 	}
 }
 
