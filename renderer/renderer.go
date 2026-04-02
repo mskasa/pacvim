@@ -182,7 +182,7 @@ func (r *Renderer) drawSprite16(screen *ebiten.Image, sprite *ebiten.Image, gx, 
 }
 
 func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
-	vector.FillRect(screen, 0, float32(statusBarY), ScreenWidth, 28, colorStatusBg, false)
+	vector.FillRect(screen, 0, float32(statusBarY), ScreenWidth, statusBarH, colorStatusBg, false)
 	stage := gs.Stage()
 	text := fmt.Sprintf("  Level: %d    Score: %d/%d    Life: %d",
 		stage.Level, gs.Player.Score, gs.Player.TargetScore, gs.Life)
