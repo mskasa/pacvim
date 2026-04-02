@@ -20,9 +20,9 @@ const (
 	TileSize     = 32
 	OffsetX      = 56  // 行番号エリアの幅（ピクセル）
 	OffsetY      = 16  // 上部マージン
-	statusBarH   = 36  // ステータスバーの高さ
+	statusBarH   = 44  // ステータスバーの高さ
 	ScreenWidth  = OffsetX + 29*TileSize // 56 + 928 = 984
-	ScreenHeight = OffsetY + 15*TileSize + statusBarH // 16 + 480 + 36 = 532
+	ScreenHeight = OffsetY + 15*TileSize + statusBarH // 16 + 480 + 44 = 540
 
 	statusBarY = ScreenHeight - statusBarH
 )
@@ -186,12 +186,12 @@ func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
 	stage := gs.Stage()
 	text := fmt.Sprintf("  Level: %d    Score: %d/%d    Life: %d",
 		stage.Level, gs.Player.Score, gs.Player.TargetScore, gs.Life)
-	r.drawChar(screen, text, 4, statusBarY+24, colorStatusText)
+	r.drawChar(screen, text, 4, statusBarY+28, colorStatusText)
 
 	if gs.RestrictedMsgFrames > 0 {
 		msg := "Command not available in this stage"
 		w, _ := textv2.Measure(msg, r.face, 0)
-		r.drawChar(screen, msg, ScreenWidth-int(w)-8, statusBarY+24, colorTitle)
+		r.drawChar(screen, msg, ScreenWidth-int(w)-8, statusBarY+28, colorTitle)
 	}
 }
 
