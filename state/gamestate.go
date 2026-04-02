@@ -37,7 +37,7 @@ type GameState struct {
 	EnemyTick       int
 	Phase           GamePhase
 	deadTimer       int  // PhaseDead の経過フレーム数
-	RestrictedInput bool // 直前のフレームで封印コマンドが入力されたか
+	RestrictedMsgFrames int // 封印コマンドのフィードバックメッセージの残り表示フレーム数
 }
 
 // NewGameState は初期状態の GameState を生成する。
@@ -168,11 +168,16 @@ func (gs *GameState) isRestricted(cmd input.Command) bool {
 	return false
 }
 
+// restrictedMsgDuration は封印コマンドメッセージの表示フレーム数（約2秒 @ TPS=60）。
+const restrictedMsgDuration = 120
+
 // updatePlaying はプレイ中の更新処理。
 func (gs *GameState) updatePlaying(cmd input.Command, ch rune) {
-	gs.RestrictedInput = false
+	if gs.RestrictedMsgFrames > 0 {
+		gs.RestrictedMsgFrames--
+	}
 	if cmd != input.CmdNone && gs.isRestricted(cmd) {
-		gs.RestrictedInput = true
+		gs.RestrictedMsgFrames = restrictedMsgDuration
 		return
 	}
 	gs.Player.Apply(cmd, ch, gs.Stage(), gs.Enemies)

@@ -73,9 +73,6 @@ func (r *Renderer) Draw(screen *ebiten.Image, gs *state.GameState) {
 		r.drawReadyOverlay(screen, gs)
 	case state.PhasePlaying:
 		r.drawGame(screen, gs)
-		if gs.RestrictedInput {
-			r.drawRestrictedMessage(screen)
-		}
 	case state.PhaseDead:
 		r.drawGame(screen, gs)
 		r.drawDeadOverlay(screen)
@@ -177,6 +174,12 @@ func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
 	text := fmt.Sprintf("  Level: %d    Score: %d/%d    Life: %d",
 		stage.Level, gs.Player.Score, gs.Player.TargetScore, gs.Life)
 	r.drawChar(screen, text, 4, statusBarY+15, colorStatusText)
+
+	if gs.RestrictedMsgFrames > 0 {
+		msg := "Command not available in this stage"
+		w, _ := textv2.Measure(msg, r.face, 0)
+		r.drawChar(screen, msg, ScreenWidth-int(w)-8, statusBarY+15, colorTitle)
+	}
 }
 
 // --- オーバーレイ ---
@@ -251,12 +254,6 @@ func (r *Renderer) drawReadyOverlay(screen *ebiten.Image, gs *state.GameState) {
 	r.drawCharCentered(screen, "Press any key to start", cx, y, colorStatusText)
 	y += lineH
 	r.drawCharCentered(screen, "q: quit", cx, y, colorHint)
-}
-
-func (r *Renderer) drawRestrictedMessage(screen *ebiten.Image) {
-	cx := ScreenWidth / 2
-	cy := ScreenHeight/2 - 30
-	r.drawCharCentered(screen, "That command is not available in this stage.", cx, cy, colorTitle)
 }
 
 func (r *Renderer) drawDeadOverlay(screen *ebiten.Image) {
