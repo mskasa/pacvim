@@ -389,6 +389,116 @@ func TestStageAccessor(t *testing.T) {
 	}
 }
 
+// --- RestrictedCmds（封印コマンド） ---
+
+// newGameStateAtStage はステージ idx のグリッドを差し替えた GameState を返す。
+func newGameStateAtStage(idx int, rows []string, life int) *GameState {
+	grid := buildGrid(rows)
+	apples := countApples(grid)
+	player := &Player{
+		X:           1,
+		Y:           1,
+		State:       PlayerAlive,
+		TargetScore: apples,
+	}
+	stages := InitStages()
+	stages[idx].Grid = grid
+	return &GameState{
+		Stages:   stages,
+		StageIdx: idx,
+		Player:   player,
+		Enemies:  []Enemy{},
+		Life:     life,
+		Phase:    PhasePlaying,
+	}
+}
+
+// TestRestrictedCmdBlockedOnStage2: 2面で CmdMoveLeft を入力しても移動しない。
+func TestRestrictedCmdBlockedOnStage2(t *testing.T) {
+	gs := newGameStateAtStage(1, []string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Player.X = 3
+	_ = gs.Update(input.CmdMoveLeft, 0)
+	if gs.Player.X != 3 {
+		t.Errorf("stage2: CmdMoveLeft should be restricted, want X=3, got X=%d", gs.Player.X)
+	}
+}
+
+// TestRestrictedCmdAllowedOnStage2: 2面で CmdWordForward は封印されていないので移動する。
+func TestRestrictedCmdAllowedOnStage2(t *testing.T) {
+	gs := newGameStateAtStage(1, []string{
+		"++++++++",
+		"+ o  o +",
+		"++++++++",
+	}, 3)
+	gs.Player.X = 1
+	_ = gs.Update(input.CmdWordForward, 0)
+	// w で次のワード先頭（最初の o）へ移動する
+	if gs.Player.X == 1 {
+		t.Errorf("stage2: CmdWordForward should not be restricted, player should have moved")
+	}
+}
+
+// TestRestrictedCmdNotBlockedOnStage3: 3面では CmdMoveLeft は封印されていないので移動する。
+func TestRestrictedCmdNotBlockedOnStage3(t *testing.T) {
+	gs := newGameStateAtStage(2, []string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Player.X = 3
+	_ = gs.Update(input.CmdMoveLeft, 0)
+	if gs.Player.X != 2 {
+		t.Errorf("stage3: CmdMoveLeft should not be restricted, want X=2, got X=%d", gs.Player.X)
+	}
+}
+
+// TestRestrictedCmdNotBlockedOnStage1: 1面では CmdMoveLeft は封印されていないので移動する。
+func TestRestrictedCmdNotBlockedOnStage1(t *testing.T) {
+	gs := newGameStateAtStage(0, []string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Player.X = 3
+	_ = gs.Update(input.CmdMoveLeft, 0)
+	if gs.Player.X != 2 {
+		t.Errorf("stage1: CmdMoveLeft should not be restricted, want X=2, got X=%d", gs.Player.X)
+	}
+}
+
+// TestRestrictedInputFlagSet: 封印コマンドを入力したとき RestrictedInput が true になる。
+func TestRestrictedInputFlagSet(t *testing.T) {
+	gs := newGameStateAtStage(1, []string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Player.X = 3
+	_ = gs.Update(input.CmdMoveLeft, 0) // 2面では封印
+	if !gs.RestrictedInput {
+		t.Error("want RestrictedInput=true after restricted cmd, got false")
+	}
+}
+
+// TestRestrictedInputFlagClearedNextFrame: 次のフレームで RestrictedInput がリセットされる。
+func TestRestrictedInputFlagClearedNextFrame(t *testing.T) {
+	gs := newGameStateAtStage(1, []string{
+		"+++++",
+		"+   +",
+		"+++++",
+	}, 3)
+	gs.Player.X = 3
+	_ = gs.Update(input.CmdMoveLeft, 0) // 封印コマンド → true
+	_ = gs.Update(input.CmdNone, 0)     // 次フレーム → false
+	if gs.RestrictedInput {
+		t.Error("want RestrictedInput=false after next frame, got true")
+	}
+}
+
 // --- ヘルパー ---
 
 // newGameStateWithGrid はテスト用のカスタムグリッドを持つ GameState を構築する。

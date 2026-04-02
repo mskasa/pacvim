@@ -27,14 +27,15 @@ const deadDuration = 90
 
 // GameState はゲーム全体の状態を保持する。
 type GameState struct {
-	Stages    []Stage
-	StageIdx  int
-	Player    *Player
-	Enemies   []Enemy
-	Life      int
-	EnemyTick int
-	Phase     GamePhase
-	deadTimer int // PhaseDead の経過フレーム数
+	Stages         []Stage
+	StageIdx       int
+	Player         *Player
+	Enemies        []Enemy
+	Life           int
+	EnemyTick      int
+	Phase          GamePhase
+	deadTimer      int  // PhaseDead の経過フレーム数
+	RestrictedInput bool // 直前のフレームで封印コマンドが入力されたか
 }
 
 // NewGameState は初期状態の GameState を生成する。
@@ -137,8 +138,23 @@ func (gs *GameState) updateWaitKey(cmd input.Command, next GamePhase) {
 	}
 }
 
+// isRestricted は cmd が現在ステージの封印コマンドに含まれているか返す。
+func (gs *GameState) isRestricted(cmd input.Command) bool {
+	for _, c := range gs.Stage().RestrictedCmds {
+		if c == cmd {
+			return true
+		}
+	}
+	return false
+}
+
 // updatePlaying はプレイ中の更新処理。
 func (gs *GameState) updatePlaying(cmd input.Command, ch rune) {
+	gs.RestrictedInput = false
+	if cmd != input.CmdNone && gs.isRestricted(cmd) {
+		gs.RestrictedInput = true
+		return
+	}
 	gs.Player.Apply(cmd, ch, gs.Stage(), gs.Enemies)
 
 	gs.checkEnemyCapture()

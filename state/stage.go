@@ -1,17 +1,22 @@
 package state
 
-import "time"
+import (
+	"time"
+
+	"github.com/masahiro-kasatani/pacvim/input"
+)
 
 // Stage は1ステージの設定と状態を保持する。
 type Stage struct {
-	Level        int
-	MapPath      string
-	Grid         *Grid
-	HunterConfig EnemyConfig
-	GhostConfig  *EnemyConfig // ゴーストが存在しないステージでは nil
-	GameSpeed    time.Duration
-	Theme        string   // 学習テーマ（例: "Basic Movement"）
-	Commands     []string // このステージで練習するコマンドの説明（表示用）
+	Level          int
+	MapPath        string
+	Grid           *Grid
+	HunterConfig   EnemyConfig
+	GhostConfig    *EnemyConfig    // ゴーストが存在しないステージでは nil
+	GameSpeed      time.Duration
+	Theme          string          // 学習テーマ（例: "Basic Movement"）
+	Commands       []string        // このステージで練習するコマンドの説明（表示用）
+	RestrictedCmds []input.Command // このステージで使用できないコマンド
 }
 
 // Load はマップファイルを読み込み、Grid を設定して SpawnPoints を返す。
@@ -29,17 +34,18 @@ func (s *Stage) Load() (*SpawnPoints, error) {
 func InitStages() []Stage {
 	return []Stage{
 		{
-			Level:        1,
-			MapPath:      "files/stage/map01.txt",
-			HunterConfig: EnemyConfig{Builder: NewHunterBuilder()},
-			GameSpeed:    1250 * time.Millisecond,
-			Theme:        "Basic Movement",
+			Level:          1,
+			MapPath:        "files/stage/map01.txt",
+			HunterConfig:   EnemyConfig{Builder: NewHunterBuilder()},
+			GameSpeed:      1250 * time.Millisecond,
+			Theme:          "Basic Movement",
 			Commands: []string{
 				"h  move left",
 				"l  move right",
 				"j  move down",
 				"k  move up",
 			},
+			RestrictedCmds: []input.Command{},
 		},
 		{
 			Level:        2,
@@ -52,6 +58,10 @@ func InitStages() []Stage {
 				"w  move to next word",
 				"e  move to end of word",
 				"b  move to previous word",
+			},
+			RestrictedCmds: []input.Command{
+				input.CmdMoveLeft,
+				input.CmdMoveRight,
 			},
 		},
 		{
@@ -68,6 +78,7 @@ func InitStages() []Stage {
 				"gg  move to first line",
 				"G   move to last line  (NG: line N)",
 			},
+			RestrictedCmds: []input.Command{},
 		},
 		{
 			Level:        4,
@@ -81,6 +92,11 @@ func InitStages() []Stage {
 				";     repeat last find",
 				",     repeat last find (reverse)",
 			},
+			RestrictedCmds: []input.Command{
+				input.CmdWordForward,
+				input.CmdWordEnd,
+				input.CmdWordBack,
+			},
 		},
 		{
 			Level:        5,
@@ -93,6 +109,7 @@ func InitStages() []Stage {
 				"h/j/k/l  w/e/b  0/$/^",
 				"gg/G  f/t/;/,",
 			},
+			RestrictedCmds: []input.Command{},
 		},
 	}
 }
