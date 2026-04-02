@@ -109,8 +109,8 @@ func TestUpdateOpeningStartsOnCommand(t *testing.T) {
 		t.Fatalf("NewGameState failed: %v", err)
 	}
 	_ = gs.Update(input.CmdMoveRight, 0)
-	if gs.Phase != PhaseReady {
-		t.Errorf("command should transition to PhaseReady, got %v", gs.Phase)
+	if gs.Phase != PhaseStageSelect {
+		t.Errorf("command should transition to PhaseStageSelect, got %v", gs.Phase)
 	}
 }
 
@@ -386,6 +386,85 @@ func TestStageAccessor(t *testing.T) {
 	}
 	if gs.Stage() != &gs.Stages[0] {
 		t.Error("Stage() should return pointer to current stage")
+	}
+}
+
+// --- PhaseStageSelect ---
+
+func TestStageSelectInitialCursor(t *testing.T) {
+	gs, err := NewGameState(3)
+	if err != nil {
+		t.Fatalf("NewGameState failed: %v", err)
+	}
+	if gs.StageSelectIdx != 0 {
+		t.Errorf("want StageSelectIdx=0, got %d", gs.StageSelectIdx)
+	}
+}
+
+func TestStageSelectMoveCursorDown(t *testing.T) {
+	gs, err := NewGameState(3)
+	if err != nil {
+		t.Fatalf("NewGameState failed: %v", err)
+	}
+	gs.Phase = PhaseStageSelect
+	_ = gs.Update(input.CmdMoveDown, 0)
+	if gs.StageSelectIdx != 1 {
+		t.Errorf("j: want StageSelectIdx=1, got %d", gs.StageSelectIdx)
+	}
+}
+
+func TestStageSelectMoveCursorUp(t *testing.T) {
+	gs, err := NewGameState(3)
+	if err != nil {
+		t.Fatalf("NewGameState failed: %v", err)
+	}
+	gs.Phase = PhaseStageSelect
+	gs.StageSelectIdx = 2
+	_ = gs.Update(input.CmdMoveUp, 0)
+	if gs.StageSelectIdx != 1 {
+		t.Errorf("k: want StageSelectIdx=1, got %d", gs.StageSelectIdx)
+	}
+}
+
+func TestStageSelectCursorWrapsDown(t *testing.T) {
+	gs, err := NewGameState(3)
+	if err != nil {
+		t.Fatalf("NewGameState failed: %v", err)
+	}
+	gs.Phase = PhaseStageSelect
+	gs.StageSelectIdx = len(gs.Stages) - 1
+	_ = gs.Update(input.CmdMoveDown, 0)
+	if gs.StageSelectIdx != 0 {
+		t.Errorf("j at last: want wrap to 0, got %d", gs.StageSelectIdx)
+	}
+}
+
+func TestStageSelectCursorWrapsUp(t *testing.T) {
+	gs, err := NewGameState(3)
+	if err != nil {
+		t.Fatalf("NewGameState failed: %v", err)
+	}
+	gs.Phase = PhaseStageSelect
+	gs.StageSelectIdx = 0
+	_ = gs.Update(input.CmdMoveUp, 0)
+	if gs.StageSelectIdx != len(gs.Stages)-1 {
+		t.Errorf("k at first: want wrap to last, got %d", gs.StageSelectIdx)
+	}
+}
+
+func TestStageSelectConfirm(t *testing.T) {
+	gs, err := NewGameState(3)
+	if err != nil {
+		t.Fatalf("NewGameState failed: %v", err)
+	}
+	gs.Phase = PhaseStageSelect
+	gs.StageSelectIdx = 2 // 3面を選択
+	_ = gs.Update(input.CmdMoveRight, 0)
+	if gs.Phase != PhaseReady {
+		t.Errorf("l: want PhaseReady, got %v", gs.Phase)
+	}
+	if gs.StageIdx != 2 {
+		t.Errorf("l: want StageIdx=2, got %d", gs.StageIdx)
 	}
 }
 
