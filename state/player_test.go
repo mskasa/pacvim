@@ -737,6 +737,57 @@ func TestRepeatFindNilLastFind(t *testing.T) {
 	}
 }
 
+// TestFindForwardWithCount: 3fo で3番目の o にジャンプする。
+func TestFindForwardWithCount(t *testing.T) {
+	// x=2,4,6,8 に o がある
+	stage := newStage([]string{
+		"++++++++++",
+		"+ o o o o+",
+		"++++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdNum, '3', stage, nil)
+	p.Apply(input.CmdFindForward, 'o', stage, nil)
+	// 3番目の o は x=6
+	if p.X != 6 {
+		t.Errorf("3fo: want X=6, got X=%d", p.X)
+	}
+}
+
+// TestFindBackWithCount: 3Fo で左方向3番目の o にジャンプする。
+func TestFindBackWithCount(t *testing.T) {
+	// x=2,4,6,8 に o がある。プレイヤーは x=9 からスタート。
+	stage := newStage([]string{
+		"++++++++++",
+		"+ o o o o+",
+		"++++++++++",
+	})
+	p := &Player{X: 9, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdNum, '3', stage, nil)
+	p.Apply(input.CmdFindBack, 'o', stage, nil)
+	// 左方向3番目の o は x=4
+	if p.X != 4 {
+		t.Errorf("3Fo: want X=4, got X=%d", p.X)
+	}
+}
+
+// TestRepeatFindWithCount: 2; で2番目のマッチへ移動する。
+func TestRepeatFindWithCount(t *testing.T) {
+	// x=2,4,6,8 に o がある
+	stage := newStage([]string{
+		"++++++++++",
+		"+ o o o o+",
+		"++++++++++",
+	})
+	p := &Player{X: 1, Y: 1, State: PlayerAlive, TargetScore: 99}
+	p.Apply(input.CmdFindForward, 'o', stage, nil) // fo: x=2
+	p.Apply(input.CmdNum, '2', stage, nil)
+	p.Apply(input.CmdRepeatFind, 0, stage, nil) // 2;: x=2から右2番目のo → x=6
+	if p.X != 6 {
+		t.Errorf("2;: want X=6, got X=%d", p.X)
+	}
+}
+
 // TestFindWalkDiesOnPoison: fo は walk なので経路上に毒があれば死亡する。
 func TestFindWalkDiesOnPoison(t *testing.T) {
 	stage := newStage([]string{

@@ -93,26 +93,26 @@ func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage, enemies []Enemy
 
 	case input.CmdFindForward:
 		p.lastFind = &findCmd{isTill: false, forward: true, ch: ch}
-		p.applyFind(ch, true, false, stage, enemies)
+		p.applyFind(ch, true, false, p.repeatCount(), stage, enemies)
 	case input.CmdFindBack:
 		p.lastFind = &findCmd{isTill: false, forward: false, ch: ch}
-		p.applyFind(ch, false, false, stage, enemies)
+		p.applyFind(ch, false, false, p.repeatCount(), stage, enemies)
 	case input.CmdTillForward:
 		p.lastFind = &findCmd{isTill: true, forward: true, ch: ch}
-		p.applyFind(ch, true, true, stage, enemies)
+		p.applyFind(ch, true, true, p.repeatCount(), stage, enemies)
 	case input.CmdTillBack:
 		p.lastFind = &findCmd{isTill: true, forward: false, ch: ch}
-		p.applyFind(ch, false, true, stage, enemies)
+		p.applyFind(ch, false, true, p.repeatCount(), stage, enemies)
 
 	case input.CmdRepeatFind:
 		if p.lastFind != nil {
 			f := p.lastFind
-			p.applyFind(f.ch, f.forward, f.isTill, stage, enemies)
+			p.applyFind(f.ch, f.forward, f.isTill, p.repeatCount(), stage, enemies)
 		}
 	case input.CmdRepeatFindRev:
 		if p.lastFind != nil {
 			f := p.lastFind
-			p.applyFind(f.ch, !f.forward, f.isTill, stage, enemies)
+			p.applyFind(f.ch, !f.forward, f.isTill, p.repeatCount(), stage, enemies)
 		}
 	}
 
@@ -360,18 +360,23 @@ func charMatchesCell(ch rune, cell Cell) bool {
 
 // applyFind は f/F/t/T の検索・移動ロジックを実行する。
 // forward=true で右方向、isTill=true で1マス手前止まり（t/T 挙動）。
-func (p *Player) applyFind(ch rune, forward bool, isTill bool, stage *Stage, enemies []Enemy) {
+// count は何番目のマッチへ移動するかを指定する（3fo なら count=3）。
+func (p *Player) applyFind(ch rune, forward bool, isTill bool, count int, stage *Stage, enemies []Enemy) {
 	dx := 1
 	if !forward {
 		dx = -1
 	}
 
-	// 現在行で対象文字を検索
+	// 現在行で count 番目のマッチを検索
+	found := 0
 	targetX := -1
 	for x := p.X + dx; x >= 0 && x < stage.Grid.Width; x += dx {
 		if charMatchesCell(ch, stage.Grid.At(x, p.Y)) {
-			targetX = x
-			break
+			found++
+			if found == count {
+				targetX = x
+				break
+			}
 		}
 	}
 	if targetX == -1 {
