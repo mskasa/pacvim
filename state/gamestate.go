@@ -14,12 +14,13 @@ var ErrQuit = errors.New("quit")
 type GamePhase int
 
 const (
-	PhaseOpening  GamePhase = iota // 開幕画面（最初のキー入力待ち）
-	PhaseReady                     // 準備画面（ステージ開始前・ミス後）
-	PhasePlaying                   // プレイ中
-	PhaseDead                      // 死亡演出中（deadDuration フレーム後に PhaseReady へ遷移）
-	PhaseGameOver                  // ゲームオーバー
-	PhaseGameClear                 // 全ステージクリア
+	PhaseOpening     GamePhase = iota // 開幕画面（最初のキー入力待ち）
+	PhaseStageSelect                  // ステージセレクト画面
+	PhaseReady                        // 準備画面（ステージ開始前・ミス後）
+	PhasePlaying                      // プレイ中
+	PhaseDead                         // 死亡演出中（deadDuration フレーム後に PhaseReady へ遷移）
+	PhaseGameOver                     // ゲームオーバー
+	PhaseGameClear                    // 全ステージクリア
 )
 
 // deadDuration は PhaseDead の持続フレーム数（約1.5秒 @ TPS=60）。
@@ -27,14 +28,15 @@ const deadDuration = 90
 
 // GameState はゲーム全体の状態を保持する。
 type GameState struct {
-	Stages         []Stage
-	StageIdx       int
-	Player         *Player
-	Enemies        []Enemy
-	Life           int
-	EnemyTick      int
-	Phase          GamePhase
-	deadTimer      int  // PhaseDead の経過フレーム数
+	Stages          []Stage
+	StageIdx        int
+	StageSelectIdx  int  // ステージセレクト画面でのカーソル位置
+	Player          *Player
+	Enemies         []Enemy
+	Life            int
+	EnemyTick       int
+	Phase           GamePhase
+	deadTimer       int  // PhaseDead の経過フレーム数
 	RestrictedInput bool // 直前のフレームで封印コマンドが入力されたか
 }
 
@@ -110,7 +112,9 @@ func (gs *GameState) Update(cmd input.Command, ch rune) error {
 
 	switch gs.Phase {
 	case PhaseOpening:
-		gs.updateWaitKey(cmd, PhaseReady)
+		gs.updateWaitKey(cmd, PhaseStageSelect)
+	case PhaseStageSelect:
+		gs.updateStageSelect(cmd)
 	case PhaseReady:
 		gs.updateWaitKey(cmd, PhasePlaying)
 	case PhasePlaying:
@@ -119,6 +123,22 @@ func (gs *GameState) Update(cmd input.Command, ch rune) error {
 		gs.updateDead()
 	}
 	return nil
+}
+
+// updateStageSelect はステージセレクト画面の入力を処理する。
+// j/k でカーソル移動、l で選択して PhaseReady へ遷移する。
+func (gs *GameState) updateStageSelect(cmd input.Command) {
+	n := len(gs.Stages)
+	switch cmd {
+	case input.CmdMoveDown:
+		gs.StageSelectIdx = (gs.StageSelectIdx + 1) % n
+	case input.CmdMoveUp:
+		gs.StageSelectIdx = (gs.StageSelectIdx + n - 1) % n
+	case input.CmdConfirm:
+		gs.StageIdx = gs.StageSelectIdx
+		_ = gs.loadStage()
+		gs.Phase = PhaseReady
+	}
 }
 
 // updateDead は PhaseDead のフレームを進め、deadDuration 経過後に PhaseReady へ遷移する。

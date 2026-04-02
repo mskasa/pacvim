@@ -66,6 +66,8 @@ func (r *Renderer) Draw(screen *ebiten.Image, gs *state.GameState) {
 	case state.PhaseOpening:
 		r.drawGame(screen, gs)
 		r.drawOpeningOverlay(screen)
+	case state.PhaseStageSelect:
+		r.drawStageSelectOverlay(screen, gs)
 	case state.PhaseReady:
 		r.drawGame(screen, gs)
 		r.drawReadyOverlay(screen, gs)
@@ -187,6 +189,38 @@ func (r *Renderer) drawOpeningOverlay(screen *ebiten.Image) {
 	r.drawCharCentered(screen, "Learn Vim by playing Pac-Man!", cx, cy-10, colorHint)
 	r.drawCharCentered(screen, "Press any key to start", cx, cy+16, colorStatusText)
 	r.drawCharCentered(screen, "q: quit", cx, cy+36, colorHint)
+}
+
+func (r *Renderer) drawStageSelectOverlay(screen *ebiten.Image, gs *state.GameState) {
+	vector.FillRect(screen, 0, 0, ScreenWidth, ScreenHeight, colorBackground, false)
+	cx := ScreenWidth / 2
+
+	const lineH = 20
+	stages := gs.Stages
+	// title(1) + gap(1) + stages(N) + gap(1) + hint(1) + quit(1)
+	totalLines := 2 + len(stages) + 3
+	startY := (ScreenHeight - totalLines*lineH) / 2
+
+	y := startY
+	r.drawCharCentered(screen, "Stage Select", cx, y, colorTitle)
+	y += lineH * 2
+
+	for i, s := range stages {
+		cursor := "  "
+		clr := colorHint
+		if i == gs.StageSelectIdx {
+			cursor = "▶ "
+			clr = colorStatusText
+		}
+		line := fmt.Sprintf("%s%d. %s", cursor, s.Level, s.Theme)
+		r.drawCharCentered(screen, line, cx, y, clr)
+		y += lineH
+	}
+
+	y += lineH
+	r.drawCharCentered(screen, "j/k: move   Enter: select", cx, y, colorHint)
+	y += lineH
+	r.drawCharCentered(screen, "q: quit", cx, y, colorHint)
 }
 
 func (r *Renderer) drawReadyOverlay(screen *ebiten.Image, gs *state.GameState) {

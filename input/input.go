@@ -38,6 +38,7 @@ const (
 	CmdLow                  // L
 	CmdWordEndBack          // ge
 	CmdQuit                 // q
+	CmdConfirm              // Enter
 )
 
 // キーリピートのタイミング定数（TPS=60 基準）
@@ -184,6 +185,8 @@ func (h *Handler) Read() (Command, rune) {
 			return CmdRepeatFindRev, 0
 		case inpututil.IsKeyJustPressed(ebiten.KeyQ):
 			return CmdQuit, 0
+		case inpututil.IsKeyJustPressed(ebiten.KeyEnter):
+			return CmdConfirm, 0
 		}
 	}
 
