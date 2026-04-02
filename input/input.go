@@ -87,6 +87,12 @@ func (h *Handler) Read() (Command, rune) {
 			h.prevG = false
 			return CmdWordEndBack, 0
 		}
+		// G キーが Shift より 1 フレーム先に検出された場合、次フレームで
+		// Shift+G として判定できるよう IsKeyPressed で確認してフリーズを防ぐ。
+		if shift && ebiten.IsKeyPressed(ebiten.KeyG) {
+			h.prevG = false
+			return CmdFileBottom, 0
+		}
 		return CmdNone, 0
 	}
 
