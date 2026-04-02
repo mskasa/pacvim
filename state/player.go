@@ -349,11 +349,11 @@ func (p *Player) gotoLastLine(stage *Stage, enemies []Enemy) {
 func charMatchesCell(ch rune, cell Cell) bool {
 	switch ch {
 	case charApple: // 'o'
-		return cell.Kind == CellApple
+		return cell.Kind == CellApple || cell.Kind == CellAppleEaten
 	case charPoison: // 'X'
 		return cell.Kind == CellPoison
 	case ' ':
-		return cell.Kind == CellSpace || cell.Kind == CellAppleEaten
+		return cell.Kind == CellSpace
 	}
 	return false
 }
