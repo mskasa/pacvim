@@ -134,7 +134,7 @@ func (gs *GameState) updateStageSelect(cmd input.Command) {
 		gs.StageSelectIdx = (gs.StageSelectIdx + 1) % n
 	case input.CmdMoveUp:
 		gs.StageSelectIdx = (gs.StageSelectIdx + n - 1) % n
-	case input.CmdMoveRight:
+	case input.CmdConfirm:
 		gs.StageIdx = gs.StageSelectIdx
 		_ = gs.loadStage()
 		gs.Phase = PhaseReady

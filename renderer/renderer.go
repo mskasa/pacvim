@@ -218,7 +218,7 @@ func (r *Renderer) drawStageSelectOverlay(screen *ebiten.Image, gs *state.GameSt
 	}
 
 	y += lineH
-	r.drawCharCentered(screen, "j/k: move   l: select", cx, y, colorHint)
+	r.drawCharCentered(screen, "j/k: move   Enter: select", cx, y, colorHint)
 	y += lineH
 	r.drawCharCentered(screen, "q: quit", cx, y, colorHint)
 }

@@ -459,12 +459,12 @@ func TestStageSelectConfirm(t *testing.T) {
 	}
 	gs.Phase = PhaseStageSelect
 	gs.StageSelectIdx = 2 // 3面を選択
-	_ = gs.Update(input.CmdMoveRight, 0)
+	_ = gs.Update(input.CmdConfirm, 0)
 	if gs.Phase != PhaseReady {
-		t.Errorf("l: want PhaseReady, got %v", gs.Phase)
+		t.Errorf("Enter: want PhaseReady, got %v", gs.Phase)
 	}
 	if gs.StageIdx != 2 {
-		t.Errorf("l: want StageIdx=2, got %d", gs.StageIdx)
+		t.Errorf("Enter: want StageIdx=2, got %d", gs.StageIdx)
 	}
 }
 
