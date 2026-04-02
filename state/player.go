@@ -1,6 +1,10 @@
 package state
 
-import "github.com/masahiro-kasatani/pacvim/input"
+import (
+	"fmt"
+
+	"github.com/masahiro-kasatani/pacvim/input"
+)
 
 // PlayerState はプレイヤーの生死状態を表す。
 type PlayerState int
@@ -113,6 +117,14 @@ func (p *Player) Apply(cmd input.Command, ch rune, stage *Stage, enemies []Enemy
 	}
 
 	p.resetInput()
+}
+
+// InputNumDisplay はカウントプレフィックスの表示用文字列を返す。入力がなければ空文字。
+func (p *Player) InputNumDisplay() string {
+	if p.inputNum == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%d", p.inputNum)
 }
 
 // repeatCount はカウント入力の回数を返す。入力がなければ 1。
