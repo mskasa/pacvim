@@ -138,7 +138,8 @@ func (r *Renderer) drawLineNumbers(screen *ebiten.Image, grid *state.Grid) {
 	for y := 0; y < grid.Height; y++ {
 		_, sy := gridToScreen(0, y)
 		num := fmt.Sprintf("%2d", y+1)
-		r.drawChar(screen, num, 2, sy+TileSize/2+7, colorLineNum)
+		_, h := textv2.Measure(num, r.face, 0)
+		r.drawChar(screen, num, 2, sy+(TileSize-int(h))/2, colorLineNum)
 	}
 }
 
