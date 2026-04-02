@@ -191,6 +191,12 @@ func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
 	textY := statusBarY + (statusBarH-int(th))/2
 	r.drawChar(screen, text, 4, textY, colorStatusText)
 
+	// 入力中のキー列を中央に表示
+	if gs.InputBuffer != "" {
+		iw, _ := textv2.Measure(gs.InputBuffer, r.face, 0)
+		r.drawChar(screen, gs.InputBuffer, ScreenWidth/2-int(iw)/2, textY, colorStatusText)
+	}
+
 	if gs.RestrictedMsgFrames > 0 {
 		msg := "Command not available in this stage"
 		w, _ := textv2.Measure(msg, r.face, 0)

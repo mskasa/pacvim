@@ -58,6 +58,27 @@ type Handler struct {
 	repeatFrames int        // repeatKey を押し続けたフレーム数
 }
 
+// PendingDisplay は現在の入力待ち状態を表示用文字列で返す。
+// prevG モード中は "g"、awaitChar モード中は "f"/"F"/"t"/"T" を返す。
+func (h *Handler) PendingDisplay() string {
+	if h.prevG {
+		return "g"
+	}
+	if h.awaitChar {
+		switch h.pendingCmd {
+		case CmdFindForward:
+			return "f"
+		case CmdFindBack:
+			return "F"
+		case CmdTillForward:
+			return "t"
+		case CmdTillBack:
+			return "T"
+		}
+	}
+	return ""
+}
+
 // Read は1フレーム分のキー入力を読み取り、(Command, rune) を返す。
 // CmdNum のとき rune は押された数字文字（0〜9）。0 単独か数字蓄積中かの判断は state 側で行う。
 // CmdFindForward/Back/TillForward/Back のとき rune は対象文字。

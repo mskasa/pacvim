@@ -35,9 +35,10 @@ type GameState struct {
 	Enemies         []Enemy
 	Life            int
 	EnemyTick       int
-	Phase           GamePhase
-	deadTimer       int  // PhaseDead の経過フレーム数
+	Phase               GamePhase
+	deadTimer           int // PhaseDead の経過フレーム数
 	RestrictedMsgFrames int // 封印コマンドのフィードバックメッセージの残り表示フレーム数
+	InputBuffer         string // ステータスバーに表示する入力中のキー列
 }
 
 // NewGameState は初期状態の GameState を生成する。

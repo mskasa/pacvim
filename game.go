@@ -51,6 +51,11 @@ func (g *Game) Update() error {
 		}
 	}
 
+	// 入力中のキー列をステータスバー表示用に更新する
+	if g.gs.Player != nil {
+		g.gs.InputBuffer = g.gs.Player.InputNumDisplay() + g.in.PendingDisplay()
+	}
+
 	return nil
 }
 
