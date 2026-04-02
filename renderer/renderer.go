@@ -10,19 +10,21 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	textv2 "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/font/gofont/goregular"
+	"golang.org/x/image/font/opentype"
 
 	"github.com/masahiro-kasatani/pacvim/state"
 )
 
 const (
 	TileSize     = 32
-	OffsetX      = 48 // 行番号エリアの幅（ピクセル）
-	OffsetY      = 16 // 上部マージン
-	ScreenWidth  = OffsetX + 29*TileSize // 48 + 928 = 976
-	ScreenHeight = OffsetY + 15*TileSize + 28 // 16 + 480 + 28 = 524
+	OffsetX      = 56  // 行番号エリアの幅（ピクセル）
+	OffsetY      = 16  // 上部マージン
+	statusBarH   = 36  // ステータスバーの高さ
+	ScreenWidth  = OffsetX + 29*TileSize // 56 + 928 = 984
+	ScreenHeight = OffsetY + 15*TileSize + statusBarH // 16 + 480 + 36 = 532
 
-	statusBarY = ScreenHeight - 28
+	statusBarY = ScreenHeight - statusBarH
 )
 
 // 色定義
@@ -51,8 +53,19 @@ func New() (*Renderer, error) {
 	if err != nil {
 		return nil, err
 	}
+	tt, err := opentype.Parse(goregular.TTF)
+	if err != nil {
+		return nil, err
+	}
+	fontFace, err := opentype.NewFace(tt, &opentype.FaceOptions{
+		Size: 20,
+		DPI:  72,
+	})
+	if err != nil {
+		return nil, err
+	}
 	return &Renderer{
-		face:   textv2.NewGoXFace(basicfont.Face7x13),
+		face:   textv2.NewGoXFace(fontFace),
 		sheets: ss,
 	}, nil
 }
@@ -125,7 +138,7 @@ func (r *Renderer) drawLineNumbers(screen *ebiten.Image, grid *state.Grid) {
 	for y := 0; y < grid.Height; y++ {
 		_, sy := gridToScreen(0, y)
 		num := fmt.Sprintf("%2d", y+1)
-		r.drawChar(screen, num, 2, sy+TileSize/2+4, colorLineNum)
+		r.drawChar(screen, num, 2, sy+TileSize/2+7, colorLineNum)
 	}
 }
 
@@ -173,12 +186,12 @@ func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
 	stage := gs.Stage()
 	text := fmt.Sprintf("  Level: %d    Score: %d/%d    Life: %d",
 		stage.Level, gs.Player.Score, gs.Player.TargetScore, gs.Life)
-	r.drawChar(screen, text, 4, statusBarY+15, colorStatusText)
+	r.drawChar(screen, text, 4, statusBarY+24, colorStatusText)
 
 	if gs.RestrictedMsgFrames > 0 {
 		msg := "Command not available in this stage"
 		w, _ := textv2.Measure(msg, r.face, 0)
-		r.drawChar(screen, msg, ScreenWidth-int(w)-8, statusBarY+15, colorTitle)
+		r.drawChar(screen, msg, ScreenWidth-int(w)-8, statusBarY+24, colorTitle)
 	}
 }
 
