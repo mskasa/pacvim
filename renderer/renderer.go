@@ -187,12 +187,14 @@ func (r *Renderer) drawStatusBar(screen *ebiten.Image, gs *state.GameState) {
 	stage := gs.Stage()
 	text := fmt.Sprintf("  Level: %d    Score: %d/%d    Life: %d",
 		stage.Level, gs.Player.Score, gs.Player.TargetScore, gs.Life)
-	r.drawChar(screen, text, 4, statusBarY+28, colorStatusText)
+	_, th := textv2.Measure(text, r.face, 0)
+	textY := statusBarY + (statusBarH-int(th))/2
+	r.drawChar(screen, text, 4, textY, colorStatusText)
 
 	if gs.RestrictedMsgFrames > 0 {
 		msg := "Command not available in this stage"
 		w, _ := textv2.Measure(msg, r.face, 0)
-		r.drawChar(screen, msg, ScreenWidth-int(w)-8, statusBarY+28, colorTitle)
+		r.drawChar(screen, msg, ScreenWidth-int(w)-8, textY, colorTitle)
 	}
 }
 
