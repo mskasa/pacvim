@@ -643,6 +643,7 @@ make wasm         # WebAssembly ビルド（docs/wasm/ に出力）
 ### Phase 3：機能拡張
 
 - [x] `f F t T ; ,` コマンド
-- [ ] ステージごとの使用可能コマンド制限
-- [ ] スプライト画像・SE
+- [x] ステージごとの使用可能コマンド制限
+- [x] スプライト画像
+- [ ] SE
 - [ ] WebAssembly 配布
